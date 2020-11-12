@@ -42,6 +42,10 @@ include "connect.php";
 </head>
 <body>
 <div class="Background">
+    <div class="" id="taalknop"
+    <?php print("taalknop");
+    ?>
+         </div>
     <div class="row" id="Header">
         <div class="col-2"><a href="./" id="LogoA">
                 <div id="LogoImage"></div>
