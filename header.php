@@ -42,10 +42,24 @@ include "connect.php";
 </head>
 <body>
 <div class="Background">
-    <div class="" id="taalknop"
-    <?php print("taalknop");
-    ?>
-         </div>
+    <div class="taalknopclass" id="taalknop">
+        <form name="taalselectie" action=""></form>
+        <table style="width: 400px">
+            <tr>
+                <th>
+         Wijzig taal:</th><th> <select name="taalkeuze dropdown">
+            <option value="Nederlands">Nederlands</option>
+            <option value="Duits">Duits</option>
+            <option value="Frans">Frans</option>
+            <option value="Engels">Engels</option>
+            <option value="Japans">Japans</option>
+            <option value="Russisch">Russisch</option>
+                    </select> </th><th>
+        <input type="submit" name="taalwijzigknop" value="kies">
+            </th></tr>
+        </table>
+        </form>
+    </div>
     <div class="row" id="Header">
         <div class="col-2"><a href="./" id="LogoA">
                 <div id="LogoImage"></div>
