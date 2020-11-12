@@ -43,6 +43,8 @@ if ($R) {
 }
 ?>
 
+<script src="LiveTemp.js"></script>
+
 <div id="CenteredContent">
     <?php
     if ($Result != null) {
@@ -115,7 +117,7 @@ if ($R) {
             </h2>
             <ul class="ItemProperties">
                 <li class="QuantityText"><?php print $Result['QuantityOnHand']; ?></li>
-                <li class="TemperatureText">Opslagtemperatuur: 70°C</li>
+                <li class="TemperatureText">Opslagtemperatuur: <span id="TemperatureValue">0</span>°C</li>
             </ul>
 
             <div id="StockItemHeaderLeft">
