@@ -1,8 +1,8 @@
 <?php
-require_once './vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // Load .env variables
-$dotenv = Dotenv\Dotenv::createMutable(__DIR__);
+$dotenv = Dotenv\Dotenv::createMutable(__DIR__ . '/../');
 $dotenv->load();
 
 $connection = mysqli_connect($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_NAME']);
