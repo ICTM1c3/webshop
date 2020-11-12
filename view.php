@@ -42,6 +42,7 @@ if ($R) {
     $Images = $R;
 }
 ?>
+
 <div id="CenteredContent">
     <?php
     if ($Result != null) {
@@ -128,7 +129,7 @@ if ($R) {
             <p><?php print $Result['SearchDetails']; ?></p>
         </div>
         <div id="StockItemSpecifications">
-            <h3>Artikel specificaties</h3>
+            <h3>Specificaties</h3>
             <?php
             $CustomFields = json_decode($Result['CustomFields'], true);
             if (is_array($CustomFields)) { ?>
