@@ -145,5 +145,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/macos,windows,phpstorm
-.idea/dataSources.xml
-.idea/sqldialects.xml
+.idea/
+
+/vendor/
+.env

@@ -1,5 +1,6 @@
 <?php
-include __DIR__ . "/header.php";
+include 'header.php';
+
 $SearchString = "";
 $ReturnableResult = null;
 if (isset($_GET['search_string'])) {
@@ -103,7 +104,7 @@ if ($CategoryID == "") {
                 LIMIT ?  OFFSET ?";
 
 
-    $Statement = mysqli_prepare($Connection, $Query);
+    $Statement = mysqli_prepare($connection, $Query);
     mysqli_stmt_bind_param($Statement, "iii", $ShowStockLevel, $ProductsOnPage, $Offset);
     mysqli_stmt_execute($Statement);
     $ReturnableResult = mysqli_stmt_get_result($Statement);
@@ -113,7 +114,7 @@ if ($CategoryID == "") {
             SELECT count(*)
             FROM stockitems SI
             $queryBuildResult";
-    $Statement = mysqli_prepare($Connection, $Query);
+    $Statement = mysqli_prepare($connection, $Query);
     mysqli_stmt_execute($Statement);
     $Result = mysqli_stmt_get_result($Statement);
     $Result = mysqli_fetch_all($Result, MYSQLI_ASSOC);
@@ -138,7 +139,7 @@ if ($CategoryID == "") {
                 ORDER BY " . $Sort . " 
                 LIMIT ? OFFSET ?";
 
-    $Statement = mysqli_prepare($Connection, $Query);
+    $Statement = mysqli_prepare($connection, $Query);
     mysqli_stmt_bind_param($Statement, "iiii", $ShowStockLevel, $CategoryID, $ProductsOnPage, $Offset);
     mysqli_stmt_execute($Statement);
     $ReturnableResult = mysqli_stmt_get_result($Statement);
@@ -148,7 +149,7 @@ if ($CategoryID == "") {
                 SELECT count(*)
                 FROM stockitems SI 
                 WHERE " . $queryBuildResult . " ? IN (SELECT SS.StockGroupID from stockitemstockgroups SS WHERE SS.StockItemID = SI.StockItemID)";
-    $Statement = mysqli_prepare($Connection, $Query);
+    $Statement = mysqli_prepare($connection, $Query);
     mysqli_stmt_bind_param($Statement, "i", $CategoryID);
     mysqli_stmt_execute($Statement);
     $Result = mysqli_stmt_get_result($Statement);
