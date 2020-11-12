@@ -113,7 +113,11 @@ if ($R) {
             <h2 class="StockItemNameViewSize StockItemName">
                 <?php print $Result['StockItemName']; ?>
             </h2>
-            <div class="QuantityText"><?php print $Result['QuantityOnHand']; ?></div>
+            <ul class="ItemProperties">
+                <li class="QuantityText"><?php print $Result['QuantityOnHand']; ?></li>
+                <li class="TemperatureText">Opslagtemperatuur: 70°C</li>
+            </ul>
+
             <div id="StockItemHeaderLeft">
                 <div class="CenterPriceLeft">
                     <div class="CenterPriceLeftChild">

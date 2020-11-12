@@ -168,11 +168,19 @@ ul#ul-class-navigation li {
     float: left;
     margin-right: 10px;
 }
-.QuantityText {
+.ItemProperties {
     position: absolute;
     left: 310px;
+    padding: 0px;
+    margin: 0px;
     bottom: 0;
 }
+.ItemProperties li {
+    display: inline;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
 #StockItemHeaderLeft {
     float: right;
     text-align: right;
