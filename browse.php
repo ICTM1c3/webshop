@@ -100,6 +100,8 @@ if($ColorID != ""){
 } else {
     $ColorID = 1;
 }
+if($SearchString == "")
+    $colors = "WHERE";
 
 $Offset = $PageNumber * $ProductsOnPage;
 
@@ -119,7 +121,7 @@ if ($CategoryID == "") {
                 FROM stockitems SI
                 JOIN stockitemholdings SIH USING(stockitemid)
                 " . $queryBuildResult . "
-                WHERE ? ".$colorsub."
+                ".$colors." ? ".$colorsub."
                 GROUP BY StockItemID
                 ORDER BY " . $Sort . " 
                 LIMIT ?  OFFSET ?";
