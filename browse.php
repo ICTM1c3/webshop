@@ -22,6 +22,12 @@ if (isset($_GET['color_id'])) {
     $ColorID = "";
 }
 
+if (isset($_GET['size'])) {
+    $Size = $_GET['size'];
+}else{
+    $Size = "";
+}
+
 if (isset($_GET['sort'])) {
     $SortOnPage = $_GET['sort'];
     $_SESSION["sort"] = $_GET['sort'];
@@ -101,14 +107,16 @@ if($ColorID != ""){
     $ColorID = 1;
 }
 if($SearchString == "")
-    $colors = "WHERE";
+    $colors = "WHERE ";
 
 $Offset = $PageNumber * $ProductsOnPage;
 
 $ShowStockLevel = 1000;
+$queryBuildResult = "WHERE " . $queryBuildResult;
+
 if ($CategoryID == "") {
-    if ($queryBuildResult != "") {
-        $queryBuildResult = "WHERE " . $queryBuildResult;
+    if($SearchString ==""){
+        $queryBuildResult = "";
     }
 
     $Query = "
@@ -142,6 +150,12 @@ if ($CategoryID == "") {
     $Result = mysqli_stmt_get_result($Statement);
     $Result = mysqli_fetch_all($Result, MYSQLI_ASSOC);
 } else {
+    $hasSearch = "";
+    if($SearchString != ""){
+        $hasSearch = "IN (SELECT StockGroupID from stockitemstockgroups WHERE StockItemID = SI.StockItemID)";
+    } else {
+        $queryBuildResult = "";
+    }
 
     if ($queryBuildResult != "") {
         $queryBuildResult = "(".$queryBuildResult.")";
@@ -158,7 +172,7 @@ if ($CategoryID == "") {
                 JOIN stockitemholdings SIH USING(stockitemid)
                 JOIN stockitemstockgroups USING(StockItemID)
                 JOIN stockgroups ON stockitemstockgroups.StockGroupID = stockgroups.StockGroupID
-                WHERE " . $queryBuildResult . " ? IN (SELECT StockGroupID from stockitemstockgroups WHERE StockItemID = SI.StockItemID)
+                " . $queryBuildResult . " ? ".$hasSearch."
                 ".$colors." ? ".$colorsub."
                 GROUP BY StockItemID
                 ORDER BY " . $Sort . " 
@@ -198,6 +212,24 @@ $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_execute($Statement);
 $colors = mysqli_stmt_get_result($Statement);
 $colors = mysqli_fetch_all($colors, MYSQLI_ASSOC);
+
+$sizewhere = "where s.stockitemid in (select stockitemid from stockitemstockgroups where stockgroupid = ".$CategoryID.")";
+if($CategoryID == "")
+    $sizewhere = "";
+
+$Query = "select distinct sa.size from stockitems_archive sa 
+            join stockitems s on sa.stockitemid = s.stockitemid
+            ".$sizewhere;
+$Statement = mysqli_prepare($connection, $Query);
+mysqli_stmt_execute($Statement);
+$sizes = mysqli_stmt_get_result($Statement);
+$sizes = mysqli_fetch_all($sizes, MYSQLI_ASSOC);
+
+//$sizes_ = array();
+//for($i = 0; $i < count($sizes); $i++)
+//    if($sizes)
+
+
 ?>
 
     <div id="FilterFrame"><h2 class="FilterText"><i class="fas fa-filter"></i> Filteren </h2>
@@ -242,6 +274,29 @@ $colors = mysqli_fetch_all($colors, MYSQLI_ASSOC);
 
                         print('
                     <option value="' .$colors[$i]["colorid"]. '"'.$selected.'>'.$colors[$i]["colorname"].'
+                    </option>
+                    ');
+                    }
+                    ?>
+                </select>
+
+                <h4 class="FilterTopMargin"><i class="fas fa-sort"></i> Maat</h4>
+
+                <select name="size" id="size" onchange="this.form.submit()">>
+                    <option value="">Alle
+                    </option>
+
+                    <?php
+                    for($i = 0; $i < count($sizes); $i++){
+                        $selected = "";
+                        if($sizes[$i]["size"] == null)
+                            continue;
+
+                        if($sizes[$i]["size"] == $Size)
+                            $selected = "selected";
+
+                        print('
+                    <option value="' .$sizes[$i]["size"]. '"'.$selected.'>'.$sizes[$i]["size"].'
                     </option>
                     ');
                     }
