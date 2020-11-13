@@ -28,9 +28,9 @@ if ($ReturnableResult && mysqli_num_rows($ReturnableResult) == 1) {
 }
 //Get Images
 $Query = "
-                SELECT ImagePath
-                FROM stockitemimages 
-                WHERE StockItemID = ?";
+            SELECT ImagePath
+            FROM stockitemimages 
+            WHERE StockItemID = ?";
 
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_bind_param($Statement, "i", $_GET['id']);
@@ -42,8 +42,6 @@ if ($R) {
     $Images = $R;
 }
 ?>
-
-<script src="LiveTemp.js"></script>
 
 <div id="CenteredContent">
     <?php
