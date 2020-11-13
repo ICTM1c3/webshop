@@ -7,13 +7,12 @@ if (isset($_GET['search_string'])) {
     $SearchString = $_GET['search_string'];
 }
 
+$CategoryID = "";
 if (isset($_GET['categoryfilter'])) {
     $CategoryID = $_GET['categoryfilter'];
 }
 else if (isset($_GET['category_id'])) {
     $CategoryID = $_GET['category_id'];
-}else{
-    $CategoryID = "";
 }
 
 if (isset($_GET['color_id'])) {
@@ -96,31 +95,31 @@ if ($SearchString != "") {
     if ($SearchString != "" || $SearchString != null) {
         $queryBuildResult .= "SI.StockItemID ='$SearchString'";
     }
+} else
+    $queryBuildResult = "true";
 
+$subCat = "-1 = -1";
+if($CategoryID != ""){
+    $subCat = " IN (SELECT StockGroupID from stockitemstockgroups WHERE StockItemID = SI.StockItemID)";
 }
 
-$colors = "AND";
-$colorsub =  " = 1";
+$colorsub =  "-1 = -1";
 if($ColorID != ""){
     $colorsub = "IN (SELECT colorid from stockitems s WHERE s.StockItemID = SI.StockItemID)";
-} else {
-    $ColorID = 1;
 }
-if($SearchString == "")
-    $colors = "WHERE ";
+
+$sizesub = "-1 = -1";
+if($Size != ""){
+    //$sizesub = "SI.StockItemID in (SELECT s.stockitemid from stockitems s where s.size = ";
+    $sizesub  = "IN (SELECT size from stockitems s WHERE s.StockItemID = SI.StockItemID)";
+}
 
 $Offset = $PageNumber * $ProductsOnPage;
 
 $ShowStockLevel = 1000;
-$queryBuildResult = "WHERE " . $queryBuildResult;
 
-if ($CategoryID == "") {
-    if($SearchString ==""){
-        $queryBuildResult = "";
-    }
 
-    $Query = "
-                SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, ROUND(TaxRate * RecommendedRetailPrice / 100 + RecommendedRetailPrice,2) as SellPrice,
+$Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, ROUND(TaxRate * RecommendedRetailPrice / 100 + RecommendedRetailPrice,2) as SellPrice,
                 (CASE WHEN (SIH.QuantityOnHand) >= ? THEN 'Ruime voorraad beschikbaar.' ELSE CONCAT('Voorraad: ',QuantityOnHand) END) AS QuantityOnHand, 
                 (SELECT ImagePath
                 FROM stockitemimages 
@@ -128,75 +127,25 @@ if ($CategoryID == "") {
                 (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = SI.StockItemID LIMIT 1) as BackupImagePath
                 FROM stockitems SI
                 JOIN stockitemholdings SIH USING(stockitemid)
-                " . $queryBuildResult . "
-                ".$colors." ? ".$colorsub."
-                GROUP BY StockItemID
-                ORDER BY " . $Sort . " 
-                LIMIT ?  OFFSET ?";
-
-
-    $Statement = mysqli_prepare($connection, $Query);
-    mysqli_stmt_bind_param($Statement, "iiii", $ShowStockLevel, $ColorID, $ProductsOnPage, $Offset);
-    mysqli_stmt_execute($Statement);
-    $ReturnableResult = mysqli_stmt_get_result($Statement);
-    $ReturnableResult = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC);
-
-    $Query = "
-            SELECT count(*)
-            FROM stockitems SI
-            $queryBuildResult";
-    $Statement = mysqli_prepare($connection, $Query);
-    mysqli_stmt_execute($Statement);
-    $Result = mysqli_stmt_get_result($Statement);
-    $Result = mysqli_fetch_all($Result, MYSQLI_ASSOC);
-} else {
-    $hasSearch = "";
-    if($SearchString != ""){
-        $hasSearch = "IN (SELECT StockGroupID from stockitemstockgroups WHERE StockItemID = SI.StockItemID)";
-    } else {
-        $queryBuildResult = "";
-    }
-
-    if ($queryBuildResult != "") {
-        $queryBuildResult = "(".$queryBuildResult.")";
-        $queryBuildResult .= " AND ";
-    }
-
-    $Query = "
-                SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, 
-                ROUND(SI.TaxRate * SI.RecommendedRetailPrice / 100 + SI.RecommendedRetailPrice,2) as SellPrice, 
-                (CASE WHEN (SIH.QuantityOnHand) >= ? THEN 'Ruime voorraad beschikbaar.' ELSE CONCAT('Voorraad: ',QuantityOnHand) END) AS QuantityOnHand,
-                (SELECT ImagePath FROM stockitemimages WHERE StockItemID = SI.StockItemID LIMIT 1) as ImagePath,
-                (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = SI.StockItemID LIMIT 1) as BackupImagePath           
-                FROM stockitems SI 
-                JOIN stockitemholdings SIH USING(stockitemid)
-                JOIN stockitemstockgroups USING(StockItemID)
-                JOIN stockgroups ON stockitemstockgroups.StockGroupID = stockgroups.StockGroupID
-                " . $queryBuildResult . " ? ".$hasSearch."
-                ".$colors." ? ".$colorsub."
+                WHERE (" . $queryBuildResult . ") AND
+                 ? ".$subCat." AND
+                 ? ".$colorsub." AND
+                 ? ".$sizesub."
                 GROUP BY StockItemID
                 ORDER BY " . $Sort . " 
                 LIMIT ? OFFSET ?";
+var_dump($Query);
+$Statement = mysqli_prepare($connection, $Query);
+mysqli_stmt_bind_param($Statement, "iiisii", $ShowStockLevel, $CategoryID, $ColorID, $Size, $ProductsOnPage, $Offset);
+mysqli_stmt_execute($Statement);
+$ReturnableResult = mysqli_stmt_get_result($Statement);
+$ReturnableResult = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC);
 
-    $Statement = mysqli_prepare($connection, $Query);
-    mysqli_stmt_bind_param($Statement, "iiiii", $ShowStockLevel, $CategoryID, $ColorID, $ProductsOnPage, $Offset);
-    mysqli_stmt_execute($Statement);
-    $ReturnableResult = mysqli_stmt_get_result($Statement);
-    $ReturnableResult = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC);
-
-    $Query = "
-                SELECT count(*)
-                FROM stockitems SI 
-                WHERE " . $queryBuildResult . " ? IN (SELECT SS.StockGroupID from stockitemstockgroups SS WHERE SS.StockItemID = SI.StockItemID)";
-    $Statement = mysqli_prepare($connection, $Query);
-    mysqli_stmt_bind_param($Statement, "i", $CategoryID);
-    mysqli_stmt_execute($Statement);
-    $Result = mysqli_stmt_get_result($Statement);
-    $Result = mysqli_fetch_all($Result, MYSQLI_ASSOC);
-}
-$amount = $Result[0];
+$amount = 0;
+if($ReturnableResult != null)
+    $amount = count($ReturnableResult[0]);
 if (isset($amount)) {
-    $AmountOfPages = ceil($amount["count(*)"] / $ProductsOnPage);
+    $AmountOfPages = ceil($amount / $ProductsOnPage);
 }
 
 $Query = "SELECT Stockgroupid, stockgroupname FROM Stockgroups ORDER BY stockgroupid";
@@ -217,17 +166,13 @@ $sizewhere = "where s.stockitemid in (select stockitemid from stockitemstockgrou
 if($CategoryID == "")
     $sizewhere = "";
 
-$Query = "select distinct sa.size from stockitems_archive sa 
+$Query = "select distinct sa.size from stockitems sa 
             join stockitems s on sa.stockitemid = s.stockitemid
             ".$sizewhere;
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_execute($Statement);
 $sizes = mysqli_stmt_get_result($Statement);
 $sizes = mysqli_fetch_all($sizes, MYSQLI_ASSOC);
-
-//$sizes_ = array();
-//for($i = 0; $i < count($sizes); $i++)
-//    if($sizes)
 
 
 ?>
@@ -280,7 +225,7 @@ $sizes = mysqli_fetch_all($sizes, MYSQLI_ASSOC);
                     ?>
                 </select>
 
-                <h4 class="FilterTopMargin"><i class="fas fa-sort"></i> Maat</h4>
+                <h4 class="FilterTopMargin"><i class="fas fa-sort"></i> Grootte</h4>
 
                 <select name="size" id="size" onchange="this.form.submit()">>
                     <option value="">Alle
