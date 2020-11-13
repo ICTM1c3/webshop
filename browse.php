@@ -134,7 +134,7 @@ $Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, 
                 GROUP BY StockItemID
                 ORDER BY " . $Sort . " 
                 LIMIT ? OFFSET ?";
-var_dump($Query);
+//var_dump($Query);
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_bind_param($Statement, "iiisii", $ShowStockLevel, $CategoryID, $ColorID, $Size, $ProductsOnPage, $Offset);
 mysqli_stmt_execute($Statement);
