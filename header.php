@@ -1,6 +1,5 @@
 <?php
-session_start();
-include "connect.php";
+include 'config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en" style="background-color: rgb(35, 35, 47);">
@@ -67,7 +66,7 @@ include "connect.php";
         <div class="col-8" id="CategoriesBar">
             <ul id="ul-class">
                 <?php
-                $Query = "
+                $query = "
                 SELECT StockGroupID, StockGroupName, ImagePath
                 FROM stockgroups 
                 WHERE StockGroupID IN (
@@ -75,7 +74,7 @@ include "connect.php";
                                         FROM stockitemstockgroups
                                         ) AND ImagePath IS NOT NULL
                 ORDER BY StockGroupID ASC";
-                $Statement = mysqli_prepare($Connection, $Query);
+                $Statement = mysqli_prepare($connection, $query);
                 mysqli_stmt_execute($Statement);
                 $HeaderStockGroups = mysqli_stmt_get_result($Statement);
 

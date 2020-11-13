@@ -1,8 +1,7 @@
 <?php
-echo "test";
-$Connection = mysqli_connect("localhost", "root", "", "nerdygadgets");
-mysqli_set_charset($Connection, 'latin1');
-include __DIR__ . "/header.php";
+
+include 'header.php';
+
 
 $Query = " 
            SELECT SI.StockItemID, 
@@ -20,7 +19,7 @@ $Query = "
             GROUP BY StockItemID";
 
 $ShowStockLevel = 1000;
-$Statement = mysqli_prepare($Connection, $Query);
+$Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_bind_param($Statement, "i", $_GET['id']);
 mysqli_stmt_execute($Statement);
 $ReturnableResult = mysqli_stmt_get_result($Statement);
@@ -35,7 +34,7 @@ $Query = "
                 FROM stockitemimages 
                 WHERE StockItemID = ?";
 
-$Statement = mysqli_prepare($Connection, $Query);
+$Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_bind_param($Statement, "i", $_GET['id']);
 mysqli_stmt_execute($Statement);
 $R = mysqli_stmt_get_result($Statement);

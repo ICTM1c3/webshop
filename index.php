@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/header.php";
+include 'header.php';
 ?>
 <div class="IndexStyle">
     <div class="col-11">
@@ -9,16 +9,14 @@ include __DIR__ . "/header.php";
                     "The Gu" red shirt XML tag t-shirt (Black) M
                 </div>
                 <ul id="ul-class-price">
-
                     <li class="HomePagePrice">€30.95</li>
                 </ul>
-
+            </a>
         </div>
-        </a>
         <div class="HomePageStockItemPicture"></div>
     </div>
 </div>
 <?php
-include __DIR__ . "/footer.php";
+include 'footer.php';
 ?>
 
