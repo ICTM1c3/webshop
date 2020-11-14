@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . './config.php';
+include 'config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en" style="background-color: rgb(35, 35, 47);">
