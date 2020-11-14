@@ -2,6 +2,7 @@
     "name": "ward/ictm1c3",
     "type": "project",
     "require": {
-        "vlucas/phpdotenv": "^5.2"
+        "vlucas/phpdotenv": "^5.2",
+        "symfony/var-dumper": "^5.1"
     }
 }
