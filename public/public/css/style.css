@@ -236,7 +236,7 @@ ul#ul-class-navigation li {
     position: absolute;
 }
 #LogoImage {
-    background-image: url("../ProductIMGHighRes/NerdyGadgetsLogo.png");
+    background-image: url("../productimghighres/nerdygadgetslogo.png");
     width: 300px;
     height: 198px;
     margin: 0px;
@@ -286,7 +286,7 @@ ul#ul-class-price li {
     margin-left: 7%;
 }
 .HomePageStockItemPicture {
-    background-image: url("../ProductIMGHighRes/580b57fbd9996e24bc43bf55.png");
+    background-image: url("../productimghighres/580b57fbd9996e24bc43bf55.png");
     background-size: 100% 100%;
     width: 477px;
     height: 477px;
