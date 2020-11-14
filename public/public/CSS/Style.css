@@ -75,7 +75,7 @@ ul#ul-class-navigation li {
     text-decoration-color: currentcolor;
 }
 #Header {
-    position: fixed;
+    /*position: fixed;*/
     top:0;
     background-color: rgb(35, 35, 47);
     width: 100%;
