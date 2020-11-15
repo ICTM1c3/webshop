@@ -473,3 +473,28 @@ ul#ul-class-price li {
     border: 1px rgb(98, 158, 255) solid;
     color: #fff;
 }
+
+.homepaginaproducten{
+ margin-left: 10%;
+}
+
+.homepaginatitel{
+    color: #fff;
+    font-family: vortice-concept, sans-serif;
+    font-size:  30px;
+    text-transform: uppercase;
+    width: 50%;
+    margin-left: 10%;
+}
+
+.bottomelement{
+
+}
+
+.frontpageimages{
+    width: 300px;
+    height: 300px;
+    background-color: rgb(36, 41, 143);
+    float: left;
+    margin-right: 10px;
+}
