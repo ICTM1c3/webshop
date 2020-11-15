@@ -2,7 +2,7 @@
 ob_start();
 include 'header.php';
 
-if (!isset($_SESSION['user_id']) || (isset($_SESSION['user_id']) && empty($_SESSION['user_id']))) {
+if (!$authenticated) {
     header("Location: login.php");
     exit();
 }

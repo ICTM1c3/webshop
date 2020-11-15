@@ -85,6 +85,35 @@ include 'config.php';
                     </div>
                 </li>
             </ul>
+            <ul class="navbar-nav ml-auto">
+                <?php
+                if($authenticated) {
+                    ?>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Welkom, <?= $user['name'] ?>!
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="/orders.php">Mijn bestellingen</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/logout.php">Uitloggen</a>
+                        </div>
+                    </li>
+                    <?php
+                } else {
+                    ?>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/login.php">Inloggen</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/register.php">Registeren</a>
+                    </li>
+                    <?php
+                }
+                ?>
+            </ul>
         </div>
     </div>
 </nav>

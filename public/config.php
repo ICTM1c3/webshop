@@ -13,6 +13,13 @@ mysqli_set_charset($connection, 'latin1');
 
 $status = session_status();
 
-if($status == PHP_SESSION_NONE){
+if($status == PHP_SESSION_NONE) {
     session_start();
+}
+
+$authenticated = false;
+
+if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
+    $authenticated = true;
+    $user = $_SESSION['user'];
 }

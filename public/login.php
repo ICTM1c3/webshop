@@ -2,7 +2,7 @@
 ob_start();
 include 'header.php';
 
-if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+if ($authenticated) {
     header("Location: customer.php");
     exit();
 }
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else $errors[] = "Het wachtwoord veld is verplicht.";
 
     if (count($errors) === 0) {
-        $stmt = $connection->prepare("SELECT PersonId,HashedPassword FROM people WHERE LogonName = ? AND LogonName != 'NO LOGON' AND IsPermittedToLogon = 1");
+        $stmt = $connection->prepare("SELECT PersonId, FullName, HashedPassword FROM people WHERE LogonName = ? AND LogonName != 'NO LOGON' AND IsPermittedToLogon = 1");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
@@ -29,7 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hash = $result['HashedPassword'] ?? false;
 
         if ($hash === strtoupper($password)) {
-            $_SESSION['user_id'] = $result['PersonId'];
+            $_SESSION['user'] = [
+                    'id' => $result['PersonId'],
+                    'name' => $result['FullName'],
+            ];
             header("Location: /customer.php");
             exit();
         } else $errors[] = "De inloggegevens zijn onjuist.";
