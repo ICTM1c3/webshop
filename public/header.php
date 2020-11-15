@@ -4,22 +4,24 @@ include 'config.php';
 <!DOCTYPE html>
 <html lang="en" style="background-color: rgb(35, 35, 47);">
 <head>
-    <script src="public/js/fontawesome.js" crossorigin="anonymous"></script>
-    <script src="public/js/jquery.min.js"></script>
-    <script src="public/js/bootstrap.min.js"></script>
-    <script src="public/js/popper.min.js"></script>
-    <script src="public/js/resizer.js"></script>
-    <script src="public/js/jquery-3.4.1.js"></script>
-    <style>
-        @font-face {
-            font-family: MmrText;
-            src: url(/public/fonts/mmrtext.ttf);
-        }
-    </style>
     <meta charset="ISO-8859-1">
     <title>NerdyGadgets</title>
+
+    <!-- CSS -->
     <link rel="stylesheet" href="public/css/style.css" type="text/css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <link rel="stylesheet" href="public/css/new.css" type="text/css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+          integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+            integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+            crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/c8d3158d87.js" crossorigin="anonymous"></script>
+
+    <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="57x57" href="public/favicon/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="public/favicon/apple-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="public/favicon/apple-icon-72x72.png">
@@ -39,48 +41,53 @@ include 'config.php';
     <meta name="theme-color" content="#ffffff">
 </head>
 <body>
-<div class="Background">
-    <div class="row" id="Header">
-        <div class="col-2"><a href="./" id="LogoA">
-                <div id="LogoImage"></div>
-            </a></div>
-        <div class="col-8" id="CategoriesBar">
-            <ul id="ul-class">
-                <?php
-                $query = "
-                SELECT StockGroupID, StockGroupName, ImagePath
-                FROM stockgroups 
-                WHERE StockGroupID IN (
-                                        SELECT StockGroupID 
-                                        FROM stockitemstockgroups
-                                        ) AND ImagePath IS NOT NULL
-                ORDER BY StockGroupID ASC";
-                $Statement = mysqli_prepare($connection, $query);
-                mysqli_stmt_execute($Statement);
-                $HeaderStockGroups = mysqli_stmt_get_result($Statement);
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <img src="/public/productimghighres/nerdygadgetslogo.png" loading="lazy">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-                foreach ($HeaderStockGroups as $HeaderStockGroup) {
-                    ?>
-                    <li>
-                        <a href="browse.php?category_id=<?php print $HeaderStockGroup['StockGroupID']; ?>"
-                           class="HrefDecoration"><?php print $HeaderStockGroup['StockGroupName']; ?></a>
-                    </li>
-                    <?php
-                }
-                ?>
-                <li>
-                    <a href="categories.php" class="HrefDecoration">Alle categorieën</a>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Categorieën
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/categories.php">Overzicht</a>
+                        <div class="dropdown-divider"></div>
+                        <?php
+                        $query = "
+                        SELECT StockGroupID, StockGroupName, ImagePath
+                        FROM stockgroups
+                        WHERE StockGroupID IN ( SELECT StockGroupID FROM stockitemstockgroups ) AND ImagePath IS NOT NULL
+                        ORDER BY StockGroupID ASC";
+                        $Statement = mysqli_prepare($connection, $query);
+                        mysqli_stmt_execute($Statement);
+                        $HeaderStockGroups = mysqli_stmt_get_result($Statement);
+
+                        foreach ($HeaderStockGroups as $HeaderStockGroup) {
+                            ?>
+                            <a class="dropdown-item"
+                               href="/browse.php?category_id=<?= $HeaderStockGroup['StockGroupID'] ?>"><?= $HeaderStockGroup['StockGroupName'] ?></a>
+                            <?php
+                        }
+                        ?>
+                    </div>
                 </li>
             </ul>
         </div>
-        <ul id="ul-class-navigation">
-            <li>
-                <a href="browse.php" class="HrefDecoration"><i class="fas fa-search" style="color:#676EFF;"></i> Zoeken</a>
-            </li>
-        </ul>
     </div>
-    <div class="row" id="Content">
-        <div class="col-12">
-            <div id="SubContent">
-
+</nav>
+<div>
+    <div class="container-fluid mt-3">
 

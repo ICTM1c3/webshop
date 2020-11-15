@@ -1,8 +1,9 @@
 {
-    "name": "ward/ictm1c3",
-    "type": "project",
-    "require": {
-        "vlucas/phpdotenv": "^5.2",
-        "symfony/var-dumper": "^5.1"
-    }
+  "name": "ward/ictm1c3",
+  "type": "project",
+  "require": {
+    "vlucas/phpdotenv": "^5.2",
+    "symfony/var-dumper": "^5.1",
+    "ext-mysqli": "*"
+  }
 }

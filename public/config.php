@@ -11,4 +11,8 @@ if ($connection === false) exit("<h2>Website wordt op dit moment onderhouden.</h
 
 mysqli_set_charset($connection, 'latin1');
 
-session_start();
+$status = session_status();
+
+if($status == PHP_SESSION_NONE){
+    session_start();
+}

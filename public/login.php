@@ -1,36 +1,63 @@
 <?php
+ob_start();
 include 'header.php';
 
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+    header("Location: customer.php");
+    exit();
+}
+
+$errors = [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? "";
-    $password = $_POST['password'] ?? "";
+    if (isset($_POST['email']) && !empty($_POST['email'])) {
+        $email = $_POST['email'];
+    } else $errors[] = "Het e-mailadres veld is verplicht.";
 
-    $query = "SELECT HashedPassword FROM people WHERE LogonName = ? AND LogonName != 'NO LOGON' AND IsPermittedToLogon = 1";
-    $statement = mysqli_prepare($connection, $query);
-    mysqli_stmt_bind_param($statement, "s", $email);
-    mysqli_stmt_execute($statement);
-    $result = mysqli_fetch_all(mysqli_stmt_get_result($statement), MYSQLI_ASSOC);
+    if (isset($_POST['password']) && !empty($_POST['password'])) {
+        $password = hash('sha256', $_POST['password']);
+    } else $errors[] = "Het wachtwoord veld is verplicht.";
 
-    $hash = $result['HashedPassword'] ?? false;
+    if (count($errors) === 0) {
+        $stmt = $connection->prepare("SELECT PersonId,HashedPassword FROM people WHERE LogonName = ? AND LogonName != 'NO LOGON' AND IsPermittedToLogon = 1");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $connection->close();
 
-    if (password_verify($hash, $password)) {
-        echo "Password valid!";
-    } else {
-        echo "Password invalid";
+        $hash = $result['HashedPassword'] ?? false;
+
+        if ($hash === strtoupper($password)) {
+            $_SESSION['user_id'] = $result['PersonId'];
+            header("Location: /customer.php");
+            exit();
+        } else $errors[] = "De inloggegevens zijn onjuist.";
     }
 }
 ?>
-<div>
+<div class="container">
     <form action="login.php" method="POST">
-        <label for="email">E-mailadres:
-            <input type="email" name="email" id="email">
-        </label>
+        <?php
+        foreach($errors as $key => $value) {
+            ?>
+            <div class="alert alert-danger"><?=$value?></div>
+            <?php
+        }
+        ?>
+        <div class="form-group">
+            <label for="email">E-mailadres:
+                <input type="email" name="email" id="email">
+            </label>
+        </div>
 
-        <label for="email">Wachtwoord:
-            <input type="password" name="password" id="password">
-        </label>
+        <div class="form-group">
+            <label for="email">Wachtwoord:
+                <input type="password" name="password" id="password">
+            </label>
+        </div>
 
-        <button type="submit">Login</button>
+        <button type="submit" class="btn btn-primary">Login</button>
     </form>
 </div>
 <?php
