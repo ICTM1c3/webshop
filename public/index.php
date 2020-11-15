@@ -10,8 +10,7 @@ $Query =  "
                 FROM stockitems SI 
                 JOIN stockitemholdings SIH USING(stockitemid)
                 JOIN stockitemstockgroups USING(StockItemID)
-                JOIN stockgroups ON stockitemstockgroups.StockGroupID = stockgroups.StockGroupID
-                GROUP BY StockItemID";
+                JOIN stockgroups ON stockitemstockgroups.StockGroupID = stockgroups.StockGroupID";
 
 // stop de query in een statement en voer die uit.
 // zodra de query is uitgevoerd sluit de connectie
