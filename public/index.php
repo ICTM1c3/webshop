@@ -59,7 +59,7 @@ mysqli_close($connection);
                             <br>
                             <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                             <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                            <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief btw</p>
+                            <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
                                 </td>
                     <?php $i++; }
                     }
@@ -98,7 +98,7 @@ mysqli_close($connection);
                                         <br>
                                         <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                                        <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief btw</p>
+                                        <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
                                 </td>
                                 <?php $i++; }
                         }
@@ -137,7 +137,7 @@ mysqli_close($connection);
                                         <br>
                                         <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                                        <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief btw</p>
+                                        <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
                                 </td>
                                 <?php $i++; }
                         }
@@ -149,14 +149,14 @@ mysqli_close($connection);
                         <td> <a href="browse.php?category_id=2"> bekijk de hele collectie</a> </td>
                         <tr></tr>
                         <tr></tr>
-                        <th> Alles wat je maar op het kantoor nodig zou kunnen hebben</th>
+                        <th> De coolste novelty items</th>
                         <tr></tr>
                         <?php
                         // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
                         $i =0;
                         foreach($ReturnableResult as $row) {
                             // als het product van de categorie is die ik op de pagina wil laten zien en als er minder dan 10 producten in rij staan, laat dan het product zien.
-                            if($row['StockGroupName'] === "Packaging Materials" && $i < 4){
+                            if($row['StockGroupName'] === "Novelty Items" && $i < 4){
                                 ?>
                                 <td>
                                     <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht ?>
@@ -176,7 +176,8 @@ mysqli_close($connection);
                                         <br>
                                         <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                                        <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief btw</p>
+                                        <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
+
                                 </td>
                                 <?php $i++; }
                         }
@@ -185,7 +186,7 @@ mysqli_close($connection);
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td> <a href="browse.php?category_id=2"> bekijk de hele collectie</a> </td>
+                        <td> <a href="browse.php?category_id=1"> bekijk de hele collectie</a> </td>
                         <tr></tr>
                     </table>
                     </div>
