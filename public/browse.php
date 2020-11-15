@@ -360,5 +360,5 @@ $sizes = mysqli_fetch_all($sizes, MYSQLI_ASSOC);
     </div>
 
 <?php
-include __DIR__ . "/footer.php";
+include 'footer.php';
 ?>
