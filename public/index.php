@@ -25,45 +25,46 @@ mysqli_close($connection);
 <div class="IndexStyle">
     <div class="col-11">
         <div><?php// de titel ?>
-                <div class="homepaginaproducten">
-                    <div class="homepaginatitel">
-                        welkom op de website van nerdy gadgets
-                        </div>
-                    <?php // de structuur van de hoofdpagina is gedaan via tabellen, zodat je makkelijk de elementen een plek kan geven op de site ?>
-                    <div style="margin-right: 200px">
+            <div class="homepaginaproducten">
+                <div class="homepaginatitel">
+                    welkom op de website van nerdy gadgets
+                </div>
+                <?php // de structuur van de hoofdpagina is gedaan via tabellen, zodat je makkelijk de elementen een plek kan geven op de site 
+                ?>
+                <div style="margin-right: 200px">
                     <table>
                         <th> De mode van dit seizoen</th>
                         <tr></tr>
-                    <?php
-                    // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
-                    $i =0;
-                    foreach($ReturnableResult as $row) {
-                        // als het product van de categorie is die ik op de pagina wil laten zien en als er minder dan 10 producten in rij staan, laat dan het product zien.
-                        if($row['StockGroupName'] === "Clothing" && $i < 4){
+                        <?php
+                        // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
+                        $i = 0;
+                        foreach ($ReturnableResult as $row) {
+                            // als het product van de categorie is die ik op de pagina wil laten zien en als er minder dan 10 producten in rij staan, laat dan het product zien.
+                            if ($row['StockGroupName'] === "Clothing" && $i < 4) {
                         ?>
                                 <td>
-                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht ?>
-                        <a class="ListItem" href='view.php?id=<?php print $row['StockItemID']; ?>'>
-                           <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
-                           if ($row['ImagePath'] != "") { ?>
-                            <div class="ImgFrame"
-                                 style="background-image: url('<?php print "public/stockitemimg/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
-                            <?php } else if (isset($row['BackupImagePath'])) { ?>
-                                <div class="ImgFrame"
-                                     style="background-image: url('<?php print "public/stockgroupimg/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
-                            <?php }
-                            ?>
-                            <br>
-                            <br>
-                            <br>
-                            <br>
-                            <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
-                            <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                            <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
+                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht 
+                                    ?>
+                                    <a class="ListItem" href='view.php?id=<?php print $row['StockItemID']; ?>'>
+                                        <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
+                                        if ($row['ImagePath'] != "") { ?>
+                                            <div class="ImgFrame" style="background-image: url('<?php print "public/stockitemimg/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
+                                        <?php } else if (isset($row['BackupImagePath'])) { ?>
+                                            <div class="ImgFrame" style="background-image: url('<?php print "public/stockgroupimg/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
+                                        <?php }
+                                        ?>
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
+                                        <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
+                                        <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
                                 </td>
-                    <?php $i++; }
-                    }
-                    ?>
+                        <?php $i++;
+                            }
+                        }
+                        ?>
                         <tr></tr>
                         <td></td>
                         <td></td>
@@ -75,21 +76,20 @@ mysqli_close($connection);
                         <tr></tr>
                         <?php
                         // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
-                        $i =0;
-                        foreach($ReturnableResult as $row) {
+                        $i = 0;
+                        foreach ($ReturnableResult as $row) {
                             // als het product van de categorie is die ik op de pagina wil laten zien en als er minder dan 10 producten in rij staan, laat dan het product zien.
-                            if($row['StockGroupName'] === "Toys" && $i < 4){
-                                ?>
+                            if ($row['StockGroupName'] === "Toys" && $i < 4) {
+                        ?>
                                 <td>
-                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht ?>
+                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht 
+                                    ?>
                                     <a class="ListItem" href='view.php?id=<?php print $row['StockItemID']; ?>'>
                                         <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
                                         if ($row['ImagePath'] != "") { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "public/stockitemimg/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
+                                            <div class="ImgFrame" style="background-image: url('<?php print "public/stockitemimg/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
                                         <?php } else if (isset($row['BackupImagePath'])) { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "public/stockgroupimg/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
+                                            <div class="ImgFrame" style="background-image: url('<?php print "public/stockgroupimg/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                                         <?php }
                                         ?>
                                         <br>
@@ -100,7 +100,8 @@ mysqli_close($connection);
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
                                         <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
                                 </td>
-                                <?php $i++; }
+                        <?php $i++;
+                            }
                         }
                         ?>
                         <tr></tr>
@@ -114,21 +115,20 @@ mysqli_close($connection);
                         <tr></tr>
                         <?php
                         // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
-                        $i =0;
-                        foreach($ReturnableResult as $row) {
+                        $i = 0;
+                        foreach ($ReturnableResult as $row) {
                             // als het product van de categorie is die ik op de pagina wil laten zien en als er minder dan 10 producten in rij staan, laat dan het product zien.
-                            if($row['StockGroupName'] === "Computing Novelties" && $i < 4){
-                                ?>
+                            if ($row['StockGroupName'] === "Computing Novelties" && $i < 4) {
+                        ?>
                                 <td>
-                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht ?>
+                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht 
+                                    ?>
                                     <a class="ListItem" href='view.php?id=<?php print $row['StockItemID']; ?>'>
                                         <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
                                         if ($row['ImagePath'] != "") { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "Public/StockItemIMG/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
+                                            <div class="ImgFrame" style="background-image: url('<?php print "Public/StockItemIMG/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
                                         <?php } else if (isset($row['BackupImagePath'])) { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "Public/StockGroupIMG/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
+                                            <div class="ImgFrame" style="background-image: url('<?php print "Public/StockGroupIMG/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                                         <?php }
                                         ?>
                                         <br>
@@ -139,7 +139,8 @@ mysqli_close($connection);
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
                                         <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
                                 </td>
-                                <?php $i++; }
+                        <?php $i++;
+                            }
                         }
                         ?>
                         <tr></tr>
@@ -153,21 +154,20 @@ mysqli_close($connection);
                         <tr></tr>
                         <?php
                         // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
-                        $i =0;
-                        foreach($ReturnableResult as $row) {
+                        $i = 0;
+                        foreach ($ReturnableResult as $row) {
                             // als het product van de categorie is die ik op de pagina wil laten zien en als er minder dan 10 producten in rij staan, laat dan het product zien.
-                            if($row['StockGroupName'] === "Novelty Items" && $i < 4){
-                                ?>
+                            if ($row['StockGroupName'] === "Novelty Items" && $i < 4) {
+                        ?>
                                 <td>
-                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht ?>
+                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht 
+                                    ?>
                                     <a class="ListItem" href='view.php?id=<?php print $row['StockItemID']; ?>'>
                                         <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
                                         if ($row['ImagePath'] != "") { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "Public/StockItemIMG/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
+                                            <div class="ImgFrame" style="background-image: url('<?php print "Public/StockItemIMG/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
                                         <?php } else if (isset($row['BackupImagePath'])) { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "Public/StockGroupIMG/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
+                                            <div class="ImgFrame" style="background-image: url('<?php print "Public/StockGroupIMG/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                                         <?php }
                                         ?>
                                         <br>
@@ -179,7 +179,8 @@ mysqli_close($connection);
                                         <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
 
                                 </td>
-                                <?php $i++; }
+                        <?php $i++;
+                            }
                         }
                         ?>
                         <tr></tr>
@@ -189,11 +190,10 @@ mysqli_close($connection);
                         <td> <a href="browse.php?category_id=1"> bekijk de hele collectie</a> </td>
                         <tr></tr>
                     </table>
-                    </div>
                 </div>
+            </div>
         </div>
-</div>
-<?php
-include 'footer.php';
-?>
-
+    </div>
+    <?php
+    include 'footer.php';
+    ?>
