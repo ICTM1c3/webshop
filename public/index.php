@@ -19,6 +19,7 @@ mysqli_stmt_execute($Statement);
 $ReturnableResult = mysqli_stmt_get_result($Statement);
 $ReturnableResult = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC);
 mysqli_close($connection);
+
 //de code van de hoofdpagina
 ?>
 <div class="IndexStyle">
@@ -26,13 +27,13 @@ mysqli_close($connection);
         <div><?php// de titel ?>
             <div class="homepaginaproducten">
                 <div class="homepaginatitel">
-                    welkom op de website van nerdy gadgets
+                    Welkom op de website van NerdyGadgets
                 </div>
                 <?php // de structuur van de hoofdpagina is gedaan via tabellen, zodat je makkelijk de elementen een plek kan geven op de site 
                 ?>
                 <div style="margin-right: 200px">
                     <table>
-                        <th> De mode van dit seizoen</th>
+                        <th> De mode van dit seizoen:</th>
                         <tr></tr>
                         <?php
                         // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
@@ -52,10 +53,6 @@ mysqli_close($connection);
                                             <div class="ImgFrame" style="background-image: url('<?php print "public/stockgroupimg/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                                         <?php }
                                         ?>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <br>
                                         <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
                                         <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
@@ -68,9 +65,9 @@ mysqli_close($connection);
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td> <a href="browse.php?category_id=2"> bekijk de hele collectie</a> </td>
+                        <td> <a href="browse.php?category_id=2"> Bekijk de hele collectie...</a> </td>
                         <tr></tr>
-                        <th> Voor klein en groot</th>
+                        <th> Voor klein en groot:</th>
                         <tr></tr>
                         <tr></tr>
                         <?php
@@ -91,10 +88,6 @@ mysqli_close($connection);
                                             <div class="ImgFrame" style="background-image: url('<?php print "public/stockgroupimg/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                                         <?php }
                                         ?>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <br>
                                         <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
                                         <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
@@ -107,10 +100,10 @@ mysqli_close($connection);
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td> <a href="browse.php?category_id=9"> meer speelgoed</a> </td>
+                        <td> <a href="browse.php?category_id=9">Meer speelgoed...</a> </td>
                         <tr></tr>
                         <tr></tr>
-                        <th> gadgets voor nerden</th>
+                        <th>Gadgets voor nerds:</th>
                         <tr></tr>
                         <?php
                         // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
@@ -130,10 +123,6 @@ mysqli_close($connection);
                                             <div class="ImgFrame" style="background-image: url('<?php print "Public/StockGroupIMG/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                                         <?php }
                                         ?>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <br>
                                         <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
                                         <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
@@ -146,10 +135,10 @@ mysqli_close($connection);
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td> <a href="browse.php?category_id=2"> bekijk de hele collectie</a> </td>
+                        <td> <a href="browse.php?category_id=2">Bekijk de hele collectie...</a> </td>
                         <tr></tr>
                         <tr></tr>
-                        <th> De coolste novelty items</th>
+                        <th>De coolste novelty-items:</th>
                         <tr></tr>
                         <?php
                         // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
@@ -169,10 +158,6 @@ mysqli_close($connection);
                                             <div class="ImgFrame" style="background-image: url('<?php print "Public/StockGroupIMG/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                                         <?php }
                                         ?>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <br>
                                         <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
                                         <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
@@ -186,7 +171,7 @@ mysqli_close($connection);
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td> <a href="browse.php?category_id=1"> bekijk de hele collectie</a> </td>
+                        <td> <a href="browse.php?category_id=1">Bekijk de hele collectie...</a> </td>
                         <tr></tr>
                     </table>
                 </div>
