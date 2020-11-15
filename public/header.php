@@ -45,7 +45,7 @@ include 'config.php';
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="/">
+        <a class="navbar-brand" href="index.php">
             <img src="/public/productimghighres/nerdygadgetslogo.png" loading="lazy">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -56,7 +56,7 @@ include 'config.php';
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link" href="index.php">Home</a>
                 </li>
 
                 <li class="nav-item dropdown">
@@ -65,7 +65,7 @@ include 'config.php';
                         Categorieën
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/categories.php">Overzicht</a>
+                        <a class="dropdown-item" href="categories.php">Overzicht</a>
                         <div class="dropdown-divider"></div>
                         <?php
                         $query = "
@@ -80,7 +80,7 @@ include 'config.php';
                         foreach ($HeaderStockGroups as $HeaderStockGroup) {
                             ?>
                             <a class="dropdown-item"
-                               href="/browse.php?category_id=<?= $HeaderStockGroup['StockGroupID'] ?>"><?= $HeaderStockGroup['StockGroupName'] ?></a>
+                               href="browse.php?category_id=<?= $HeaderStockGroup['StockGroupID'] ?>"><?= $HeaderStockGroup['StockGroupName'] ?></a>
                             <?php
                         }
                         ?>
