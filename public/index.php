@@ -35,7 +35,7 @@ $GROUPIMG = "public/stockgroupimg/";
                     <?php // de structuur van de hoofdpagina is gedaan via tabellen, zodat je makkelijk de elementen een plek kan geven op de site ?>
                     <div style="margin-right: 200px">
                     <table class="homepaginatabel">
-                        <th> <h3> De mode van dit seizoen </h3></th>
+                        <th>  De mode van dit seizoen </th>
                         <tr></tr>
                     <?php
                     // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
@@ -113,7 +113,7 @@ $GROUPIMG = "public/stockgroupimg/";
                         <td> <a href="browse.php?category_id=9"> meer speelgoed</a> </td>
                         <tr></tr>
                         <tr></tr>
-                        <th> gadgets voor nerden</th>
+                        <th> gadgets voor nerds</th>
                         <tr></tr>
                         <?php
                         // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
@@ -149,7 +149,7 @@ $GROUPIMG = "public/stockgroupimg/";
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td> <a href="browse.php?category_id=2"> bekijk de hele collectie</a> </td>
+                        <td> <a href="browse.php?category_id=6"> bekijk de hele collectie</a> </td>
                         <tr></tr>
                         <tr></tr>
                         <th> De coolste novelty items</th>
