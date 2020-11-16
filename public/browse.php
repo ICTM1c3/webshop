@@ -1,6 +1,13 @@
 <?php
 include 'header.php';
 
+function InArray($needle, $stack){
+    for($i = 0; $i < count($stack); $i++)
+        if(in_array($needle, $stack[$i]))
+            return true;
+    return false;
+}
+
 $SearchString = "";
 $ReturnableResult = null;
 if (isset($_GET['search_string'])) {
@@ -32,6 +39,61 @@ if (isset($_GET['brand'])) {
 }else{
     $Brand = "";
 }
+
+$where = "where s.stockitemid in (select stockitemid from stockitemstockgroups where stockgroupid = ".$CategoryID.")";
+if($CategoryID == "")
+    $where = "";
+
+$Query = "SELECT colorid, colorname FROM colors where colorid in (select s.colorid from stockitems s ".$where.") ORDER BY colorid";
+$Statement = mysqli_prepare($connection, $Query);
+//mysqli_stmt_bind_param($Statement, "i", $CategoryID);
+mysqli_stmt_execute($Statement);
+$colors = mysqli_stmt_get_result($Statement);
+$colors = mysqli_fetch_all($colors, MYSQLI_ASSOC);
+var_dump($colors);
+if(count($colors) > 0){
+    if(!InArray($ColorID, $colors)){
+        $ColorID = "";
+    }
+} else {
+    $ColorID = "";
+}
+
+$Query = "select distinct sa.size from stockitems sa 
+            join stockitems s on sa.stockitemid = s.stockitemid
+            ".$where;
+$Statement = mysqli_prepare($connection, $Query);
+mysqli_stmt_execute($Statement);
+$sizes = mysqli_stmt_get_result($Statement);
+$sizes = mysqli_fetch_all($sizes, MYSQLI_ASSOC);
+//var_dump($sizes);
+var_dump(count($sizes) > 1);
+var_dump(InArray($Size, $sizes));
+if(count($sizes) > 1){
+    if(!InArray($Size, $sizes)){
+        $Size = "";
+    }
+} else {
+    $Size = "";
+}
+
+$Query = "select distinct sa.brand from stockitems sa 
+            join stockitems s on sa.stockitemid = s.stockitemid
+            ".$where;
+$Statement = mysqli_prepare($connection, $Query);
+mysqli_stmt_execute($Statement);
+$brands = mysqli_stmt_get_result($Statement);
+$brands = mysqli_fetch_all($brands, MYSQLI_ASSOC);
+
+if(count($brands) > 1){
+    if(!InArray($Brand, $brands)){
+        $Brand = "";
+    }
+} else {
+    $Brand = "";
+}
+
+
 
 if (isset($_GET['sort'])) {
     $SortOnPage = $_GET['sort'];
@@ -166,32 +228,7 @@ mysqli_stmt_execute($Statement);
 $categories = mysqli_stmt_get_result($Statement);
 $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
 
-$Query = "SELECT colorid, colorname FROM colors where colorid in (select colorid from stockitems) ORDER BY colorid";
-$Statement = mysqli_prepare($connection, $Query);
-//mysqli_stmt_bind_param($Statement, "i", $CategoryID);
-mysqli_stmt_execute($Statement);
-$colors = mysqli_stmt_get_result($Statement);
-$colors = mysqli_fetch_all($colors, MYSQLI_ASSOC);
 
-$sizewhere = "where s.stockitemid in (select stockitemid from stockitemstockgroups where stockgroupid = ".$CategoryID.")";
-if($CategoryID == "")
-    $sizewhere = "";
-
-$Query = "select distinct sa.size from stockitems sa 
-            join stockitems s on sa.stockitemid = s.stockitemid
-            ".$sizewhere;
-$Statement = mysqli_prepare($connection, $Query);
-mysqli_stmt_execute($Statement);
-$sizes = mysqli_stmt_get_result($Statement);
-$sizes = mysqli_fetch_all($sizes, MYSQLI_ASSOC);
-
-$Query = "select distinct sa.brand from stockitems sa 
-            join stockitems s on sa.stockitemid = s.stockitemid
-            ".$sizewhere;
-$Statement = mysqli_prepare($connection, $Query);
-mysqli_stmt_execute($Statement);
-$brands = mysqli_stmt_get_result($Statement);
-$brands = mysqli_fetch_all($brands, MYSQLI_ASSOC);
 ?>
 
     <div id="FilterFrame"><h2 class="FilterText"><i class="fas fa-filter"></i> Filteren </h2>
