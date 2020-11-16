@@ -31,8 +31,8 @@ mysqli_close($connection);
                         </div>
                     <?php // de structuur van de hoofdpagina is gedaan via tabellen, zodat je makkelijk de elementen een plek kan geven op de site ?>
                     <div style="margin-right: 200px">
-                    <table>
-                        <th> De mode van dit seizoen</th>
+                    <table class="homepaginatabel">
+                        <th> <h3> De mode van dit seizoen </h3></th>
                         <tr></tr>
                     <?php
                     // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
