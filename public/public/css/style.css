@@ -32,14 +32,16 @@ a {
 a:hover {
      text-decoration: none !important;
  }
-a span {
+
+.carousel-control {
     display: none;
     position: absolute;
     color: #676EFF;
     background: #676EFF;
     padding: 5px;
 }
-a:hover span {
+
+.carousel-control:hover {
     display: inline-block; text-align: center;
     width: 250px;
     min-height: 30px;
@@ -50,6 +52,7 @@ a:hover span {
     text-transform: uppercase;
     font-weight: bold;
 }
+
 input {
     font-family: pt-sans, sans-serif;
     height: 50px;
@@ -480,4 +483,42 @@ ul#ul-class-price li {
     background: rgb(36, 41, 143);
     border: 1px rgb(98, 158, 255) solid;
     color: #fff;
+}
+
+.homepaginaproducten{
+ margin-left: 10%;
+    margin-right: 5%;
+}
+
+.homepaginatitel{
+    color: #fff;
+    font-family: vortice-concept, sans-serif;
+    font-size:  30px;
+    text-transform: uppercase;
+    width: 100%;
+    text-align: center;
+}
+
+.bottomelement{
+
+}
+
+.frontpageimages{
+    width: 300px;
+    height: 300px;
+    background-color: rgb(36, 41, 143);
+    float: left;
+    margin-right: 10px;
+}
+
+.homepaginatabel th {
+    width: auto;
+}
+.homepaginatabel th h3 {
+    width: 100%;
+}
+
+
+.HomePagePriceHighlight{
+color: crimson;
 }

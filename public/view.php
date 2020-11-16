@@ -91,7 +91,7 @@ if ($R) {
 
                             <!-- Left and right controls -->
                             <a class="carousel-control-prev" href="#ImageCarousel" data-slide="prev">
-                                <span class="carousel-control-prev-icon"></span>
+                                <span class="carousel-control-prev-icon carousel-control"></span>
                             </a>
                             <a class="carousel-control-next" href="#ImageCarousel" data-slide="next">
                                 <span class="carousel-control-next-icon"></span>
