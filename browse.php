@@ -27,6 +27,12 @@ if (isset($_GET['size'])) {
     $Size = "";
 }
 
+if (isset($_GET['brand'])) {
+    $Brand = $_GET['brand'];
+}else{
+    $Brand = "";
+}
+
 if (isset($_GET['sort'])) {
     $SortOnPage = $_GET['sort'];
     $_SESSION["sort"] = $_GET['sort'];
@@ -110,8 +116,12 @@ if($ColorID != ""){
 
 $sizesub = "-1 = -1";
 if($Size != ""){
-    //$sizesub = "SI.StockItemID in (SELECT s.stockitemid from stockitems s where s.size = ";
     $sizesub  = "IN (SELECT size from stockitems s WHERE s.StockItemID = SI.StockItemID)";
+}
+
+$brandsub = "-1 = -1";
+if($Brand != ""){
+    $brandsub = "IN (SELECT brand from stockitems s WHERE s.StockItemID = SI.StockItemID)";
 }
 
 $Offset = $PageNumber * $ProductsOnPage;
@@ -130,13 +140,14 @@ $Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, 
                 WHERE (" . $queryBuildResult . ") AND
                  ? ".$subCat." AND
                  ? ".$colorsub." AND
-                 ? ".$sizesub."
+                 ? ".$sizesub." AND
+                 ? ".$brandsub."
                 GROUP BY StockItemID
                 ORDER BY " . $Sort . " 
                 LIMIT ? OFFSET ?";
 //var_dump($Query);
 $Statement = mysqli_prepare($connection, $Query);
-mysqli_stmt_bind_param($Statement, "iiisii", $ShowStockLevel, $CategoryID, $ColorID, $Size, $ProductsOnPage, $Offset);
+mysqli_stmt_bind_param($Statement, "iiissii", $ShowStockLevel, $CategoryID, $ColorID, $Size, $Brand, $ProductsOnPage, $Offset);
 mysqli_stmt_execute($Statement);
 $ReturnableResult = mysqli_stmt_get_result($Statement);
 $ReturnableResult = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC);
@@ -174,7 +185,13 @@ mysqli_stmt_execute($Statement);
 $sizes = mysqli_stmt_get_result($Statement);
 $sizes = mysqli_fetch_all($sizes, MYSQLI_ASSOC);
 
-
+$Query = "select distinct sa.brand from stockitems sa 
+            join stockitems s on sa.stockitemid = s.stockitemid
+            ".$sizewhere;
+$Statement = mysqli_prepare($connection, $Query);
+mysqli_stmt_execute($Statement);
+$brands = mysqli_stmt_get_result($Statement);
+$brands = mysqli_fetch_all($brands, MYSQLI_ASSOC);
 ?>
 
     <div id="FilterFrame"><h2 class="FilterText"><i class="fas fa-filter"></i> Filteren </h2>
@@ -242,6 +259,29 @@ $sizes = mysqli_fetch_all($sizes, MYSQLI_ASSOC);
 
                         print('
                     <option value="' .$sizes[$i]["size"]. '"'.$selected.'>'.$sizes[$i]["size"].'
+                    </option>
+                    ');
+                    }
+                    ?>
+                </select>
+
+                <h4 class="FilterTopMargin"><i class="fas fa-sort"></i> Merk</h4>
+
+                <select name="brand" id="brand" onchange="this.form.submit()">>
+                    <option value="">Alle
+                    </option>
+
+                    <?php
+                    for($i = 0; $i < count($brands); $i++){
+                        $selected = "";
+                        if($brands[$i]["brand"] == null)
+                            continue;
+
+                        if($brands[$i]["brand"] == $Brand)
+                            $selected = "selected";
+
+                        print('
+                    <option value="' .$brands[$i]["brand"]. '"'.$selected.'>'.$brands[$i]["brand"].'
                     </option>
                     ');
                     }
