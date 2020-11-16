@@ -64,7 +64,7 @@ if ($R) {
                 if (count($Images) == 1) {
                     ?>
                     <div id="ImageFrame"
-                         style="background-image: url('Public/StockItemIMG/<?php print $Images[0]['ImagePath']; ?>'); background-size: 300px; background-repeat: no-repeat; background-position: center;"></div>
+                         style="background-image: url('public/stockitemimg/<?php print $Images[0]['ImagePath']; ?>'); background-size: 300px; background-repeat: no-repeat; background-position: center;"></div>
                     <?php
                 } else if (count($Images) >= 2) { ?>
                     <div id="ImageFrame">
@@ -84,7 +84,7 @@ if ($R) {
                                 <?php for ($i = 0; $i < count($Images); $i++) {
                                     ?>
                                     <div class="carousel-item <?php print ($i == 0) ? 'active' : ''; ?>">
-                                        <img src="Public/StockItemIMG/<?php print $Images[$i]['ImagePath'] ?>">
+                                        <img src="public/stockitemimg/<?php print $Images[$i]['ImagePath'] ?>">
                                     </div>
                                 <?php } ?>
                             </div>
@@ -103,7 +103,7 @@ if ($R) {
             } else {
                 ?>
                 <div id="ImageFrame"
-                     style="background-image: url('Public/StockGroupIMG/<?php print $Result['BackupImagePath']; ?>'); background-size: cover;"></div>
+                     style="background-image: url('public/stockgroupimg/<?php print $Result['BackupImagePath']; ?>'); background-size: cover;"></div>
                 <?php
             }
             ?>
