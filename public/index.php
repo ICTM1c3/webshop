@@ -62,7 +62,7 @@ $GROUPIMG = "public/stockgroupimg/";
                             <br>
                             <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                             <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                            <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
+                            <p class="StockItemName"><span class="HomePagePriceHighlight"><?php print $row["SellPrice"] ?></span> inclusief BTW</p>
                                 </td>
                     <?php $i++; }
                     }
@@ -101,7 +101,7 @@ $GROUPIMG = "public/stockgroupimg/";
                                         <br>
                                         <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                                        <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
+                                        <p class="StockItemName"><span class="HomePagePriceHighlight"><?php print $row["SellPrice"] ?></span> inclusief BTW</p>
                                 </td>
                                 <?php $i++; }
                         }
@@ -140,7 +140,7 @@ $GROUPIMG = "public/stockgroupimg/";
                                         <br>
                                         <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                                        <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
+                                        <p class="StockItemName"><span class="HomePagePriceHighlight"><?php print $row["SellPrice"] ?></span> inclusief BTW</p>
                                 </td>
                                 <?php $i++; }
                         }
@@ -179,7 +179,7 @@ $GROUPIMG = "public/stockgroupimg/";
                                         <br>
                                         <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
                                         <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                                        <p class="StockItemName"><?php print $row["SellPrice"] ?> inclusief BTW</p>
+                                        <p class="StockItemName"><span class="HomePagePriceHighlight"><?php print $row["SellPrice"] ?></span> inclusief BTW</p>
 
                                 </td>
                                 <?php $i++; }
