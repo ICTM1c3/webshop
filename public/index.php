@@ -199,4 +199,3 @@ $GROUPIMG = "public/stockgroupimg/";
 <?php
 include 'footer.php';
 ?>
-
