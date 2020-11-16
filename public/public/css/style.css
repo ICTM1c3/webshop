@@ -32,14 +32,16 @@ a {
 a:hover {
      text-decoration: none !important;
  }
-a span {
+
+.carousel-control {
     display: none;
     position: absolute;
     color: #676EFF;
     background: #676EFF;
     padding: 5px;
 }
-a:hover span {
+
+.carousel-control:hover {
     display: inline-block; text-align: center;
     width: 250px;
     min-height: 30px;
@@ -50,6 +52,7 @@ a:hover span {
     text-transform: uppercase;
     font-weight: bold;
 }
+
 input {
     font-family: pt-sans, sans-serif;
     height: 50px;
