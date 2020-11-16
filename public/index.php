@@ -10,8 +10,7 @@ $Query =  "
                 FROM stockitems SI 
                 JOIN stockitemholdings SIH USING(stockitemid)
                 JOIN stockitemstockgroups USING(StockItemID)
-                JOIN stockgroups ON stockitemstockgroups.StockGroupID = stockgroups.StockGroupID
-                GROUP BY StockItemID";
+                JOIN stockgroups ON stockitemstockgroups.StockGroupID = stockgroups.StockGroupID;";
 
 // stop de query in een statement en voer die uit.
 // zodra de query is uitgevoerd sluit de connectie
@@ -21,6 +20,10 @@ $ReturnableResult = mysqli_stmt_get_result($Statement);
 $ReturnableResult = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC);
 mysqli_close($connection);
 //de code van de hoofdpagina
+
+$ITEMIMG = "public/stockitemimg/";
+$GROUPIMG = "public/stockgroupimg/";
+
 ?>
 <div class="IndexStyle">
     <div class="col-11">
@@ -47,10 +50,10 @@ mysqli_close($connection);
                            <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
                            if ($row['ImagePath'] != "") { ?>
                             <div class="ImgFrame"
-                                 style="background-image: url('<?php print "Public/StockItemIMG/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
+                                 style="background-image: url('<?php print $ITEMIMG . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
                             <?php } else if (isset($row['BackupImagePath'])) { ?>
                                 <div class="ImgFrame"
-                                     style="background-image: url('<?php print "Public/StockGroupIMG/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
+                                     style="background-image: url('<?php print $GROUPIMG . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                             <?php }
                             ?>
                             <br>
@@ -86,10 +89,10 @@ mysqli_close($connection);
                                         <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
                                         if ($row['ImagePath'] != "") { ?>
                                             <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "Public/StockItemIMG/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
+                                                 style="background-image: url('<?php print $ITEMIMG . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
                                         <?php } else if (isset($row['BackupImagePath'])) { ?>
                                             <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "Public/StockGroupIMG/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
+                                                 style="background-image: url('<?php print $STOCKIMG . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                                         <?php }
                                         ?>
                                         <br>
@@ -125,10 +128,10 @@ mysqli_close($connection);
                                         <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
                                         if ($row['ImagePath'] != "") { ?>
                                             <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "Public/StockItemIMG/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
+                                                 style="background-image: url('<?php print $ITEMIMG . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
                                         <?php } else if (isset($row['BackupImagePath'])) { ?>
                                             <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "Public/StockGroupIMG/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
+                                                 style="background-image: url('<?php print $STOCKIMG . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                                         <?php }
                                         ?>
                                         <br>
@@ -164,10 +167,10 @@ mysqli_close($connection);
                                         <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
                                         if ($row['ImagePath'] != "") { ?>
                                             <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "Public/StockItemIMG/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
+                                                 style="background-image: url('<?php print $ITEMIMG . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
                                         <?php } else if (isset($row['BackupImagePath'])) { ?>
                                             <div class="ImgFrame"
-                                                 style="background-image: url('<?php print "Public/StockGroupIMG/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
+                                                 style="background-image: url('<?php print $STOCKIMG . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
                                         <?php }
                                         ?>
                                         <br>
