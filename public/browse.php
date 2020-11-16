@@ -232,7 +232,7 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
             <div id="FilterOptions">
                 <h4 class="FilterTopMargin"><i class="fas fa-search"></i> Zoeken</h4>
                 <input type="text" name="search_string" id="search_string"
-                       value="<?php print (isset($_GET['search_string'])) ? $_GET['search_string'] : ""; ?>"
+                       value="<?php print (isset($_GET['search_string'])) ? htmlentities($_GET['search_string'], ENT_QUOTES | ENT_HTML5, 'UTF-8') : ""; ?>"
                        class="form-submit">
 
                 <h4 class="FilterTopMargin"><i class="fas fa-sort"></i> Categorie</h4>
