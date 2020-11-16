@@ -400,5 +400,5 @@ $brands = mysqli_fetch_all($brands, MYSQLI_ASSOC);
     </div>
 
 <?php
-include __DIR__ . "/footer.php";
+include 'footer.php';
 ?>
