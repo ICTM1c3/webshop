@@ -48,10 +48,10 @@ if ($R) {
     if ($Result != null) {
         ?>
         <?php
-        if (isset($Result['Video'])) {
+        if (isset($Result['Video'])) { // If a video was loaded with the item, it's shown here
             ?>
             <div id="VideoFrame">
-                <?php print $Result['Video']; ?>
+                <?php print $Result['Video']; // The contents of the database are an iframe style embed ?> 
             </div>
         <?php }
         ?>
@@ -94,7 +94,7 @@ if ($R) {
                                 <span class="carousel-control-prev-icon carousel-control"></span>
                             </a>
                             <a class="carousel-control-next" href="#ImageCarousel" data-slide="next">
-                                <span class="carousel-control-next-icon"></span>
+                                <span class="carousel-control-next-icon carousel-control"></span>
                             </a>
                         </div>
                     </div>
