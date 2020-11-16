@@ -1,20 +1,34 @@
 <?php
 include 'header.php';
 
-$Query = " 
-           SELECT SI.StockItemID, 
-            (RecommendedRetailPrice*(1+(TaxRate/100))) AS SellPrice, 
-            StockItemName,
-            CONCAT('Voorraad: ',QuantityOnHand)AS QuantityOnHand,
-            SearchDetails, 
-            (CASE WHEN (RecommendedRetailPrice*(1+(TaxRate/100))) > 50 THEN 0 ELSE 6.95 END) AS SendCosts, MarketingComments, CustomFields, SI.Video,
-            (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = SI.StockItemID LIMIT 1) as BackupImagePath   
-            FROM stockitems SI 
-            JOIN stockitemholdings SIH USING(stockitemid)
-            JOIN stockitemstockgroups ON SI.StockItemID = stockitemstockgroups.StockItemID
-            JOIN stockgroups USING(StockGroupID)
-            WHERE SI.stockitemid = ?
-            GROUP BY StockItemID";
+$Query = "SELECT DISTINCT SI.StockItemID,
+(RecommendedRetailPrice *(1 +(TaxRate / 100))) AS SellPrice,
+StockItemName, CONCAT('Voorraad: ', QuantityOnHand) AS QuantityOnHand,
+SearchDetails,
+(
+    CASE
+        WHEN (RecommendedRetailPrice *(1 +(TaxRate / 100))) > 50 THEN 0
+        ELSE 6.95
+    END
+) AS SendCosts,
+MarketingComments,
+CustomFields,
+SI.Video,
+(
+    SELECT ImagePath
+    FROM stockgroups
+        JOIN stockitemstockgroups USING(StockGroupID)
+    WHERE StockItemID = SI.StockItemID
+    LIMIT 1
+) as BackupImagePath,
+CONCAT('Opslagtemperatuur: ', CRT.Temperature, '&deg; C') AS Temperature
+FROM stockitems SI
+JOIN stockitemholdings SIH USING(stockitemid)
+JOIN stockitemstockgroups ON SI.StockItemID = stockitemstockgroups.StockItemID
+JOIN stockgroups USING(StockGroupID)
+LEFT JOIN stockitemscoldroomtemperatures SICRT ON SI.StockItemID = SICRT.StockItemID
+LEFT JOIN coldroomtemperatures CRT ON SICRT.ColdRoomTemperatureID = CRT.ColdRoomTemperatureID
+WHERE SI.stockitemid = ?;";
 
 $ShowStockLevel = 1000;
 $Statement = mysqli_prepare($connection, $Query);
@@ -41,17 +55,20 @@ $R = mysqli_fetch_all($R, MYSQLI_ASSOC);
 if ($R) {
     $Images = $R;
 }
+mysqli_close($connection);
 ?>
+
 
 <div id="CenteredContent">
     <?php
     if ($Result != null) {
-        ?>
+    ?>
         <?php
         if (isset($Result['Video'])) { // If a video was loaded with the item, it's shown here
-            ?>
+        ?>
             <div id="VideoFrame">
-                <?php print $Result['Video']; // The contents of the database are an iframe style embed ?> 
+                <?php print $Result['Video']; // The contents of the database are an iframe style embed 
+                ?>
             </div>
         <?php }
         ?>
@@ -62,27 +79,25 @@ if ($R) {
             if (isset($Images)) {
                 // print Single
                 if (count($Images) == 1) {
-                    ?>
-                    <div id="ImageFrame"
-                         style="background-image: url('public/stockitemimg/<?php print $Images[0]['ImagePath']; ?>'); background-size: 300px; background-repeat: no-repeat; background-position: center;"></div>
-                    <?php
+            ?>
+                    <div id="ImageFrame" style="background-image: url('public/stockitemimg/<?php print $Images[0]['ImagePath']; ?>'); background-size: 300px; background-repeat: no-repeat; background-position: center;"></div>
+                <?php
                 } else if (count($Images) >= 2) { ?>
                     <div id="ImageFrame">
                         <div id="ImageCarousel" class="carousel slide" data-interval="false">
                             <!-- Indicators -->
                             <ul class="carousel-indicators">
                                 <?php for ($i = 0; $i < count($Images); $i++) {
-                                    ?>
-                                    <li data-target="#ImageCarousel"
-                                        data-slide-to="<?php print $i ?>" <?php print (($i == 0) ? 'class="active"' : ''); ?>></li>
-                                    <?php
+                                ?>
+                                    <li data-target="#ImageCarousel" data-slide-to="<?php print $i ?>" <?php print(($i == 0) ? 'class="active"' : ''); ?>></li>
+                                <?php
                                 } ?>
                             </ul>
 
                             <!-- The slideshow -->
                             <div class="carousel-inner">
                                 <?php for ($i = 0; $i < count($Images); $i++) {
-                                    ?>
+                                ?>
                                     <div class="carousel-item <?php print ($i == 0) ? 'active' : ''; ?>">
                                         <img src="public/stockitemimg/<?php print $Images[$i]['ImagePath'] ?>">
                                     </div>
@@ -98,13 +113,12 @@ if ($R) {
                             </a>
                         </div>
                     </div>
-                    <?php
+                <?php
                 }
             } else {
                 ?>
-                <div id="ImageFrame"
-                     style="background-image: url('public/stockgroupimg/<?php print $Result['BackupImagePath']; ?>'); background-size: cover;"></div>
-                <?php
+                <div id="ImageFrame" style="background-image: url('public/stockgroupimg/<?php print $Result['BackupImagePath']; ?>'); background-size: cover;"></div>
+            <?php
             }
             ?>
 
@@ -115,7 +129,10 @@ if ($R) {
             </h2>
             <ul class="ItemProperties">
                 <li class="QuantityText"><?php print $Result['QuantityOnHand']; ?></li>
-                <li class="TemperatureText">Opslagtemperatuur: <span id="TemperatureValue">0</span>°C</li>
+                <?php if (isset($Result['Temperature'])) {
+                ?> <li class="TemperatureText"><?php print $Result['Temperature']; ?></li> <?php
+            } ?>
+
             </ul>
 
             <div id="StockItemHeaderLeft">
@@ -138,39 +155,39 @@ if ($R) {
             $CustomFields = json_decode($Result['CustomFields'], true);
             if (is_array($CustomFields)) { ?>
                 <table>
-                <thead>
-                <th>Naam</th>
-                <th>Data</th>
-                </thead>
-                <?php
-                foreach ($CustomFields as $SpecName => $SpecText) { ?>
-                    <tr>
-                        <td>
-                            <?php print $SpecName; ?>
-                        </td>
-                        <td>
-                            <?php
-                            if (is_array($SpecText)) {
-                                foreach ($SpecText as $SubText) {
-                                    print $SubText . " ";
+                    <thead>
+                        <th>Naam</th>
+                        <th>Data</th>
+                    </thead>
+                    <?php
+                    foreach ($CustomFields as $SpecName => $SpecText) { ?>
+                        <tr>
+                            <td>
+                                <?php print $SpecName; ?>
+                            </td>
+                            <td>
+                                <?php
+                                if (is_array($SpecText)) {
+                                    foreach ($SpecText as $SubText) {
+                                        print $SubText . " ";
+                                    }
+                                } else {
+                                    print $SpecText;
                                 }
-                            } else {
-                                print $SpecText;
-                            }
-                            ?>
-                        </td>
-                    </tr>
-                <?php } ?>
+                                ?>
+                            </td>
+                        </tr>
+                    <?php } ?>
                 </table><?php
-            } else { ?>
+                    } else { ?>
 
                 <p><?php print $Result['CustomFields']; ?>.</p>
-                <?php
-            }
+            <?php
+                    }
             ?>
         </div>
-        <?php
+    <?php
     } else {
-        ?><h2 id="ProductNotFound">Het opgevraagde product is niet gevonden.</h2><?php
-    } ?>
+    ?><h2 id="ProductNotFound">Het opgevraagde product is niet gevonden.</h2><?php
+                                                                            } ?>
 </div>
