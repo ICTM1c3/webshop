@@ -50,7 +50,6 @@ $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_execute($Statement);
 $colors = mysqli_stmt_get_result($Statement);
 $colors = mysqli_fetch_all($colors, MYSQLI_ASSOC);
-var_dump($colors);
 if(count($colors) > 0){
     if(!InArray($ColorID, $colors)){
         $ColorID = "";
@@ -66,9 +65,6 @@ $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_execute($Statement);
 $sizes = mysqli_stmt_get_result($Statement);
 $sizes = mysqli_fetch_all($sizes, MYSQLI_ASSOC);
-//var_dump($sizes);
-var_dump(count($sizes) > 1);
-var_dump(InArray($Size, $sizes));
 if(count($sizes) > 1){
     if(!InArray($Size, $sizes)){
         $Size = "";
