@@ -3,7 +3,8 @@ include 'header.php';
 
 $Query = "SELECT DISTINCT SI.StockItemID,
 (RecommendedRetailPrice *(1 +(TaxRate / 100))) AS SellPrice,
-StockItemName, CONCAT('Voorraad: ', QuantityOnHand) AS QuantityOnHand,
+StockItemName,
+CONCAT('Voorraad: ', QuantityOnHand) AS QuantityOnHand,
 SearchDetails,
 (
     CASE
@@ -21,13 +22,26 @@ SI.Video,
     WHERE StockItemID = SI.StockItemID
     LIMIT 1
 ) as BackupImagePath,
-CONCAT('Opslagtemperatuur: ', CRT.Temperature, '&deg; C') AS Temperature
+CONCAT(
+    'Opslagtemperatuur: ',
+    (
+        SELECT Temperature
+        FROM coldroomtemperatures
+        WHERE ColdRoomSensorNumber = CRT.ColdRoomSensorNumber
+            AND RecordedWhen = (
+                SELECT MAX(RecordedWhen)
+                FROM coldroomtemperatures
+                WHERE ColdRoomSensorNumber = CRT.ColdRoomSensorNumber
+            )
+),
+'&deg; C'
+) AS Temperature
 FROM stockitems SI
 JOIN stockitemholdings SIH USING(stockitemid)
 JOIN stockitemstockgroups ON SI.StockItemID = stockitemstockgroups.StockItemID
 JOIN stockgroups USING(StockGroupID)
 LEFT JOIN stockitemscoldroomtemperatures SICRT ON SI.StockItemID = SICRT.StockItemID
-LEFT JOIN coldroomtemperatures CRT ON SICRT.ColdRoomTemperatureID = CRT.ColdRoomTemperatureID
+LEFT JOIN coldroomtemperatures CRT ON SICRT.ColdRoomSensorNumber = CRT.ColdRoomSensorNumber
 WHERE SI.stockitemid = ?;";
 
 $ShowStockLevel = 1000;
