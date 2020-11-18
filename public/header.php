@@ -46,7 +46,7 @@ include 'config.php';
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="index.php">
-            <img src="/public/productimghighres/nerdygadgetslogo.png" loading="lazy">
+            <img src="public/productimghighres/nerdygadgetslogo.png" loading="lazy">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,19 +98,19 @@ include 'config.php';
                             Welkom, <?= $user['name'] ?>!
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/orders.php">Mijn bestellingen</a>
+                            <a class="dropdown-item" href="orders.php">Mijn bestellingen</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/logout.php">Uitloggen</a>
+                            <a class="dropdown-item" href="logout.php">Uitloggen</a>
                         </div>
                     </li>
                     <?php
                 } else {
                     ?>
                     <li class="nav-item active">
-                        <a class="nav-link" href="/login.php">Inloggen</a>
+                        <a class="nav-link" href="login.php">Inloggen</a>
                     </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="/register.php">Registeren</a>
+                        <a class="nav-link" href="register.php">Registeren</a>
                     </li>
                     <?php
                 }
