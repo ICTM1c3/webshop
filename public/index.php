@@ -42,7 +42,7 @@ $categories = array_slice($categories, 0, 5);
             $products = array_filter(array_values(array_map(function ($i) use($category) {return ($i['StockGroupID'] === $category) ? $i : null;}, $ReturnableResult)));
             shuffle($products);
             ?>
-            <div class="col-sm-12">
+            <div class="col-sm-12 mb-3">
                 <h3>Aanbevolen <?= $products[0]['StockGroupName'] ?></h3>
             </div>
             <?php

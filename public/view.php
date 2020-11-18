@@ -2,38 +2,12 @@
 include 'header.php';
 
 $Query = "SELECT DISTINCT SI.StockItemID,
-(RecommendedRetailPrice *(1 +(TaxRate / 100))) AS SellPrice,
-StockItemName, QuantityOnHand, SearchDetails,
-(
-    CASE
-        WHEN (RecommendedRetailPrice *(1 +(TaxRate / 100))) > 50 THEN 0
-        ELSE 6.95
-    END
-) AS SendCosts,
-MarketingComments,
-CustomFields,
-SI.Video,
-(
-    SELECT ImagePath
-    FROM stockgroups
-        JOIN stockitemstockgroups USING(StockGroupID)
-    WHERE StockItemID = SI.StockItemID
-    LIMIT 1
-) as BackupImagePath,
-CONCAT(
-    'Opslagtemperatuur: ',
-    (
-        SELECT Temperature
-        FROM coldroomtemperatures
-        WHERE ColdRoomSensorNumber = CRT.ColdRoomSensorNumber
-            AND RecordedWhen = (
-                SELECT MAX(RecordedWhen)
-                FROM coldroomtemperatures
-                WHERE ColdRoomSensorNumber = CRT.ColdRoomSensorNumber
-            )
-),
-'&deg; C'
-) AS Temperature
+(RecommendedRetailPrice *(1 +(TaxRate / 100))) AS SellPrice, StockItemName, QuantityOnHand, SearchDetails,
+(CASE WHEN (RecommendedRetailPrice *(1 +(TaxRate / 100))) > 50 THEN 0 ELSE 6.95 END) AS SendCosts,
+MarketingComments, CustomFields, SI.Video,
+(SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID)WHERE StockItemID = SI.StockItemID LIMIT 1) as BackupImagePath,
+CONCAT('Opslagtemperatuur: ', (SELECT Temperature FROM coldroomtemperatures WHERE ColdRoomSensorNumber = CRT.ColdRoomSensorNumber
+AND RecordedWhen = (SELECT MAX(RecordedWhen) FROM coldroomtemperatures WHERE ColdRoomSensorNumber = CRT.ColdRoomSensorNumber)), '&deg; C') AS Temperature
 FROM stockitems SI
 JOIN stockitemholdings SIH USING(stockitemid)
 JOIN stockitemstockgroups ON SI.StockItemID = stockitemstockgroups.StockItemID
@@ -52,9 +26,7 @@ if ($ReturnableResult && mysqli_num_rows($ReturnableResult) == 1) {
 } else $Result = null;
 
 //Get Images
-$Query = "SELECT ImagePath
-        FROM stockitemimages 
-        WHERE StockItemID = ?";
+$Query = "SELECT ImagePath FROM stockitemimages WHERE StockItemID = ?";
 
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_bind_param($Statement, "i", $_GET['id']);
@@ -75,7 +47,7 @@ mysqli_close($connection);
         <?php
         if (isset($Result['Video'])) { // If a video was loaded with the item, it's shown here
             ?>
-            <div class="w-100">
+            <div class="w-100 mb-3 video-container">
                 <?= $Result['Video']; ?>
             </div>
             <?php
@@ -138,11 +110,25 @@ mysqli_close($connection);
                 <p class="mb-1 text-muted">Artikelnummer: <?= $Result["StockItemID"]; ?></p>
                 <p class="mb-1">Voorraad: <?= $Result['QuantityOnHand']; ?></p>
                 <?php if (isset($Result['Temperature'])) { ?>
-                    <p class="mb-1"><?php print $Result['Temperature']; ?></p>
+                    <p class="mb-1"><?= $Result['Temperature']; ?></p>
                 <?php } ?>
 
                 <div>
-                    <p><span class="product-price"><?php print sprintf("€ %.2f", $Result['SellPrice']); ?></span> <span class="text-muted">inclusief btw</span></p>
+                    <p><span class="product-price">&euro;<?= number_format($Result['SellPrice'], 2, ',', '.'); ?></span> <span class="text-muted">inclusief btw</span></p>
+                </div>
+                <div>
+                    <form action="shopping-cart.php" method="POST">
+                        <input type="hidden" name="product_id" value="<?= $Result['StockItemID'] ?>">
+                        <input type="hidden" name="action" value="add">
+                        <div class="form-row">
+                            <div class="col-sm-12 col-md-2">
+                                <input required type="number" name="amount" class="form-control" placeholder="Aantal" value="1">
+                            </div>
+                            <div class="col mt-3 mt-md-0">
+                                <button type="submit" class="btn btn-success">Toevoegen aan winkelwagen</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

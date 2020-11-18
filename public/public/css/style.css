@@ -587,8 +587,23 @@ ul#ul-class-price li {
 .HomePagePriceHighlight{
     color: crimson;
 }
-.footer {
-    position: absolute;
+
+footer {
+    position: fixed;
     bottom: 0;
     background-color: #343a40 !important;
+    width: 100%;
+}
+
+main {
+    margin-bottom: 5rem;
+}
+
+nav .navbar-brand img {
+    max-height: 45px;
+    object-fit: contain;
+}
+
+.video-container {
+    height: 300px;
 }

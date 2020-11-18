@@ -11,7 +11,6 @@ include 'config.php';
 
     <!-- CSS -->
     <link rel="stylesheet" href="public/css/style.css" type="text/css">
-    <link rel="stylesheet" href="public/css/new.css" type="text/css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
           integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 
@@ -55,7 +54,7 @@ include 'config.php';
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
+                <li class="nav-item">
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
 
@@ -90,7 +89,12 @@ include 'config.php';
             <ul class="navbar-nav ml-auto">
                 <?php
                 if($authenticated) {
+                    $shopping_cart_count = (isset($_SESSION['shopping_cart'])) ? " (" . count($_SESSION['shopping_cart']) . " producten)" : "";
                     ?>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="shopping-cart.php">Winkelwagen<?= $shopping_cart_count; ?></a>
+                    </li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
@@ -119,6 +123,6 @@ include 'config.php';
         </div>
     </div>
 </nav>
-<div>
+<main>
     <div class="container-fluid mt-3">
 
