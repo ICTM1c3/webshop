@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else $errors[] = "Het e-mailadres veld is verplicht.";
 
     if (isset($_POST['password']) && !empty($_POST['password'])) {
-        $password = strtoupper(hash('sha256', $_POST['password']));
+        $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
     } else $errors[] = "Het wachtwoord veld is verplicht.";
 
     if (isset($_POST['first_name']) && !empty($_POST['first_name'])) {
@@ -32,17 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (count($errors) === 0) {
-        $full_name = "$first_name $last_name";
-
         mysqli_report(MYSQLI_REPORT_ALL);
 
-        $stmt = $connection->prepare("INSERT INTO people (FullName, PreferredName, SearchName, LogonName, EmailAddress, IsPermittedToLogon, HashedPassword, LastEditedBy, ValidFrom, ValidTo, IsExternalLogonProvider, IsSystemUser, IsEmployee, IsSalesperson) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-        $stmt->bind_param("sssssisissiiii", $full_name, $first_name, $full_name, $email, $email, $one, $password, $one, $date, $valid_to, $zero, $zero, $zero, $zero);
-
+        $stmt = $connection->prepare("INSERT INTO users (first_name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, ?);");
+        $stmt->bind_param("sssss", $first_name, $last_name, $email, $password, $date);
         $date = date('Y-m-d H:i:s');
-        $one = 1;
-        $zero = 0;
-        $valid_to = '9999-12-31 23:59:59';
 
         $result = $stmt->execute();
         $stmt->close();
@@ -57,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function emailExists($email) {
     include 'config.php';
 
-    $stmt = $connection->prepare("SELECT LogonName FROM people LogonName WHERE LogonName = ?");
+    $stmt = $connection->prepare("SELECT email FROM users WHERE deleted_at IS NULL AND email = ?;");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $count = $stmt->get_result()->num_rows;
@@ -85,31 +79,31 @@ function emailExists($email) {
         ?>
         <div class="form-group">
             <label for="first_name">Voornaam
-                <input type="text" name="first_name" id="first_name">
+                <input type="text" name="first_name" id="first_name" class="form-control">
             </label>
         </div>
 
         <div class="form-group">
             <label for="last_name">Achternaam
-                <input type="text" name="last_name" id="last_name">
+                <input type="text" name="last_name" id="last_name" class="form-control">
             </label>
         </div>
 
         <div class="form-group">
             <label for="email">E-mailadres
-                <input type="email" name="email" id="email">
+                <input type="email" name="email" id="email" class="form-control">
             </label>
         </div>
 
         <div class="form-group">
             <label for="phone">Telefoonnummer
-                <input type="tel" name="phone" id="phone">
+                <input type="tel" name="phone" id="phone" class="form-control">
             </label>
         </div>
 
         <div class="form-group">
             <label for="email">Wachtwoord
-                <input type="password" name="password" id="password">
+                <input type="password" name="password" id="password" class="form-control">
             </label>
         </div>
 
