@@ -556,12 +556,12 @@ ul#ul-class-price li {
     color: #fff;
 }
 
-.homepaginaproducten{
+.homepaginaproducten {
     margin-left: 10%;
     margin-right: 5%;
 }
 
-.homepaginatitel{
+.homepaginatitel {
     color: #fff;
     font-family: vortice-concept, sans-serif;
     font-size:  30px;
@@ -570,7 +570,7 @@ ul#ul-class-price li {
     text-align: center;
 }
 
-.frontpageimages{
+.frontpageimages {
     width: 300px;
     height: 300px;
     background-color: rgb(36, 41, 143);
@@ -581,10 +581,10 @@ ul#ul-class-price li {
 .homepaginatabel th {
     width: auto;
 }
+
 .homepaginatabel th h3 {
     width: 100%;
 }
-
 
 .HomePagePriceHighlight{
     color: crimson;

@@ -1,16 +1,14 @@
 <?php
 include 'header.php';
 //maak een query voor de producten die je op de homepagina wil hebben.
-$Query =  " 
- 
-              SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, StockGroupName, 
-                ROUND(SI.TaxRate * SI.RecommendedRetailPrice / 100 + SI.RecommendedRetailPrice,2) as SellPrice,
-                (SELECT ImagePath FROM stockitemimages WHERE StockItemID = SI.StockItemID LIMIT 1) as ImagePath,
-                (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = SI.StockItemID LIMIT 1) as BackupImagePath           
-                FROM stockitems SI 
-                JOIN stockitemholdings SIH USING(stockitemid)
-                JOIN stockitemstockgroups USING(StockItemID)
-                JOIN stockgroups ON stockitemstockgroups.StockGroupID = stockgroups.StockGroupID;";
+$Query = "SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, stockgroups.StockGroupID, StockGroupName, 
+            ROUND(SI.TaxRate * SI.RecommendedRetailPrice / 100 + SI.RecommendedRetailPrice,2) as SellPrice,
+            (SELECT ImagePath FROM stockitemimages WHERE StockItemID = SI.StockItemID LIMIT 1) as ImagePath,
+            (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = SI.StockItemID LIMIT 1) as BackupImagePath           
+            FROM stockitems SI
+            JOIN stockitemholdings SIH USING(stockitemid)
+            JOIN stockitemstockgroups USING(StockItemID)
+            JOIN stockgroups ON stockitemstockgroups.StockGroupID = stockgroups.StockGroupID;";
 
 // stop de query in een statement en voer die uit.
 // zodra de query is uitgevoerd sluit de connectie
@@ -24,177 +22,55 @@ mysqli_close($connection);
 $ITEMIMG = "public/stockitemimg/";
 $GROUPIMG = "public/stockgroupimg/";
 
-?>
-<div class="IndexStyle">
-    <div class="col-11">
-        <div><?php// de titel ?>
-                <div class="homepaginaproducten">
-                    <div class="homepaginatitel">
-                        welkom op de website van nerdy gadgets
-                        </div>
-                    <?php // de structuur van de hoofdpagina is gedaan via tabellen, zodat je makkelijk de elementen een plek kan geven op de site ?>
-                    <div style="margin-right: 200px">
-                    <table class="homepaginatabel">
-                        <th>  De mode van dit seizoen </th>
-                        <tr></tr>
-                    <?php
-                    // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
-                    $i =0;
-                    foreach($ReturnableResult as $row) {
-                        // als het product van de categorie is die ik op de pagina wil laten zien en als er minder dan 10 producten in rij staan, laat dan het product zien.
-                        if($row['StockGroupName'] === "Clothing" && $i < 4){
-                        ?>
-                                <td>
-                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht ?>
-                        <a class="ListItem" href='view.php?id=<?php print $row['StockItemID']; ?>'>
-                           <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
-                           if ($row['ImagePath'] != "") { ?>
-                            <div class="ImgFrame"
-                                 style="background-image: url('<?php print $ITEMIMG . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
-                            <?php } else if (isset($row['BackupImagePath'])) { ?>
-                                <div class="ImgFrame"
-                                     style="background-image: url('<?php print $GROUPIMG . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
-                            <?php }
-                            ?>
-                            <br>
-                            <br>
-                            <br>
-                            <br>
-                            <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
-                            <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                            <p class="StockItemName"><span class="HomePagePriceHighlight"><?php print $row["SellPrice"] ?></span> inclusief BTW</p>
-                                </td>
-                    <?php $i++; }
-                    }
-                    ?>
-                        <tr></tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td> <a href="browse.php?category_id=2"> bekijk de hele collectie</a> </td>
-                        <tr></tr>
-                        <th> Voor klein en groot</th>
-                        <tr></tr>
-                        <tr></tr>
-                        <?php
-                        // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
-                        $i =0;
-                        foreach($ReturnableResult as $row) {
-                            // als het product van de categorie is die ik op de pagina wil laten zien en als er minder dan 10 producten in rij staan, laat dan het product zien.
-                            if($row['StockGroupName'] === "Toys" && $i < 4){
-                                ?>
-                                <td>
-                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht ?>
-                                    <a class="ListItem" href='view.php?id=<?php print $row['StockItemID']; ?>'>
-                                        <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
-                                        if ($row['ImagePath'] != "") { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print $ITEMIMG . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
-                                        <?php } else if (isset($row['BackupImagePath'])) { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print $STOCKIMG . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
-                                        <?php }
-                                        ?>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
-                                        <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                                        <p class="StockItemName"><span class="HomePagePriceHighlight"><?php print $row["SellPrice"] ?></span> inclusief BTW</p>
-                                </td>
-                                <?php $i++; }
-                        }
-                        ?>
-                        <tr></tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td> <a href="browse.php?category_id=9"> meer speelgoed</a> </td>
-                        <tr></tr>
-                        <tr></tr>
-                        <th> gadgets voor nerds</th>
-                        <tr></tr>
-                        <?php
-                        // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
-                        $i =0;
-                        foreach($ReturnableResult as $row) {
-                            // als het product van de categorie is die ik op de pagina wil laten zien en als er minder dan 10 producten in rij staan, laat dan het product zien.
-                            if($row['StockGroupName'] === "Computing Novelties" && $i < 4){
-                                ?>
-                                <td>
-                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht ?>
-                                    <a class="ListItem" href='view.php?id=<?php print $row['StockItemID']; ?>'>
-                                        <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
-                                        if ($row['ImagePath'] != "") { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print $ITEMIMG . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
-                                        <?php } else if (isset($row['BackupImagePath'])) { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print $STOCKIMG . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
-                                        <?php }
-                                        ?>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
-                                        <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                                        <p class="StockItemName"><span class="HomePagePriceHighlight"><?php print $row["SellPrice"] ?></span> inclusief BTW</p>
-                                </td>
-                                <?php $i++; }
-                        }
-                        ?>
-                        <tr></tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td> <a href="browse.php?category_id=6"> bekijk de hele collectie</a> </td>
-                        <tr></tr>
-                        <tr></tr>
-                        <th> De coolste novelty items</th>
-                        <tr></tr>
-                        <?php
-                        // de code kijkt naar elk resultaat van de query en voert daarvoor dan de code uit
-                        $i =0;
-                        foreach($ReturnableResult as $row) {
-                            // als het product van de categorie is die ik op de pagina wil laten zien en als er minder dan 10 producten in rij staan, laat dan het product zien.
-                            if($row['StockGroupName'] === "Novelty Items" && $i < 4){
-                                ?>
-                                <td>
-                                    <?php // dit stuk zorgt er voor dat je op het plaatje kan klikken en dan naar de product pagina wordt gebracht ?>
-                                    <a class="ListItem" href='view.php?id=<?php print $row['StockItemID']; ?>'>
-                                        <?php // dit stuk zorgt er voor dat als er geen foto bij het product hoort er een standaard plaatje uit de categorie wordt gebruikt
-                                        if ($row['ImagePath'] != "") { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print $ITEMIMG . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
-                                        <?php } else if (isset($row['BackupImagePath'])) { ?>
-                                            <div class="ImgFrame"
-                                                 style="background-image: url('<?php print $STOCKIMG . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
-                                        <?php }
-                                        ?>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
-                                        <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                                        <p class="StockItemName"><span class="HomePagePriceHighlight"><?php print $row["SellPrice"] ?></span> inclusief BTW</p>
+$categories = array_values(array_unique(array_map(function ($i) {return $i['StockGroupID'];}, $ReturnableResult)));
 
-                                </td>
-                                <?php $i++; }
-                        }
-                        ?>
-                        <tr></tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td> <a href="browse.php?category_id=1"> bekijk de hele collectie</a> </td>
-                        <tr></tr>
-                    </table>
-                    </div>
+shuffle($categories);
+
+$categories = array_slice($categories, 0, 5);
+
+?>
+<div class="container">
+    <div class="text-center my-5">
+        <h2>Welkom op de website van nerdy gadgets!</h2>
+    </div>
+    <?php
+    foreach ($categories as $category) {
+        ?>
+        <div class="row mb-5">
+            <?php
+            $i = 0;
+            $products = array_filter(array_values(array_map(function ($i) use($category) {return ($i['StockGroupID'] === $category) ? $i : null;}, $ReturnableResult)));
+            shuffle($products);
+            ?>
+            <div class="col-sm-12">
+                <h3>Aanbevolen <?= $products[0]['StockGroupName'] ?></h3>
+            </div>
+            <?php
+            foreach ($products as $row) {
+                $i++;
+                ?>
+                <div class="col-sm-12 col-md-3">
+                    <a href="view.php?id=<?= $row['StockItemID']; ?>">
+                        <img src="<?= isset($row['ImagePath']) ? $ITEMIMG . $row['ImagePath'] : $GROUPIMG . $row['BackupImagePath'] ?>"
+                             class="img-fluid" alt="">
+                    </a>
+                    <h1 class="StockItemID">Artikelnummer: <?= $row["StockItemID"]; ?></h1>
+                    <p class="StockItemName"><?= $row["StockItemName"]; ?></p>
+                    <p class="StockItemName"><span
+                                class="HomePagePriceHighlight">&euro;<?= $row["SellPrice"] ?></span> inclusief btw
+                    </p>
                 </div>
+                <?php
+                if ($i === 4) break;
+            }
+            ?>
+            <div class="text-right w-100 px-3">
+                <a class="btn btn-secondary" href="browse.php?category_id=<?= $row['StockGroupID'] ?>" target="_blank">Bekijk alle <?= $products[0]['StockGroupName'] ?></a>
+            </div>
         </div>
+        <?php
+    }
+    ?>
 </div>
 <?php
 include 'footer.php';
