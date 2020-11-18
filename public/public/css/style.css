@@ -37,10 +37,6 @@ a:hover {
 }
 
 .carousel-control {
-    text-decoration: none !important;
-}
-
-a span {
     display: none;
     position: absolute;
     color: #676EFF;
@@ -48,7 +44,7 @@ a span {
     padding: 5px;
 }
 
-a:hover span {
+.carousel-control:hover {
     display: inline-block;
     text-align: center;
     width: 250px;
@@ -59,11 +55,6 @@ a:hover span {
     font-size: 18px;
     text-transform: uppercase;
     font-weight: bold;
-}
-
-.carousel-control:hover {
-    display: inline-block;
-    text-align: center;
 }
 
 input {
@@ -95,6 +86,7 @@ ul#ul-class-navigation li {
 }
 
 #Header {
+    /*position: fixed;*/
     top: 0;
     background-color: rgb(35, 35, 47);
     width: 100%;
@@ -200,10 +192,17 @@ ul#ul-class-navigation li {
     margin-right: 10px;
 }
 
-.QuantityText {
+.ItemProperties {
     position: absolute;
     left: 310px;
+    padding: 0px;
+    margin: 0px;
     bottom: 0;
+}
+.ItemProperties li {
+    display: inline;
+    padding-left: 3px;
+    padding-right: 3px;
 }
 
 #StockItemHeaderLeft {
@@ -444,7 +443,7 @@ ul#ul-class-price li {
 .StockItemPriceText {
     font-family: vortice-concept, sans-serif;
     color: #676EFF;
-    font-size: 22px;
+    font-size: 44px;
     text-transform: uppercase;
     font-weight: bold;
     margin-top: 25px;
@@ -557,21 +556,21 @@ ul#ul-class-price li {
     color: #fff;
 }
 
-.homepaginaproducten {
+.homepaginaproducten{
     margin-left: 10%;
     margin-right: 5%;
 }
 
-.homepaginatitel {
+.homepaginatitel{
     color: #fff;
     font-family: vortice-concept, sans-serif;
-    font-size: 30px;
+    font-size:  30px;
     text-transform: uppercase;
     width: 100%;
     text-align: center;
 }
 
-.frontpageimages {
+.frontpageimages{
     width: 300px;
     height: 300px;
     background-color: rgb(36, 41, 143);
@@ -582,11 +581,11 @@ ul#ul-class-price li {
 .homepaginatabel th {
     width: auto;
 }
-
 .homepaginatabel th h3 {
     width: 100%;
 }
 
-.HomePagePriceHighlight {
+
+.HomePagePriceHighlight{
     color: crimson;
 }
