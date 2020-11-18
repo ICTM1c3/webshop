@@ -475,6 +475,12 @@ ul#ul-class-price li {
 }
 .footer {
     position: absolute;
-    background-color: deeppink;
+    overflow-x: hidden;
+    color: #FFF !important;
+    background-color: #343a40!important;
     bottom: 0;
+}
+
+.footertable{
+    border-spacing: 5px;
 }
