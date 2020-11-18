@@ -474,7 +474,7 @@ ul#ul-class-price li {
     color: #fff;
 }
 .footer {
+    position: absolute;
     background-color: deeppink;
-    margin-top: auto !important;
-    padding-top: 1rem !important;
+    bottom: 0;
 }
