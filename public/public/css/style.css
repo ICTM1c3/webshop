@@ -588,13 +588,7 @@ ul#ul-class-price li {
     color: crimson;
 }
 .footer {
+    position: absolute;
+    bottom: 0;
     background-color: #343a40 !important;
-}
-
-.footer p a {
-    color: #FFF;
-}
-
-.footer p:hover {
-    text-decoration: underline;
 }

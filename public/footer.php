@@ -1,22 +1,10 @@
 </div>
 </div>
-<footer class="footer mt-auto py-3">
+<footer class="footer mt-auto py-3 w-100">
     <div class="container">
         <div class="row">
-            <div class="col-sm-12 col-md-4">
-                <p><a href="/">Ut et volutpat</a></p>
-                <p><a href="/">Ut et volutpat</a></p>
-                <p><a href="/">Ut et volutpat</a></p>
-            </div>
-            <div class="col-sm-12 col-md-4">
-                <p><a href="/">Ut et volutpat</a></p>
-                <p><a href="/">Ut et volutpat</a></p>
-                <p><a href="/">Ut et volutpat</a></p>
-            </div>
-            <div class="col-sm-12 col-md-4">
-                <p><a href="/">Ut et volutpat</a></p>
-                <p><a href="/">Ut et volutpat</a></p>
-                <p><a href="/">Ut et volutpat</a></p>
+            <div class="col-sm-12 text-center">
+                <p class="mb-0">&copy; Nerdy Gadgets <?= date('Y') ?></p>
             </div>
         </div>
     </div>
