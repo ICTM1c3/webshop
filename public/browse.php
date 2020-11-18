@@ -217,7 +217,7 @@ if (isset($amount)) {
     $AmountOfPages = ceil($amount / $ProductsOnPage);
 }
 
-$Query = "SELECT Stockgroupid, stockgroupname FROM Stockgroups ORDER BY stockgroupid";
+$Query = "SELECT Stockgroupid, stockgroupname FROM stockgroups ORDER BY stockgroupid";
 $Statement = mysqli_prepare($connection, $Query);
 //mysqli_stmt_bind_param($Statement, "i", $CategoryID);
 mysqli_stmt_execute($Statement);
