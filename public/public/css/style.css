@@ -440,13 +440,11 @@ ul#ul-class-price li {
     opacity: 0.9;
 }
 
-.StockItemPriceText {
-    font-family: vortice-concept, sans-serif;
+.product-price {
     color: #676EFF;
-    font-size: 44px;
+    font-size: 40px;
     text-transform: uppercase;
     font-weight: bold;
-    margin-top: 25px;
 }
 
 .StockItemPriceText:hover {
@@ -588,4 +586,9 @@ ul#ul-class-price li {
 
 .HomePagePriceHighlight{
     color: crimson;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    background-color: #343a40 !important;
 }

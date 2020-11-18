@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function emailExists($email) {
     include 'config.php';
 
-    $stmt = $connection->prepare("SELECT email FROM users WHERE deleted_at IS NULL;");
+    $stmt = $connection->prepare("SELECT email FROM users WHERE deleted_at IS NULL AND email = ?;");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $count = $stmt->get_result()->num_rows;

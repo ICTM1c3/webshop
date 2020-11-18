@@ -31,7 +31,7 @@ $categories = array_slice($categories, 0, 5);
 ?>
 <div class="container">
     <div class="text-center my-5">
-        <h2>Welkom op de website van nerdy gadgets!</h2>
+        <h2>Welkom op de website van Nerdy Gadgets!</h2>
     </div>
     <?php
     foreach ($categories as $category) {

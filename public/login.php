@@ -19,19 +19,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else $errors[] = "Het wachtwoord veld is verplicht.";
 
     if (count($errors) === 0) {
-        $stmt = $connection->prepare("SELECT PersonId, FullName, HashedPassword FROM people WHERE LogonName = ? AND LogonName != 'NO LOGON' AND IsPermittedToLogon = 1");
+        $stmt = $connection->prepare("SELECT id, first_name, last_name, password FROM users WHERE email = ? AND deleted_at IS NULL;");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
         $stmt->close();
         $connection->close();
 
-        $hash = $result['HashedPassword'] ?? false;
+        $hash = $result['password'] ?? false;
 
         if (password_verify($password, $hash)) {
             $_SESSION['user'] = [
-                    'id' => $result['PersonId'],
-                    'name' => $result['FullName'],
+                    'id' => $result['id'],
+                    'name' => $result['first_name'] . " " . $result['last_name'],
             ];
             header("Location: customer.php");
             exit();
