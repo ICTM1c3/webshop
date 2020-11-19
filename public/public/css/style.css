@@ -1,5 +1,6 @@
 html {
     background-color: rgb(35, 35, 47) !important;
+    height: 100% !important;
 }
 
 body {
@@ -520,7 +521,7 @@ ul#ul-class-price li {
 }
 
 .FilterTopMargin {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 #ProductFrame h6 {
@@ -587,8 +588,22 @@ ul#ul-class-price li {
 .HomePagePriceHighlight{
     color: crimson;
 }
-.footer {
-    position: absolute;
-    bottom: 0;
+
+footer {
+    /*position: absolute;*/
     background-color: #343a40 !important;
+    width: 100%;
+}
+
+main {
+    margin-bottom: 5rem;
+}
+
+nav .navbar-brand img {
+    max-height: 45px;
+    object-fit: contain;
+}
+
+.video-container {
+    height: 300px;
 }

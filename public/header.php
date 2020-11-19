@@ -11,7 +11,6 @@ include 'config.php';
 
     <!-- CSS -->
     <link rel="stylesheet" href="public/css/style.css" type="text/css">
-    <link rel="stylesheet" href="public/css/new.css" type="text/css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
           integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 
@@ -42,7 +41,7 @@ include 'config.php';
     <meta name="msapplication-TileImage" content="public/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
 </head>
-<body>
+<body class="d-flex flex-column h-100">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="index.php">
@@ -55,7 +54,7 @@ include 'config.php';
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
+                <li class="nav-item">
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
 
@@ -88,6 +87,9 @@ include 'config.php';
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="shopping-cart.php">Winkelwagen<?= (isset($_SESSION['shopping_cart'])) ? " (" . count($_SESSION['shopping_cart']) . " producten)" : ""; ?></a>
+                </li>
                 <?php
                 if($authenticated) {
                     ?>
@@ -106,10 +108,10 @@ include 'config.php';
                     <?php
                 } else {
                     ?>
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a class="nav-link" href="login.php">Inloggen</a>
                     </li>
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a class="nav-link" href="register.php">Registeren</a>
                     </li>
                     <?php
@@ -119,6 +121,6 @@ include 'config.php';
         </div>
     </div>
 </nav>
-<div>
+<main class="d-flex justify-content-start flex-fill">
     <div class="container-fluid mt-3">
 

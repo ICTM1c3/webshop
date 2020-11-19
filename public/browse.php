@@ -1,9 +1,10 @@
 <?php
 include 'header.php';
 
-function InArray($needle, $stack){
-    for($i = 0; $i < count($stack); $i++)
-        if(in_array($needle, $stack[$i]))
+function InArray($needle, $stack)
+{
+    for ($i = 0; $i < count($stack); $i++)
+        if (in_array($needle, $stack[$i]))
             return true;
     return false;
 }
@@ -17,41 +18,40 @@ if (isset($_GET['search_string'])) {
 $CategoryID = "";
 if (isset($_GET['categoryfilter'])) {
     $CategoryID = $_GET['categoryfilter'];
-}
-else if (isset($_GET['category_id'])) {
+} else if (isset($_GET['category_id'])) {
     $CategoryID = $_GET['category_id'];
 }
 
 if (isset($_GET['color_id'])) {
     $ColorID = $_GET['color_id'];
-}else{
+} else {
     $ColorID = "";
 }
 
 if (isset($_GET['size'])) {
     $Size = $_GET['size'];
-}else{
+} else {
     $Size = "";
 }
 
 if (isset($_GET['brand'])) {
     $Brand = $_GET['brand'];
-}else{
+} else {
     $Brand = "";
 }
 
-$where = "where s.stockitemid in (select stockitemid from stockitemstockgroups where stockgroupid = ".$CategoryID.")";
-if($CategoryID == "")
+$where = "where s.stockitemid in (select stockitemid from stockitemstockgroups where stockgroupid = " . $CategoryID . ")";
+if ($CategoryID == "")
     $where = "";
 
-$Query = "SELECT colorid, colorname FROM colors where colorid in (select s.colorid from stockitems s ".$where.") ORDER BY colorid";
+$Query = "SELECT colorid, colorname FROM colors where colorid in (select s.colorid from stockitems s " . $where . ") ORDER BY colorid";
 $Statement = mysqli_prepare($connection, $Query);
 //mysqli_stmt_bind_param($Statement, "i", $CategoryID);
 mysqli_stmt_execute($Statement);
 $colors = mysqli_stmt_get_result($Statement);
 $colors = mysqli_fetch_all($colors, MYSQLI_ASSOC);
-if(count($colors) > 0){
-    if(!InArray($ColorID, $colors)){
+if (count($colors) > 0) {
+    if (!InArray($ColorID, $colors)) {
         $ColorID = "";
     }
 } else {
@@ -60,13 +60,13 @@ if(count($colors) > 0){
 
 $Query = "select distinct sa.size from stockitems sa 
             join stockitems s on sa.stockitemid = s.stockitemid
-            ".$where;
+            " . $where;
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_execute($Statement);
 $sizes = mysqli_stmt_get_result($Statement);
 $sizes = mysqli_fetch_all($sizes, MYSQLI_ASSOC);
-if(count($sizes) > 1){
-    if(!InArray($Size, $sizes)){
+if (count($sizes) > 1) {
+    if (!InArray($Size, $sizes)) {
         $Size = "";
     }
 } else {
@@ -75,20 +75,19 @@ if(count($sizes) > 1){
 
 $Query = "select distinct sa.brand from stockitems sa 
             join stockitems s on sa.stockitemid = s.stockitemid
-            ".$where;
+            " . $where;
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_execute($Statement);
 $brands = mysqli_stmt_get_result($Statement);
 $brands = mysqli_fetch_all($brands, MYSQLI_ASSOC);
 
-if(count($brands) > 1){
-    if(!InArray($Brand, $brands)){
+if (count($brands) > 1) {
+    if (!InArray($Brand, $brands)) {
         $Brand = "";
     }
 } else {
     $Brand = "";
 }
-
 
 
 if (isset($_GET['sort'])) {
@@ -163,22 +162,22 @@ if ($SearchString != "") {
     $queryBuildResult = "true";
 
 $subCat = "-1 = -1";
-if($CategoryID != ""){
+if ($CategoryID != "") {
     $subCat = " IN (SELECT StockGroupID from stockitemstockgroups WHERE StockItemID = SI.StockItemID)";
 }
 
-$colorsub =  "-1 = -1";
-if($ColorID != ""){
+$colorsub = "-1 = -1";
+if ($ColorID != "") {
     $colorsub = "IN (SELECT colorid from stockitems s WHERE s.StockItemID = SI.StockItemID)";
 }
 
 $sizesub = "-1 = -1";
-if($Size != ""){
-    $sizesub  = "IN (SELECT size from stockitems s WHERE s.StockItemID = SI.StockItemID)";
+if ($Size != "") {
+    $sizesub = "IN (SELECT size from stockitems s WHERE s.StockItemID = SI.StockItemID)";
 }
 
 $brandsub = "-1 = -1";
-if($Brand != ""){
+if ($Brand != "") {
     $brandsub = "IN (SELECT brand from stockitems s WHERE s.StockItemID = SI.StockItemID)";
 }
 
@@ -196,10 +195,10 @@ $Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, 
                 FROM stockitems SI
                 JOIN stockitemholdings SIH USING(stockitemid)
                 WHERE (" . $queryBuildResult . ") AND
-                 ? ".$subCat." AND
-                 ? ".$colorsub." AND
-                 ? ".$sizesub." AND
-                 ? ".$brandsub."
+                 ? " . $subCat . " AND
+                 ? " . $colorsub . " AND
+                 ? " . $sizesub . " AND
+                 ? " . $brandsub . "
                 GROUP BY StockItemID
                 ORDER BY " . $Sort . " 
                 LIMIT ? OFFSET ?";
@@ -211,7 +210,7 @@ $ReturnableResult = mysqli_stmt_get_result($Statement);
 $ReturnableResult = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC);
 
 $amount = 0;
-if($ReturnableResult != null)
+if ($ReturnableResult != null)
     $amount = count($ReturnableResult[0]);
 if (isset($amount)) {
     $AmountOfPages = ceil($amount / $ProductsOnPage);
@@ -227,7 +226,7 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
 
 ?>
 
-    <div id="FilterFrame"><h2 class="FilterText"><i class="fas fa-filter"></i> Filteren </h2>
+    <div id="FilterFrame"><h2 class="FilterText mb-0"><i class="fas fa-filter"></i> Filteren </h2>
         <form>
             <div id="FilterOptions">
                 <h4 class="FilterTopMargin"><i class="fas fa-search"></i> Zoeken</h4>
@@ -242,13 +241,13 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
                     </option>
 
                     <?php
-                    for($i = 0; $i < count($categories); $i++){
+                    for ($i = 0; $i < count($categories); $i++) {
                         $selected = "";
-                        if($categories[$i]["Stockgroupid"] == $CategoryID)
+                        if ($categories[$i]["Stockgroupid"] == $CategoryID)
                             $selected = "selected";
 
                         print('
-                    <option value="' .$categories[$i]["Stockgroupid"]. '"'.$selected.'>'.$categories[$i]["stockgroupname"].'
+                    <option value="' . $categories[$i]["Stockgroupid"] . '"' . $selected . '>' . $categories[$i]["stockgroupname"] . '
                     </option>
                     ');
                     }
@@ -262,13 +261,13 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
                     </option>
 
                     <?php
-                    for($i = 0; $i < count($colors); $i++){
+                    for ($i = 0; $i < count($colors); $i++) {
                         $selected = "";
-                        if($colors[$i]["colorid"] == $ColorID)
+                        if ($colors[$i]["colorid"] == $ColorID)
                             $selected = "selected";
 
                         print('
-                    <option value="' .$colors[$i]["colorid"]. '"'.$selected.'>'.$colors[$i]["colorname"].'
+                    <option value="' . $colors[$i]["colorid"] . '"' . $selected . '>' . $colors[$i]["colorname"] . '
                     </option>
                     ');
                     }
@@ -282,16 +281,16 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
                     </option>
 
                     <?php
-                    for($i = 0; $i < count($sizes); $i++){
+                    for ($i = 0; $i < count($sizes); $i++) {
                         $selected = "";
-                        if($sizes[$i]["size"] == null)
+                        if ($sizes[$i]["size"] == null)
                             continue;
 
-                        if($sizes[$i]["size"] == $Size)
+                        if ($sizes[$i]["size"] == $Size)
                             $selected = "selected";
 
                         print('
-                    <option value="' .$sizes[$i]["size"]. '"'.$selected.'>'.$sizes[$i]["size"].'
+                    <option value="' . $sizes[$i]["size"] . '"' . $selected . '>' . $sizes[$i]["size"] . '
                     </option>
                     ');
                     }
@@ -305,16 +304,16 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
                     </option>
 
                     <?php
-                    for($i = 0; $i < count($brands); $i++){
+                    for ($i = 0; $i < count($brands); $i++) {
                         $selected = "";
-                        if($brands[$i]["brand"] == null)
+                        if ($brands[$i]["brand"] == null)
                             continue;
 
-                        if($brands[$i]["brand"] == $Brand)
+                        if ($brands[$i]["brand"] == $Brand)
                             $selected = "selected";
 
                         print('
-                    <option value="' .$brands[$i]["brand"]. '"'.$selected.'>'.$brands[$i]["brand"].'
+                    <option value="' . $brands[$i]["brand"] . '"' . $selected . '>' . $brands[$i]["brand"] . '
                     </option>
                     ');
                     }
@@ -431,7 +430,6 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
         }
         ?>
     </div>
-
 <?php
 include 'footer.php';
 ?>

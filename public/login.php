@@ -33,14 +33,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'id' => $result['id'],
                     'name' => $result['first_name'] . " " . $result['last_name'],
             ];
-            header("Location: customer.php");
+
+            if (isset($_GET['goto'])) {
+                header("Location: " . $_GET['goto']);
+            } else {
+                header("Location: customer.php");
+            }
+
             exit();
         } else $errors[] = "De inloggegevens zijn onjuist.";
     }
 }
 ?>
 <div class="container">
-    <form action="login.php" method="POST">
+    <form method="POST">
         <?php
         foreach($errors as $key => $value) {
             ?>
