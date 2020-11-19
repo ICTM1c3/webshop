@@ -2,11 +2,7 @@
 ob_start();
 include 'header.php';
 
-if (!$authenticated) {
-    header("Location: login.php?goto=shopping-cart.php");
-    exit();
-}
-
+$success_messages = [];
 $errors = [];
 
 if($_SERVER['REQUEST_METHOD'] === "POST") {
@@ -39,6 +35,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
 
                     if ((int) $amount === 0) {
                         unset($_SESSION['shopping_cart'][$product_id]);
+                        $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                         break;
                     }
 
@@ -46,10 +43,12 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
                         $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount + $_SESSION['shopping_cart'][$product_id]['amount']]);
                     } else $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount]);
 
+                    $success_messages[] = "Het product is toegevoegd aan de winkelwagen.";
                     break;
                 case "remove":
                     // Verwijderen van product uit winkelmand.
                     unset($_SESSION['shopping_cart'][$product_id]);
+                    $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                     break;
                 default:
                     break;
@@ -61,6 +60,21 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
 ?>
 <div class="container">
     <h1 class="mb-3">Winkelwagen</h1>
+    <div>
+        <?php
+        foreach($errors as $key => $value) {
+            ?>
+            <div class="alert alert-danger"><?=$value?></div>
+            <?php
+        }
+
+        foreach($success_messages as $key => $value) {
+            ?>
+            <div class="alert alert-success"><?=$value?></div>
+            <?php
+        }
+        ?>
+    </div>
     <?php
     if (isset($_SESSION['shopping_cart']) && !empty($_SESSION['shopping_cart'])) {
         $products = $_SESSION['shopping_cart'];
@@ -81,7 +95,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
                         <input type="hidden" name="action" value="update">
                         <div class="form-row">
                             <div class="col-sm-2">
-                                <input required type="number" name="amount" class="form-control" placeholder="Aantal" value="<?= $product['amount'] ?>">
+                                <input min="1" required type="number" name="amount" class="form-control" placeholder="Aantal" value="<?= $product['amount'] ?>">
                             </div>
                             <div class="col-sm-2">
                                 <button type="submit" class="btn btn-primary">Bijwerken</button>
@@ -100,7 +114,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
         }
         ?>
         <div>
-            <h3>Totale prijs: &euro;<?= $totale_prijs; ?></h3>
+            <h3>Totale prijs: &euro;<?= number_format($totale_prijs, 2, ',', '.'); ?></h3>
         </div>
         <?php
     } else {
