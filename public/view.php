@@ -116,6 +116,13 @@ mysqli_close($connection);
                 <div>
                     <p><span class="product-price">&euro;<?= number_format($Result['SellPrice'], 2, ',', '.'); ?></span> <span class="text-muted">inclusief btw</span></p>
                 </div>
+                <?php
+                if (isset($_GET['add'])) {
+                    ?>
+                    <div class="alert alert-success">Het product is toegevoegd aan de <u><a href="shopping-cart.php">winkelwagen</a></u>.</div>
+                    <?php
+                }
+                ?>
                 <div>
                     <form action="shopping-cart.php" method="POST">
                         <input type="hidden" name="product_id" value="<?= $Result['StockItemID'] ?>">

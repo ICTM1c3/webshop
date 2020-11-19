@@ -43,6 +43,11 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
                         $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount + $_SESSION['shopping_cart'][$product_id]['amount']]);
                     } else $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount]);
 
+                    if ($action === "add") {
+                        header("Location: view.php?id=$product_id&add");
+                        exit();
+                    }
+
                     $success_messages[] = "Het product is toegevoegd aan de winkelwagen.";
                     break;
                 case "remove":

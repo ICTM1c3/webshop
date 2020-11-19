@@ -108,10 +108,10 @@ include 'config.php';
                     <?php
                 } else {
                     ?>
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a class="nav-link" href="login.php">Inloggen</a>
                     </li>
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a class="nav-link" href="register.php">Registeren</a>
                     </li>
                     <?php
