@@ -1,11 +1,12 @@
 <?php
 ob_start();
-include 'header.php';
 
 $success_messages = [];
 $errors = [];
 
 if($_SERVER['REQUEST_METHOD'] === "POST") {
+    include 'config.php';
+
     if (isset($_POST['product_id']) && !empty($_POST['product_id'])) {
         $product_id = $_POST['product_id'];
     } else $errors[] = "Een product ID is verplicht.";
@@ -60,6 +61,9 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
             }
         } else $errors[] = "Er is geen product gevonden met dit ID.";
     }
+    include 'header.php';
+} else {
+    include 'header.php';
 }
 
 ?>
