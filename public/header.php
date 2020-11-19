@@ -41,7 +41,7 @@ include 'config.php';
     <meta name="msapplication-TileImage" content="public/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
 </head>
-<body>
+<body class="d-flex flex-column h-100">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="index.php">
@@ -123,6 +123,6 @@ include 'config.php';
         </div>
     </div>
 </nav>
-<main>
+<main class="d-flex justify-content-start flex-fill">
     <div class="container-fluid mt-3">
 
