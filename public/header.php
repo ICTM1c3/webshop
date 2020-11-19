@@ -87,14 +87,12 @@ include 'config.php';
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="shopping-cart.php">Winkelwagen<?= (isset($_SESSION['shopping_cart'])) ? " (" . count($_SESSION['shopping_cart']) . " producten)" : ""; ?></a>
+                </li>
                 <?php
                 if($authenticated) {
-                    $shopping_cart_count = (isset($_SESSION['shopping_cart'])) ? " (" . count($_SESSION['shopping_cart']) . " producten)" : "";
                     ?>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="shopping-cart.php">Winkelwagen<?= $shopping_cart_count; ?></a>
-                    </li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"

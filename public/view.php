@@ -122,7 +122,7 @@ mysqli_close($connection);
                         <input type="hidden" name="action" value="add">
                         <div class="form-row">
                             <div class="col-sm-12 col-md-2">
-                                <input required type="number" name="amount" class="form-control" placeholder="Aantal" value="1">
+                                <input min="1" required type="number" name="amount" class="form-control" placeholder="Aantal" value="1">
                             </div>
                             <div class="col mt-3 mt-md-0">
                                 <button type="submit" class="btn btn-success">Toevoegen aan winkelwagen</button>
