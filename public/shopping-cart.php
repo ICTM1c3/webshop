@@ -19,7 +19,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
         }
     } else $errors[] = "Een actie is verplicht.";
 
-    if (count($errors) === 0) {
+    if (empty($errors)) {
         $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price, (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath, (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath FROM stockitems Si WHERE StockItemID = ?;");
         $stmt->bind_param("i", $product_id);
         $stmt->execute();
