@@ -124,6 +124,11 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
         ?>
         <div>
             <h3>Totale prijs: &euro;<?= number_format($totale_prijs, 2, ',', '.'); ?></h3>
+            <div class="testcontainer">
+                <div class="testrow"></div>
+                <div class="tets"> hallo</div>
+
+            </div>
         </div>
         <?php
     } else {
