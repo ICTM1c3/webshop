@@ -617,6 +617,7 @@ nav .navbar-brand img {
     margin-right: auto;
     margin-left: auto;
     background-color: deeppink;
+    padding-bottom: 90px;
 }
 .testrow{
     display: -ms-flexbox;

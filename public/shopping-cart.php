@@ -124,10 +124,19 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
         ?>
         <div>
             <h3>Totale prijs: &euro;<?= number_format($totale_prijs, 2, ',', '.'); ?></h3>
-            <div class="testcontainer">
-                <div class="testrow"></div>
-                <div class="tets"> hallo</div>
-
+        </div>
+            <div class="row">
+            <div class="col-12">
+                <form class="card p-2" action="shopping-cart.php" method="post">
+                    <div class="input-group">
+                kortingscode: <input class="form-control" name="kortingscodeveld" value="" type="text">
+                <div class="input-group-append">
+                <button type="submit" class="btn btn-secondary" name="kortingscodeknop" value="ok"> test
+                    </button>
+                </div>
+                    </div>
+                </form>
+            </div>
             </div>
         </div>
         <?php
