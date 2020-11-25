@@ -216,14 +216,14 @@ if (isset($amount)) {
     $AmountOfPages = ceil($amount / $ProductsOnPage);
 }
 
-$Query = "SELECT Stockgroupid, stockgroupname FROM stockgroups ORDER BY stockgroupid";
+$Query = "SELECT Stockgroupid, stockgroupname FROM stockgroups where stockgroupid in (select stockgroupid from stockitemstockgroups) ORDER BY stockgroupid";
 $Statement = mysqli_prepare($connection, $Query);
 //mysqli_stmt_bind_param($Statement, "i", $CategoryID);
 mysqli_stmt_execute($Statement);
 $categories = mysqli_stmt_get_result($Statement);
 $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
 
-
+//var_dump($categories[4]["stockgroupname"]);
 ?>
 
     <div id="FilterFrame"><h2 class="FilterText mb-0"><i class="fas fa-filter"></i> Filteren </h2>
@@ -243,8 +243,13 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
                     <?php
                     for ($i = 0; $i < count($categories); $i++) {
                         $selected = "";
-                        if ($categories[$i]["Stockgroupid"] == $CategoryID)
+                        //if(count($categories[$i]["Stockgroupid"]) == 0)
+                        //    continue;
+
+                        if ($categories[$i]["Stockgroupid"] == $CategoryID){
+                            //var_dump($categories[$i]["Stockgroupid"]);
                             $selected = "selected";
+                        }
 
                         print('
                     <option value="' . $categories[$i]["Stockgroupid"] . '"' . $selected . '>' . $categories[$i]["stockgroupname"] . '
