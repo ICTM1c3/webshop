@@ -43,6 +43,11 @@ mysqli_close($connection);
 ?>
 <div class="container">
     <div class="row mb-3">
+        <div class="col-sm-12 mb-3">
+            <h1 style="margin-left: 10px">Nerdy Gadgets</h1>
+        </div>
+    </div>
+    <div class="row mb-3">
         <div id="Wrap">
             <?php
             if (isset($StockGroups)) {
@@ -69,7 +74,7 @@ mysqli_close($connection);
     <?php
     foreach ($categories as $category) {
         ?>
-        <hr class="border-white">
+        <hr class="border-white" style="margin-top: -40px">
         <div class="row mb-5">
             <?php
             $i = 0;
