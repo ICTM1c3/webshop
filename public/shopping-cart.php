@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                     $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                     break;
                 case "add_promocode":
-                    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price FROM promocodes WHERE code = ? AND valid_from < NOW() AND valid_until > NOW();");
+                    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
                     $stmt->bind_param("s", $promocode);
                     $stmt->execute();
                     $result = $stmt->get_result();
@@ -81,10 +81,9 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                     $stmt->close();
                     $connection->close();
 
-                    if ($result === false) {
+                    if (!$result) {
                         $errors[] = "Dit is geen geldige kortingscode.";
                     } else {
-                        print_r($result);
                         $_SESSION["promocode"] = $promocode;
                     }
                     break;
@@ -97,7 +96,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 } else {
     include 'header.php';
 }
-
 
 ?>
 <div class="container">
@@ -165,15 +163,34 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         <?php
     }
     // This code executes after the whole shopping cart list has been 'built'
-
-    if ($item_total < 30) { // Calculate shipping costs
+    
+    // Calculate shipping costs
+    if ($item_total < 30) {
         $shipping_costs = 5;
     } else {
         $shipping_costs = 0;
     }
-
+    
     // Calculate promocode
-    $discount = -10;
+    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
+    $stmt->bind_param("s", $_SESSION["promocode"]);
+    $stmt->execute();
+    $promocode_discount = $stmt->get_result();
+    $promocode_discount = ($promocode_discount) ? $promocode_discount->fetch_assoc() : false;
+    $stmt->close();
+    $connection->close();
+    
+    if ($promocode_discount) {
+        if ($item_total > $promocode_discount["minimum_price"] || $promocode_discount["minimum_price"] == null && $item_total < $promocode_discount["maximum_price"] || $promocode_discount["maximum_price"] == null) {
+            if ($promocode_discount["type"] === "FIXED") {
+                $discount = -$promocode_discount["value"];
+            } elseif ($promocode_discount["type"] === "DYNAMIC") {
+                $discount = -($item_total * $promocode_discount["value"]);
+            }
+        }
+    } else {
+        $discount = 0;
+    }
 
     // Calculate final total
     $total = max($item_total + $discount + $shipping_costs, 0);
