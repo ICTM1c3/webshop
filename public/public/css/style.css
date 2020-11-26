@@ -607,3 +607,10 @@ nav .navbar-brand img {
 .video-container {
     height: 300px;
 }
+
+.lage_voorraad {
+    color: #676EFF;
+    font-size: 15px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
