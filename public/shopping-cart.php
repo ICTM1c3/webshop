@@ -91,6 +91,19 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     foreach ($products as $product) {
         $totale_prijs += $product['Price'] * $product['amount'];
         ?>
+        <?php
+        //bereken de prijs inclusief de verzendkosten
+        $korting = 10;
+        $verzendkosten = 5;
+        //er worden alleen verzendkosten gedeclareerd als het bedrag onder de 30 euro is.
+        if($totale_prijs< 30){
+            $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
+        } else{
+            $verzendkosten = 0;
+            $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
+        }
+        $totale_prijs_plus_verzendkosten_metkorting =($totale_prijs_plus_verzendkosten- $korting);
+        ?>
         <div class="row">
             <div class="col-sm-6 col-md-3">
                 <img src="public/<?= isset($product['ImagePath']) ? "stockitemimg/" . $product['ImagePath'] : "stockgroupimg/" . $product['BackupImagePath'] ?>"
@@ -128,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     }
     ?>
     <div>
-        <h3>Totale prijs: &euro;<?= number_format($totale_prijs, 2, ',', '.'); ?></h3>
+        <h5>Totale prijs: &euro;<?= number_format($totale_prijs, 2, ',', '.'); ?></h5>
     </div>
     <div class="row bg-dark">
         <div class="col-12">
@@ -142,10 +155,38 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                             <button type="submit" class="btn btn-secondary" name="kortingscodeknop" value="ok"> ok
                             </button>
                         </div>
+                        <?php
+                        if(isset($post_["kortingscodeknop"])){
+                            $opgegevencode = $post_["kortingscodeveld"];
+                            if($opgegevencode !== "gadgets"){
+                                print"kortingscode niet herkend";
+                        ?>
                     </div>
+                        <h5>verzendkosten: <?php print("€".$verzendkosten) ?></h5>
+                        <h5>totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
+                </div>
+                </div>
+                <?php
+                }else{
+                                ?>
+                 </div>
+                        <h5>verzendkosten: <?php print("€".$verzendkosten) ?></h5>
+                        <h5>korting:<?php print("€".$korting)?>     </h5>
+                        <h5>totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten_metkorting) ?></h5>
+                </div>
+                </div>
+
+             <?php   }
+                            }
+                ?>
+                </div>
+                        <h5>verzendkosten: <?php print("€".$verzendkosten) ?></h5>
+                        <h5>totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
                 </div>
                 </div>
             </form>
+            <a class="btn btn-primary btn-lg btn-block" href="checkout-login.php" type="submit" target="_blank"> afrekenen
+            </a>
         </div>
     </div>
 </div>
