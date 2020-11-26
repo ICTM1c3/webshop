@@ -1,5 +1,13 @@
 <?php
 include 'config.php';
+
+$query = "SELECT StockGroupID, StockGroupName, ImagePath
+          FROM stockgroups
+          WHERE StockGroupID IN ( SELECT StockGroupID FROM stockitemstockgroups ) AND ImagePath IS NOT NULL
+          ORDER BY StockGroupID ASC";
+$Statement = mysqli_prepare($connection, $query);
+mysqli_stmt_execute($Statement);
+$HeaderStockGroups = mysqli_stmt_get_result($Statement);
 ?>
 <!DOCTYPE html>
 <html lang="en" style="background-color: rgb(35, 35, 47);">
@@ -51,76 +59,73 @@ include 'config.php';
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+        <div class="col-lg-6 col-sm-12">
+            <form method="GET" action="browse.php" class="search">
+                <div class="input-group w-100">
+                    <input name="search_string" type="text" class="form-control" placeholder="Search" value="<?php if(isset($_GET['search_string'])) print($_GET['search_string'])?>">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form> <!-- search-wrap .end// -->
+        </div>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <!--                    <i class="fas fa-shopping-cart"></i>-->
+
+                <a class="nav-link" href="shopping-cart.php">Winkelwagen<?= (isset($_SESSION['shopping_cart'])) ? " (" . count($_SESSION['shopping_cart']) . ")" : ""; ?></a>
+            </li>
+            <?php
+            if($authenticated) {
+                ?>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Welkom, <?= $user['name'] ?>!
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="orders.php">Mijn bestellingen</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="logout.php">Uitloggen</a>
+                    </div>
+                </li>
+                <?php
+            } else {
+                ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="login.php">Inloggen</a>
+                </li>
+                <?php
+            }
+            ?>
+        </ul>
+    </div>
+</nav>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Categorieën
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="categories.php">Overzicht</a>
-                        <div class="dropdown-divider"></div>
-                        <?php
-                        $query = "
-                        SELECT StockGroupID, StockGroupName, ImagePath
-                        FROM stockgroups
-                        WHERE StockGroupID IN ( SELECT StockGroupID FROM stockitemstockgroups ) AND ImagePath IS NOT NULL
-                        ORDER BY StockGroupID ASC";
-                        $Statement = mysqli_prepare($connection, $query);
-                        mysqli_stmt_execute($Statement);
-                        $HeaderStockGroups = mysqli_stmt_get_result($Statement);
-
-                        foreach ($HeaderStockGroups as $HeaderStockGroup) {
-                            ?>
-                            <a class="dropdown-item"
-                               href="browse.php?category_id=<?= $HeaderStockGroup['StockGroupID'] ?>"><?= $HeaderStockGroup['StockGroupName'] ?></a>
-                            <?php
-                        }
-                        ?>
-                    </div>
-                </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="shopping-cart.php">Winkelwagen<?= (isset($_SESSION['shopping_cart'])) ? " (" . count($_SESSION['shopping_cart']) . " producten)" : ""; ?></a>
-                </li>
                 <?php
-                if($authenticated) {
-                    ?>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Welkom, <?= $user['name'] ?>!
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="orders.php">Mijn bestellingen</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="logout.php">Uitloggen</a>
-                        </div>
-                    </li>
-                    <?php
-                } else {
+                foreach($HeaderStockGroups as $HeaderStockGroup){
                     ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.php">Inloggen</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="register.php">Registeren</a>
+                        <a class="nav-link" href="browse.php?category_id=<?= $HeaderStockGroup['StockGroupID'] ?>"><?= $HeaderStockGroup['StockGroupName'] ?></a>
                     </li>
                     <?php
                 }
                 ?>
+
+                <!--                dropdown header-->
             </ul>
         </div>
     </div>
 </nav>
 <main class="d-flex justify-content-start flex-fill">
     <div class="container-fluid mt-3">
-
