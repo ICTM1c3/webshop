@@ -56,6 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                     unset($_SESSION['shopping_cart'][$product_id]);
                     $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                     break;
+                case "add_promocode":
+                    break;
                 default:
                     break;
             }
@@ -65,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 } else {
     include 'header.php';
 }
-
 
 
 ?>
@@ -86,109 +87,136 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         }
         ?>
     </div>
+
+
     <?php
     if (isset($_SESSION['shopping_cart']) && !empty($_SESSION['shopping_cart'])) {
-    $products = $_SESSION['shopping_cart'];
-    $totale_prijs = 0;
-    foreach ($products as $product) {
-        $totale_prijs += $product['Price'] * $product['amount'];
+        $products = $_SESSION['shopping_cart'];
+        $totale_prijs = 0;
+        foreach ($products as $product) {
+            $productPrice = $product['Price'] * $product['amount'];
+            $totale_prijs += $productPrice;
+            //bereken de prijs inclusief de verzendkosten
+            $korting = 10;
+            $verzendkosten = 5;
+            //er worden alleen verzendkosten gedeclareerd als het bedrag onder de 30 euro is.
+            if($totale_prijs< 30){
+                $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
+            } else{
+                $verzendkosten = 0;
+                $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
+            }
+            $totale_prijs_plus_verzendkosten_metkorting =($totale_prijs_plus_verzendkosten- $korting);
         ?>
-        <?php
-        //bereken de prijs inclusief de verzendkosten
-        $korting = 10;
-        $verzendkosten = 5;
-        //er worden alleen verzendkosten gedeclareerd als het bedrag onder de 30 euro is.
-        if($totale_prijs< 30){
-            $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
-        } else{
-            $verzendkosten = 0;
-            $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
-        }
-        $totale_prijs_plus_verzendkosten_metkorting =($totale_prijs_plus_verzendkosten- $korting);
-        ?>
-        <div class="row">
-            <div class="col-sm-6 col-md-3">
-                <img src="public/<?= isset($product['ImagePath']) ? "stockitemimg/" . $product['ImagePath'] : "stockgroupimg/" . $product['BackupImagePath'] ?>"
-                     alt="" class="img-fluid">
-            </div>
-            <div class="col-sm-6 col-md-7">
-                <h3><a class="text-white" target="_blank"
-                       href="view.php?id=<?= $product['StockItemId'] ?>"><?= $product['StockItemName'] ?></a></h3>
-                <p class="mb-1"><span>Artikelnummer: <?= $product['StockItemId'] ?></span></p>
-                <p>
-                    <span>Prijs: &euro;<?= number_format($product['Price'] * $product['amount'], 2, ',', '.') ?> (&euro;<?= number_format($product['Price'], 2, ',', '.') ?> per stuk)</span>
-                </p>
-                <form method="POST" action="shopping-cart.php" class="mb-3">
-                    <input type="hidden" name="product_id" id="product_id" value="<?= $product['StockItemId'] ?>">
-                    <input type="hidden" name="action" value="update">
-                    <div class="form-row">
-                        <div class="col-sm-2">
-                            <input min="1" required type="number" name="amount" class="form-control"
-                                   placeholder="Aantal" value="<?= $product['amount'] ?>">
+            <div class="row">
+                <div class="col-sm-6 col-md-3">
+                    <img src="public/<?= isset($product['ImagePath']) ? "stockitemimg/" . $product['ImagePath'] : "stockgroupimg/" . $product['BackupImagePath'] ?>"
+                        alt="" class="img-fluid">
+                </div>
+                <div class="col-sm-6 col-md-7">
+                    <h3><a class="text-white" target="_blank"
+                        href="view.php?id=<?= $product['StockItemId'] ?>"><?= $product['StockItemName'] ?></a></h3>
+                    <p class="mb-1"><span>Artikelnummer: <?= $product['StockItemId'] ?></span></p>
+                    <p>
+                        <span>Prijs: &euro;<?= number_format($productPrice, 2, ',', '.') ?> (&euro;<?= number_format($product['Price'], 2, ',', '.') ?> per stuk)</span>
+                    </p>
+                    <form method="POST" action="shopping-cart.php" class="mb-3">
+                        <input type="hidden" name="product_id" id="product_id" value="<?= $product['StockItemId'] ?>">
+                        <input type="hidden" name="action" value="update">
+                        <div class="form-row">
+                            <div class="col-sm-2">
+                                <input min="1" required type="number" name="amount" class="form-control"
+                                    placeholder="Aantal" value="<?= $product['amount'] ?>">
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="submit" class="btn btn-primary">Bijwerken</button>
+                            </div>
                         </div>
-                        <div class="col-sm-2">
-                            <button type="submit" class="btn btn-primary">Bijwerken</button>
-                        </div>
-                    </div>
-                </form>
-                <form method="POST" action="shopping-cart.php">
-                    <input type="hidden" name="product_id" id="product_id" value="<?= $product['StockItemId'] ?>">
-                    <input type="hidden" name="action" value="remove">
-                    <button type="submit" class="btn btn-danger">Verwijderen</button>
-                </form>
+                    </form>
+                    <form method="POST" action="shopping-cart.php">
+                        <input type="hidden" name="product_id" id="product_id" value="<?= $product['StockItemId'] ?>">
+                        <input type="hidden" name="action" value="remove">
+                        <button type="submit" class="btn btn-danger">Verwijderen</button>
+                    </form>
+                </div>
             </div>
-        </div>
-        <hr class="border-white"/>
+            <hr class="border-white"/> 
         <?php
     }
     ?>
-    <div>
-        <h5>Totale prijs: &euro;<?= number_format($totale_prijs, 2, ',', '.'); ?></h5>
-    </div>
+
+    <!-- Begin bottom div with promocode and totals -->
     <div class="row bg-dark">
         <div class="col-12">
-            <form class="p-2" action="shopping-cart.php" method="post">
-                <div class="form-row">
-                    <div class="col-sm-12 col-md-4">
+            <div> <!-- Div with the promocode entry box and text -->
+                <form class="p-2" action="shopping-cart.php" method="post">
                     <label for="kortingscodeveld">Kortingscode:</label>
                     <div class="input-group">
                         <input class="form-control" name="kortingscodeveld" value="" type="text">
                         <div class="input-group-append">
-                            <button type="submit" class="btn btn-secondary" name="kortingscodeknop" value="ok"> ok
-                            </button>
+                            <button type="submit" class="btn btn-secondary" name="kortingscodeknop" value="ok">ok</button>
                         </div>
+                    </div>
+                </form>
+            </div>
+
+            <hr class="border-white"/> 
+            
+            <div> <!-- Div with the totals row -->
+                <?php
+
+                ?>
+            </div>
+
+            <hr class="border-white"/> 
+
+            <a class="btn btn-primary btn-lg btn-block" href="checkout-login.php" type="submit">Afrekenen</a> <!-- Knop afrekenen -->
+
+
+
+            <!-- <form class="p-2" action="shopping-cart.php" method="post">
+                <div class="form-row">
+                    <div class="col-sm-12 col-md-4">
+                        <label for="kortingscodeveld">Kortingscode:</label>
+                        <div class="input-group">
+                            <input class="form-control" name="kortingscodeveld" value="" type="text">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-secondary" name="kortingscodeknop" value="ok">ok</button>
+                            </div>
                         <?php
                         if(isset($post_["kortingscodeknop"])){
                             $opgegevencode = $post_["kortingscodeveld"];
                             if($opgegevencode !== "gadgets"){
                                 print"kortingscode niet herkend";
                         ?>
-                    </div>
-                        <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
-                        <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
-                </div>
-                </div>
-                <?php
-                }else{
-                                ?>
-                 </div>
-                        <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
-                        <h5>korting:<?php print("€".$korting)?>     </h5>
-                        <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten_metkorting) ?></h5>
-                </div>
-                </div>
+                        </div>
 
-             <?php   }
-                            }
-                ?>
-                </div>
+
                         <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
                         <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
+                    </div>
+                    </div>
+                    <?php
+                    }else{
+                                    ?>
+                    </div>
+                            <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
+                            <h5>Korting:<?php print("€".$korting)?>     </h5>
+                            <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten_metkorting) ?></h5>
+                    </div>
+                    </div>
+
+                    <?php   }
+                                }
+                    ?>
+                    </div>
+                            <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
+                            <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
+                    </div>
                 </div>
-                </div>
-            </form>
-            <a class="btn btn-primary btn-lg btn-block" href="checkout-login.php" type="submit" target="_blank"> Afrekenen
-            </a>
+            </form> -->
+
+
         </div>
     </div>
 </div>
