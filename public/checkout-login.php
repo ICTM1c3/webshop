@@ -72,6 +72,9 @@ exit();
                 <a href="register.php"> of registreer als je nog geen account hebt.</a>
             </div>
             </div>
+        <div class="col-md-2 ">
+            <a href="checkout.php"> tijdelijke link naar de afreken pagina</a>
+        </div>
     </form>
 </div>
 <?php
