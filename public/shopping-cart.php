@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             <form class="p-2" action="shopping-cart.php" method="post">
                 <div class="form-row">
                     <div class="col-sm-12 col-md-4">
-                    <label for="kortingscodeveld">kortingscode:</label>
+                    <label for="kortingscodeveld">Kortingscode:</label>
                     <div class="input-group">
                         <input class="form-control" name="kortingscodeveld" value="" type="text">
                         <div class="input-group-append">
@@ -162,17 +162,17 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                                 print"kortingscode niet herkend";
                         ?>
                     </div>
-                        <h5>verzendkosten: <?php print("€".$verzendkosten) ?></h5>
-                        <h5>totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
+                        <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
+                        <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
                 </div>
                 </div>
                 <?php
                 }else{
                                 ?>
                  </div>
-                        <h5>verzendkosten: <?php print("€".$verzendkosten) ?></h5>
+                        <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
                         <h5>korting:<?php print("€".$korting)?>     </h5>
-                        <h5>totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten_metkorting) ?></h5>
+                        <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten_metkorting) ?></h5>
                 </div>
                 </div>
 
@@ -180,8 +180,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                             }
                 ?>
                 </div>
-                        <h5>verzendkosten: <?php print("€".$verzendkosten) ?></h5>
-                        <h5>totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
+                        <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
+                        <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
                 </div>
                 </div>
             </form>
