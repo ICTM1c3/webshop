@@ -92,23 +92,14 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     <?php
     if (isset($_SESSION['shopping_cart']) && !empty($_SESSION['shopping_cart'])) {
         $products = $_SESSION['shopping_cart'];
-        $totale_prijs = 0;
+        $item_total = 0;
+        $receipt_lines = array();
         foreach ($products as $product) {
-            $productPrice = $product['Price'] * $product['amount'];
-            $totale_prijs += $productPrice;
-            //bereken de prijs inclusief de verzendkosten
-            $korting = 10;
-            $verzendkosten = 5;
-            //er worden alleen verzendkosten gedeclareerd als het bedrag onder de 30 euro is.
-            if($totale_prijs< 30){
-                $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
-            } else{
-                $verzendkosten = 0;
-                $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
-            }
-            $totale_prijs_plus_verzendkosten_metkorting =($totale_prijs_plus_verzendkosten- $korting);
+            $productPrice = $product['Price'] * $product['amount']; // This code executes once for every item in the shopping cart
+            $item_total += $productPrice;
+            
         ?>
-            <div class="row">
+            <div class="row"> <!-- This is one entry on the list of items in the shopping cart -->
                 <div class="col-sm-6 col-md-3">
                     <img src="public/<?= isset($product['ImagePath']) ? "stockitemimg/" . $product['ImagePath'] : "stockgroupimg/" . $product['BackupImagePath'] ?>"
                         alt="" class="img-fluid">
@@ -143,6 +134,26 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             <hr class="border-white"/> 
         <?php
     }
+    // This code executes after the whole shopping cart list has been 'built'
+
+    if ($item_total < 30) { // Calculate shipping costs
+        $shipping_costs = 5;
+    } else {
+        $shipping_costs = 0;
+    }
+
+    // Calculate promocode
+    $discount = 0;
+
+    // Calculate final total
+    $total = $item_total + $discount + $shipping_costs;
+    
+    array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => $item_total));
+    if ($discount < 0) {
+        array_push($receipt_lines, array("NAME" => "Kortingscode", "VALUE" => $discount));
+    }
+    array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => $shipping_costs));
+    array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => $total));
     ?>
 
     <!-- Begin bottom div with promocode and totals -->
@@ -162,60 +173,22 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
             <hr class="border-white"/> 
             
-            <div> <!-- Div with the totals row -->
+            <div class="col-12"> <!-- Div with the totals row -->
                 <?php
-
-                ?>
+                    foreach ($receipt_lines as $key => $line) {?>
+                        <div class="row">
+                            <span class="mr-5 ml-4"><strong><?=$line["NAME"]?></strong></span>
+                            <span>&euro;<?=number_format($line["VALUE"], 2, ',', '.')?></span>
+                        </div>
+                        <?php if ($key + 1 < count($receipt_lines)) { ?> <hr class="border-white"/> <?php } // Prints a horizontal line after the item if it's not the last in the list ?>
+                        <?php
+                    }
+                    ?>
             </div>
-
+            
             <hr class="border-white"/> 
 
-            <a class="btn btn-primary btn-lg btn-block" href="checkout-login.php" type="submit">Afrekenen</a> <!-- Knop afrekenen -->
-
-
-
-            <!-- <form class="p-2" action="shopping-cart.php" method="post">
-                <div class="form-row">
-                    <div class="col-sm-12 col-md-4">
-                        <label for="kortingscodeveld">Kortingscode:</label>
-                        <div class="input-group">
-                            <input class="form-control" name="kortingscodeveld" value="" type="text">
-                            <div class="input-group-append">
-                                <button type="submit" class="btn btn-secondary" name="kortingscodeknop" value="ok">ok</button>
-                            </div>
-                        <?php
-                        if(isset($post_["kortingscodeknop"])){
-                            $opgegevencode = $post_["kortingscodeveld"];
-                            if($opgegevencode !== "gadgets"){
-                                print"kortingscode niet herkend";
-                        ?>
-                        </div>
-
-
-                        <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
-                        <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
-                    </div>
-                    </div>
-                    <?php
-                    }else{
-                                    ?>
-                    </div>
-                            <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
-                            <h5>Korting:<?php print("€".$korting)?>     </h5>
-                            <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten_metkorting) ?></h5>
-                    </div>
-                    </div>
-
-                    <?php   }
-                                }
-                    ?>
-                    </div>
-                            <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
-                            <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
-                    </div>
-                </div>
-            </form> -->
-
+            <a class="btn btn-primary btn-lg btn-block mb-4" href="checkout-login.php" type="submit">Afrekenen</a> <!-- Knop afrekenen -->
 
         </div>
     </div>
