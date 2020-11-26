@@ -6,29 +6,35 @@ $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
     include 'config.php';
-
-    if (isset($_POST['product_id']) && !empty($_POST['product_id'])) {
-        $product_id = $_POST['product_id'];
-    } else $errors[] = "Een product ID is verplicht.";
-
+    
     if (isset($_POST['action']) && !empty($_POST['action'])) {
         $action = $_POST['action'];
-
+        
         if ($action === "add" || $action === "update") {
             $amount = $_POST['amount'] ?? 1;
         }
     } else $errors[] = "Een actie is verplicht.";
+    
+    if ($action === "add_promocode" || $action === "remove_promocode") {
+        $no_product_id = true;
+    }
+
+    if (isset($_POST['product_id']) && !empty($_POST['product_id'] || $no_product_id)) {
+        $product_id = $_POST['product_id'];
+    } else $errors[] = "Een product ID is verplicht.";
 
     if (empty($errors)) {
-        $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price, (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath, (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath FROM stockitems Si WHERE StockItemID = ?;");
-        $stmt->bind_param("i", $product_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $result = ($result) ? $result->fetch_assoc() : false;
-        $stmt->close();
-        $connection->close();
+        if (!$no_product_id) {
+            $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price, (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath, (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath FROM stockitems Si WHERE StockItemID = ?;");
+            $stmt->bind_param("i", $product_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $result = ($result) ? $result->fetch_assoc() : false;
+            $stmt->close();
+            $connection->close();
+        }
 
-        if ($result) {
+        if ($result || $no_product_id) {
             switch ($action) {
                 case "add":
                 case "update":
@@ -57,6 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                     $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                     break;
                 case "add_promocode":
+                    $_SESSION['promocode'] = "test";
+                    print_r($_SESSION);
                     break;
                 default:
                     break;
@@ -143,10 +151,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     }
 
     // Calculate promocode
-    $discount = 0;
+    $discount = -10;
 
     // Calculate final total
-    $total = $item_total + $discount + $shipping_costs;
+    $total = max($item_total + $discount + $shipping_costs, 0);
     
     array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => $item_total));
     if ($discount < 0) {
@@ -160,12 +168,13 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     <div class="row bg-dark">
         <div class="col-12">
             <div> <!-- Div with the promocode entry box and text -->
-                <form class="p-2" action="shopping-cart.php" method="post">
+                <form class="p-2" action="shopping-cart.php" method="POST">
                     <label for="kortingscodeveld">Kortingscode:</label>
                     <div class="input-group">
-                        <input class="form-control" name="kortingscodeveld" value="" type="text">
+                        <input class="form-control" name="promocode" value="" type="text">
+                        <input type="hidden" name="action" value="add_promocode">
                         <div class="input-group-append">
-                            <button type="submit" class="btn btn-secondary" name="kortingscodeknop" value="ok">ok</button>
+                            <button type="submit" class="btn btn-secondary">Toepassen</button>
                         </div>
                     </div>
                 </form>
