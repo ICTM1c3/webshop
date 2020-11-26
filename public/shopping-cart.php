@@ -187,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 </div>
                 </div>
             </form>
-            <a class="btn btn-primary btn-lg btn-block" href="checkout-login.php" type="submit" target="_blank"> Afrekenen
+            <a class="btn btn-primary btn-lg btn-block" href="checkout-login.php" type="submit"> Afrekenen
             </a>
         </div>
     </div>
