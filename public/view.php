@@ -116,7 +116,7 @@ mysqli_close($connection);
                 <p class='mb-1 text-warning'> Beperkte voorraad, koop snel!</p>
                 <?php }
                 else if($Result['QuantityOnHand'] == 0 ){?>
-                <p class='mb-1 text-success'> Binnenkort weer beschikbaar! </p>
+                <p class='mb-1 text-danger'> Binnenkort weer beschikbaar! </p>
                 <?php }
                 else { ?>
                 <p class='mb-1 text-success'> Ruime Voorraad! </p>
