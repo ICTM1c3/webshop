@@ -66,6 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     include 'header.php';
 }
 
+
+
 ?>
 <div class="container">
     <h1 class="mb-3">Winkelwagen</h1>
@@ -185,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 </div>
                 </div>
             </form>
-            <a class="btn btn-primary btn-lg btn-block" href="checkout-login.php" type="submit" target="_blank"> afrekenen
+            <a class="btn btn-primary btn-lg btn-block" href="checkout-login.php" type="submit" target="_blank"> Afrekenen
             </a>
         </div>
     </div>
