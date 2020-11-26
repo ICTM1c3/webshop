@@ -16,15 +16,25 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     } else $errors[] = "Een actie is verplicht.";
     
     if ($action === "add_promocode" || $action === "remove_promocode") {
-        $no_product_id = true;
+        $promo_action = true;
+    } else {
+        $promo_action = false;
     }
 
-    if (isset($_POST['product_id']) && !empty($_POST['product_id'] || $no_product_id)) {
-        $product_id = $_POST['product_id'];
-    } else $errors[] = "Een product ID is verplicht.";
+    if ($promo_action) {
+        if (isset($_POST['promocode']) && !empty($_POST['promocode'])) {
+            $promocode = $_POST['promocode'];
+        } else $errors[] = "Een kortingscode is verplicht.";
+    }
+
+    if (!$promo_action) {
+        if (isset($_POST['product_id']) && !empty($_POST['product_id'])) {
+            $product_id = $_POST['product_id'];
+        } else $errors[] = "Een product ID is verplicht.";
+    }
 
     if (empty($errors)) {
-        if (!$no_product_id) {
+        if (!$promo_action) {
             $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price, (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath, (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath FROM stockitems Si WHERE StockItemID = ?;");
             $stmt->bind_param("i", $product_id);
             $stmt->execute();
@@ -34,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             $connection->close();
         }
 
-        if ($result || $no_product_id) {
+        if ($result || $promo_action) {
             switch ($action) {
                 case "add":
                 case "update":
@@ -63,8 +73,20 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                     $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                     break;
                 case "add_promocode":
-                    $_SESSION['promocode'] = "test";
-                    print_r($_SESSION);
+                    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price FROM promocodes WHERE code = ? AND valid_from < NOW() AND valid_until > NOW();");
+                    $stmt->bind_param("s", $promocode);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $result = ($result) ? $result->fetch_assoc() : false;
+                    $stmt->close();
+                    $connection->close();
+
+                    if ($result === false) {
+                        $errors[] = "Dit is geen geldige kortingscode.";
+                    } else {
+                        print_r($result);
+                        $_SESSION["promocode"] = $promocode;
+                    }
                     break;
                 default:
                     break;
