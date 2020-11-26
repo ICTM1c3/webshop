@@ -115,7 +115,7 @@ mysqli_close($connection);
                 else if($Result['QuantityOnHand'] < 25000){?>
                 <p class='mb-1 text-warning'> Beperkte voorraad, koop snel!</p>
                 <?php }
-                else if($Result['QuantityOnHand'] = 0 ){?>
+                else if($Result['QuantityOnHand'] == 0 ){?>
                 <p class='mb-1 text-success'> Binnenkort weer beschikbaar! </p>
                 <?php }
                 else { ?>
@@ -123,8 +123,10 @@ mysqli_close($connection);
                 <?php } ?>
                 <?php
                 if ($Result['QuantityOnHand'] > 0 ){ ?>
-                <p class='mb-1 text-success'> Voor 23:59 besteld morgen in huis <i class="fas fa-exclamation-circle"></i> </p>
+                    <p class='mb-1 text-success'> Voor 23:59 besteld morgen in huis <i class="fas fa-exclamation-circle"></i> </p>
                 <?php } ?>
+
+
 
                 <?php if (isset($Result['Temperature'])) { ?>
                     <p class="mb-1"><?= $Result['Temperature']; ?></p>
