@@ -195,12 +195,12 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     // Calculate final total
     $total = max($item_total + $discount + $shipping_costs, 0);
     
-    array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => $item_total));
+    array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => number_format($item_total, 2, ',', '.')));
     if ($discount < 0) {
-        array_push($receipt_lines, array("NAME" => "Kortingscode", "VALUE" => $discount));
+        array_push($receipt_lines, array("NAME" => "Kortingscode", "VALUE" => number_format($discount, 2, ',', '.')));
     }
-    array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => $shipping_costs));
-    array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => $total));
+    array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : number_format($shipping_costs, 2, ',', '.')));
+    array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => "&euro;".number_format($total, 2, ',', '.')));
     ?>
 
     <!-- Begin bottom div with promocode and totals -->
@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                     foreach ($receipt_lines as $key => $line) {?>
                         <div class="row">
                             <span class="mr-5 ml-4"><strong><?=$line["NAME"]?></strong></span>
-                            <span>&euro;<?=number_format($line["VALUE"], 2, ',', '.')?></span>
+                            <span><?=$line["VALUE"]?></span>
                         </div>
                         <?php if ($key + 1 < count($receipt_lines)) { ?> <hr class="border-white"/> <?php } // Prints a horizontal line after the item if it's not the last in the list ?>
                         <?php
