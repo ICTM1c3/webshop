@@ -85,7 +85,12 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                         $errors[] = "Dit is geen geldige kortingscode.";
                     } else {
                         $_SESSION["promocode"] = $promocode;
+                        $success_messages[] = "Het kortingscode is toegepast.";
                     }
+                    break;
+                case "remove_promocode":
+                    $_SESSION["promocode"] = null;
+                    $success_messages[] = "De kortingscode is verwijderd.";
                     break;
                 default:
                     break;
@@ -195,11 +200,11 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     // Calculate final total
     $total = max($item_total + $discount + $shipping_costs, 0);
     
-    array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => number_format($item_total, 2, ',', '.')));
+    array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => "&euro;".number_format($item_total, 2, ',', '.')));
     if ($discount < 0) {
-        array_push($receipt_lines, array("NAME" => "Kortingscode", "VALUE" => number_format($discount, 2, ',', '.')));
+        array_push($receipt_lines, array("NAME" => "Kortingscode", "VALUE" => "&euro;".number_format($discount, 2, ',', '.')));
     }
-    array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : number_format($shipping_costs, 2, ',', '.')));
+    array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : "&euro;".number_format($shipping_costs, 2, ',', '.')));
     array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => "&euro;".number_format($total, 2, ',', '.')));
     ?>
 
@@ -210,10 +215,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 <form class="p-2" action="shopping-cart.php" method="POST">
                     <label for="kortingscodeveld">Kortingscode:</label>
                     <div class="input-group">
-                        <input class="form-control" name="promocode" value="" type="text">
-                        <input type="hidden" name="action" value="add_promocode">
+                        <input class="form-control" name="promocode" value="<?php if (isset($_SESSION["promocode"])) {print($_SESSION["promocode"]);} else {print("");} ?>" type="text">
                         <div class="input-group-append">
-                            <button type="submit" class="btn btn-secondary">Toepassen</button>
+                            <button type="submit" name="action" value="add_promocode" class="btn btn-primary">Toepassen</button>
+                            <button type="submit" name="action" value="remove_promocode" class="btn btn-danger">Verwijderen</button>
                         </div>
                     </div>
                 </form>
