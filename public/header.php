@@ -71,6 +71,7 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
                 </div>
             </form>
         </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
                 <a class="nav-link" href="shopping-cart.php">Winkelwagen<?= (isset($_SESSION['shopping_cart'])) ? " (" . count($_SESSION['shopping_cart']) . ")" : ""; ?></a>
@@ -99,6 +100,7 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
             }
             ?>
         </ul>
+        </div>
     </div>
 </nav>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
