@@ -69,18 +69,15 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
                         </button>
                     </div>
                 </div>
-            </form> <!-- search-wrap .end// -->
+            </form>
         </div>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <!--                    <i class="fas fa-shopping-cart"></i>-->
-
                 <a class="nav-link" href="shopping-cart.php">Winkelwagen<?= (isset($_SESSION['shopping_cart'])) ? " (" . count($_SESSION['shopping_cart']) . ")" : ""; ?></a>
             </li>
             <?php
             if($authenticated) {
                 ?>
-
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -106,7 +103,6 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
 </nav>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
@@ -121,8 +117,6 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
                     <?php
                 }
                 ?>
-
-                <!--                dropdown header-->
             </ul>
         </div>
     </div>

@@ -71,45 +71,47 @@ mysqli_close($connection);
             ?>
         </div>
     </div>
-    <?php
-    foreach ($categories as $category) {
-        ?>
-        <hr class="border-white" style="margin-top: -40px">
-        <div class="row mb-5">
-            <?php
-            $i = 0;
-            $products = array_filter(array_values(array_map(function ($i) use($category) {return ($i['StockGroupID'] === $category) ? $i : null;}, $ReturnableResult)));
-            shuffle($products);
+    <div class="category-header">
+        <?php
+        foreach ($categories as $category) {
             ?>
-            <div class="col-sm-12 mb-3">
-                <h3>Aanbevolen <?= $products[0]['StockGroupName'] ?></h3>
-            </div>
-            <?php
-            foreach ($products as $row) {
-                $i++;
+            <div class="row mb-3">
+                <?php
+                $i = 0;
+                $products = array_filter(array_values(array_map(function ($i) use($category) {return ($i['StockGroupID'] === $category) ? $i : null;}, $ReturnableResult)));
+                shuffle($products);
                 ?>
-                <div class="col-sm-12 col-md-3">
-                    <a href="view.php?id=<?= $row['StockItemID']; ?>">
-                        <img src="<?= isset($row['ImagePath']) ? $ITEMIMG . $row['ImagePath'] : $GROUPIMG . $row['BackupImagePath'] ?>"
-                             class="img-fluid" alt="">
-                    </a>
-                    <h1 class="StockItemID">Artikelnummer: <?= $row["StockItemID"]; ?></h1>
-                    <p class="StockItemName"><?= $row["StockItemName"]; ?></p>
-                    <p class="StockItemName"><span
-                                class="HomePagePriceHighlight">&euro;<?= $row["SellPrice"] ?></span> inclusief btw
-                    </p>
+                <div class="col-sm-12 mb-3">
+                    <h3>Aanbevolen <?= $products[0]['StockGroupName'] ?></h3>
                 </div>
                 <?php
-                if ($i === 4) break;
-            }
-            ?>
-            <div class="text-right w-100 px-3">
-                <a class="btn btn-secondary" href="browse.php?category_id=<?= $row['StockGroupID'] ?>" target="_blank">Bekijk alle <?= $products[0]['StockGroupName'] ?></a>
+                foreach ($products as $row) {
+                    $i++;
+                    ?>
+                    <div class="col-sm-12 col-md-3">
+                        <a href="view.php?id=<?= $row['StockItemID']; ?>">
+                            <img src="<?= isset($row['ImagePath']) ? $ITEMIMG . $row['ImagePath'] : $GROUPIMG . $row['BackupImagePath'] ?>"
+                                 class="img-fluid" alt="">
+                        </a>
+                        <h1 class="StockItemID">Artikelnummer: <?= $row["StockItemID"]; ?></h1>
+                        <p class="StockItemName"><?= $row["StockItemName"]; ?></p>
+                        <p class="StockItemName"><span
+                                    class="HomePagePriceHighlight">&euro;<?= $row["SellPrice"] ?></span> inclusief btw
+                        </p>
+                    </div>
+                    <?php
+                    if ($i === 4) break;
+                }
+                ?>
+                <div class="col-sm-12 text-right">
+                    <a class="btn btn-secondary" href="browse.php?category_id=<?= $row['StockGroupID'] ?>" target="_blank">Bekijk alle <?= $products[0]['StockGroupName'] ?></a>
+                </div>
             </div>
-        </div>
-        <?php
-    }
-    ?>
+            <hr class="border-white">
+            <?php
+        }
+        ?>
+    </div>
 </div>
 <?php
 include 'footer.php';
