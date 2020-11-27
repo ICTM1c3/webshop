@@ -37,6 +37,20 @@ $R = mysqli_fetch_all($R, MYSQLI_ASSOC);
 if ($R) {
     $Images = $R;
 }
+$Query = "SELECT stockitemid, ImagePath FROM stockitemimages sii WHERE stockitemid in 
+          (select stockitemid from stockitemstockgroups where stockgroupid in (select stockgroupid from stockitemstockgroups where stockitemid = ?))";
+$Statement = mysqli_prepare($connection, $Query);
+mysqli_stmt_bind_param($Statement, "i", $_GET['id']);
+mysqli_stmt_execute($Statement);
+$ItemImagePath = mysqli_stmt_get_result($Statement);
+$ItemImagePath = mysqli_fetch_all($ItemImagePath, MYSQLI_ASSOC);//bevat stockitemid's en hun afbeeldingen van de categorie van het stockitem dat bekeken wordt
+
+$Query = "select stockgroupid, imagepath from stockgroups where stockgroupid in (select stockgroupid from stockitemstockgroups where stockitemid = ?)";
+$Statement = mysqli_prepare($connection, $Query);
+mysqli_stmt_bind_param($Statement, "i", $_GET['id']);
+mysqli_stmt_execute($Statement);
+$CatImagePath = mysqli_stmt_get_result($Statement);
+$CatImagePath = mysqli_fetch_all($CatImagePath, MYSQLI_ASSOC);//bevat stockitemid's en hun afbeeldingen van de categorie van het stockitem dat bekeken wordt
 mysqli_close($connection);
 ?>
 
@@ -188,6 +202,18 @@ mysqli_close($connection);
     } else {
         ?><h2 id="ProductNotFound">Het opgevraagde product is niet gevonden.</h2><?php
     } ?>
+    <div>
+        <?php var_dump($ItemImagePath); ?>
+        <img class="img-fluid" src="public/stockitemimg/<?php
+            for($i = 0; $i < 280; $i++) {
+                if(isset($ItemImagePath[$i]["ImagePath"])){
+                    print($ItemImagePath[$i]["ImagePath"]);
+                    break;
+                }
+            }
+            ?>">
+    </div>
+
 </div>
 <?php
 include __DIR__ . "/footer.php";
