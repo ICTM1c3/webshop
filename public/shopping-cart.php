@@ -6,29 +6,45 @@ $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
     include 'config.php';
-
-    if (isset($_POST['product_id']) && !empty($_POST['product_id'])) {
-        $product_id = $_POST['product_id'];
-    } else $errors[] = "Een product ID is verplicht.";
-
+    
     if (isset($_POST['action']) && !empty($_POST['action'])) {
         $action = $_POST['action'];
-
+        
         if ($action === "add" || $action === "update") {
             $amount = $_POST['amount'] ?? 1;
         }
     } else $errors[] = "Een actie is verplicht.";
+    
+    if ($action === "add_promocode" || $action === "remove_promocode") {
+        $promo_action = true;
+    } else {
+        $promo_action = false;
+    }
+
+    if ($promo_action) {
+        if (isset($_POST['promocode']) && !empty($_POST['promocode'])) {
+            $promocode = $_POST['promocode'];
+        } else $errors[] = "Een kortingscode is verplicht.";
+    }
+
+    if (!$promo_action) {
+        if (isset($_POST['product_id']) && !empty($_POST['product_id'])) {
+            $product_id = $_POST['product_id'];
+        } else $errors[] = "Een product ID is verplicht.";
+    }
 
     if (empty($errors)) {
-        $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price, (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath, (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath FROM stockitems Si WHERE StockItemID = ?;");
-        $stmt->bind_param("i", $product_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $result = ($result) ? $result->fetch_assoc() : false;
-        $stmt->close();
-        $connection->close();
+        if (!$promo_action) {
+            $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price, (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath, (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath FROM stockitems Si WHERE StockItemID = ?;");
+            $stmt->bind_param("i", $product_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $result = ($result) ? $result->fetch_assoc() : false;
+            $stmt->close();
+            $connection->close();
+        }
 
-        if ($result) {
+        if ($result || $promo_action) {
             switch ($action) {
                 case "add":
                 case "update":
@@ -51,13 +67,44 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
                     $success_messages[] = "Het product is toegevoegd aan de winkelwagen.";
                     break;
+
                 case "remove":
                     // Verwijderen van product uit winkelmand.
                     unset($_SESSION['shopping_cart'][$product_id]);
                     $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                     break;
+
                 case "add_promocode":
+                    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price, itemSpecific FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
+                    $stmt->bind_param("s", $promocode);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $result = ($result) ? $result->fetch_assoc() : false;
+                    $stmt->close();
+                    
+                    if (!$result) {
+                        $errors[] = "Dit is geen geldige kortingscode.";
+                    } else {
+                        if ($result["itemSpecific"] == 1) {
+                            $stmt = $connection->prepare("SELECT stockitem_id FROM promocodeStockitems WHERE promocode = ?;");
+                            $stmt->bind_param("s", $promocode);
+                            $stmt->execute();
+                            $result2 = $stmt->get_result();
+                            $result2 = ($result2) ? $result2->fetch_all(MYSQLI_ASSOC) : false;
+                            $stmt->close();
+                        } else {
+                            $_SESSION["promocode"] = $promocode;
+                            $success_messages[] = "Het kortingscode is toegepast.";
+                        }
+                    }
+                    $connection->close();
                     break;
+
+                case "remove_promocode":
+                    $_SESSION["promocode"] = null;
+                    $success_messages[] = "De kortingscode is verwijderd.";
+                    break;
+
                 default:
                     break;
             }
@@ -67,7 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 } else {
     include 'header.php';
 }
-
 
 ?>
 <div class="container">
@@ -92,23 +138,14 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     <?php
     if (isset($_SESSION['shopping_cart']) && !empty($_SESSION['shopping_cart'])) {
         $products = $_SESSION['shopping_cart'];
-        $totale_prijs = 0;
+        $item_total = 0;
+        $receipt_lines = array();
         foreach ($products as $product) {
-            $productPrice = $product['Price'] * $product['amount'];
-            $totale_prijs += $productPrice;
-            //bereken de prijs inclusief de verzendkosten
-            $korting = 10;
-            $verzendkosten = 5;
-            //er worden alleen verzendkosten gedeclareerd als het bedrag onder de 30 euro is.
-            if($totale_prijs< 30){
-                $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
-            } else{
-                $verzendkosten = 0;
-                $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
-            }
-            $totale_prijs_plus_verzendkosten_metkorting =($totale_prijs_plus_verzendkosten- $korting);
+            $productPrice = $product['Price'] * $product['amount']; // This code executes once for every item in the shopping cart
+            $item_total += $productPrice;
+            
         ?>
-            <div class="row">
+            <div class="row"> <!-- This is one entry on the list of items in the shopping cart -->
                 <div class="col-sm-6 col-md-3">
                     <img src="public/<?= isset($product['ImagePath']) ? "stockitemimg/" . $product['ImagePath'] : "stockgroupimg/" . $product['BackupImagePath'] ?>"
                         alt="" class="img-fluid">
@@ -143,18 +180,58 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             <hr class="border-white"/> 
         <?php
     }
+    // This code executes after the whole shopping cart list has been 'built'
+    
+    // Calculate shipping costs
+    if ($item_total < 30) {
+        $shipping_costs = 5;
+    } else {
+        $shipping_costs = 0;
+    }
+    
+    // Calculate promocode
+    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
+    $stmt->bind_param("s", $_SESSION["promocode"]);
+    $stmt->execute();
+    $promocode_discount = $stmt->get_result();
+    $promocode_discount = ($promocode_discount) ? $promocode_discount->fetch_assoc() : false;
+    $stmt->close();
+    $connection->close();
+    
+    if ($promocode_discount) {
+        if ($item_total > $promocode_discount["minimum_price"] || $promocode_discount["minimum_price"] == null && $item_total < $promocode_discount["maximum_price"] || $promocode_discount["maximum_price"] == null) {
+            if ($promocode_discount["type"] === "FIXED") {
+                $discount = -$promocode_discount["value"];
+            } elseif ($promocode_discount["type"] === "DYNAMIC") {
+                $discount = -($item_total * $promocode_discount["value"]);
+            }
+        }
+    } else {
+        $discount = 0;
+    }
+
+    // Calculate final total
+    $total = max($item_total + $discount + $shipping_costs, 0);
+    
+    array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => "&euro;".number_format($item_total, 2, ',', '.')));
+    if ($discount < 0) {
+        array_push($receipt_lines, array("NAME" => "Kortingscode", "VALUE" => "&euro;".number_format($discount, 2, ',', '.')));
+    }
+    array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : "&euro;".number_format($shipping_costs, 2, ',', '.')));
+    array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => "&euro;".number_format($total, 2, ',', '.')));
     ?>
 
     <!-- Begin bottom div with promocode and totals -->
     <div class="row bg-dark">
         <div class="col-12">
             <div> <!-- Div with the promocode entry box and text -->
-                <form class="p-2" action="shopping-cart.php" method="post">
+                <form class="p-2" action="shopping-cart.php" method="POST">
                     <label for="kortingscodeveld">Kortingscode:</label>
                     <div class="input-group">
-                        <input class="form-control" name="kortingscodeveld" value="" type="text">
+                        <input class="form-control" name="promocode" value="<?php if (isset($_SESSION["promocode"])) {print($_SESSION["promocode"]);} else {print("");} ?>" type="text">
                         <div class="input-group-append">
-                            <button type="submit" class="btn btn-secondary" name="kortingscodeknop" value="ok">ok</button>
+                            <button type="submit" name="action" value="add_promocode" class="btn btn-primary">Toepassen</button>
+                            <button type="submit" name="action" value="remove_promocode" class="btn btn-danger">Verwijderen</button>
                         </div>
                     </div>
                 </form>
@@ -162,60 +239,22 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
             <hr class="border-white"/> 
             
-            <div> <!-- Div with the totals row -->
+            <div class="col-12"> <!-- Div with the totals row -->
                 <?php
-
-                ?>
+                    foreach ($receipt_lines as $key => $line) {?>
+                        <div class="row">
+                            <span class="mr-5 ml-4"><strong><?=$line["NAME"]?></strong></span>
+                            <span><?=$line["VALUE"]?></span>
+                        </div>
+                        <?php if ($key + 1 < count($receipt_lines)) { ?> <hr class="border-white"/> <?php } // Prints a horizontal line after the item if it's not the last in the list ?>
+                        <?php
+                    }
+                    ?>
             </div>
-
+            
             <hr class="border-white"/> 
 
-            <a class="btn btn-primary btn-lg btn-block" href="checkout-login.php" type="submit">Afrekenen</a> <!-- Knop afrekenen -->
-
-
-
-            <!-- <form class="p-2" action="shopping-cart.php" method="post">
-                <div class="form-row">
-                    <div class="col-sm-12 col-md-4">
-                        <label for="kortingscodeveld">Kortingscode:</label>
-                        <div class="input-group">
-                            <input class="form-control" name="kortingscodeveld" value="" type="text">
-                            <div class="input-group-append">
-                                <button type="submit" class="btn btn-secondary" name="kortingscodeknop" value="ok">ok</button>
-                            </div>
-                        <?php
-                        if(isset($post_["kortingscodeknop"])){
-                            $opgegevencode = $post_["kortingscodeveld"];
-                            if($opgegevencode !== "gadgets"){
-                                print"kortingscode niet herkend";
-                        ?>
-                        </div>
-
-
-                        <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
-                        <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
-                    </div>
-                    </div>
-                    <?php
-                    }else{
-                                    ?>
-                    </div>
-                            <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
-                            <h5>Korting:<?php print("€".$korting)?>     </h5>
-                            <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten_metkorting) ?></h5>
-                    </div>
-                    </div>
-
-                    <?php   }
-                                }
-                    ?>
-                    </div>
-                            <h5>Verzendkosten: <?php print("€".$verzendkosten) ?></h5>
-                            <h5>Totale prijs: <?php print("€".$totale_prijs_plus_verzendkosten) ?></h5>
-                    </div>
-                </div>
-            </form> -->
-
+            <a class="btn btn-primary btn-lg btn-block mb-4" href="checkout-login.php" type="submit">Afrekenen</a> <!-- Knop afrekenen -->
 
         </div>
     </div>
