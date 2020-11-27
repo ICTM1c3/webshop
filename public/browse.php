@@ -46,7 +46,6 @@ if ($CategoryID == "")
 
 $Query = "SELECT colorid, colorname FROM colors where colorid in (select s.colorid from stockitems s " . $where . ") ORDER BY colorid";
 $Statement = mysqli_prepare($connection, $Query);
-//mysqli_stmt_bind_param($Statement, "i", $CategoryID);
 mysqli_stmt_execute($Statement);
 $colors = mysqli_stmt_get_result($Statement);
 $colors = mysqli_fetch_all($colors, MYSQLI_ASSOC);
@@ -202,7 +201,6 @@ $Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, 
                 GROUP BY StockItemID
                 ORDER BY " . $Sort . " 
                 LIMIT ? OFFSET ?";
-//var_dump($Query);
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_bind_param($Statement, "iiissii", $ShowStockLevel, $CategoryID, $ColorID, $Size, $Brand, $ProductsOnPage, $Offset);
 mysqli_stmt_execute($Statement);
@@ -218,12 +216,10 @@ if (isset($amount)) {
 
 $Query = "SELECT Stockgroupid, stockgroupname FROM stockgroups where stockgroupid in (select stockgroupid from stockitemstockgroups) ORDER BY stockgroupid";
 $Statement = mysqli_prepare($connection, $Query);
-//mysqli_stmt_bind_param($Statement, "i", $CategoryID);
 mysqli_stmt_execute($Statement);
 $categories = mysqli_stmt_get_result($Statement);
 $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
 
-//var_dump($categories[4]["stockgroupname"]);
 ?>
 
     <div id="FilterFrame"><h2 class="FilterText mb-0"><i class="fas fa-filter"></i> Filteren </h2>
@@ -243,11 +239,8 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
                     <?php
                     for ($i = 0; $i < count($categories); $i++) {
                         $selected = "";
-                        //if(count($categories[$i]["Stockgroupid"]) == 0)
-                        //    continue;
 
                         if ($categories[$i]["Stockgroupid"] == $CategoryID){
-                            //var_dump($categories[$i]["Stockgroupid"]);
                             $selected = "selected";
                         }
 
