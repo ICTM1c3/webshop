@@ -71,6 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 case "remove":
                     // Verwijderen van product uit winkelmand.
                     unset($_SESSION['shopping_cart'][$product_id]);
+                    if ($_SESSION["itemSpecificPromocode"]) {
+                        $_SESSION["itemSpecificPromocode"] = false;
+                        $_SESSION["promocode"] = null;
+                    }
                     $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                     break;
 
@@ -92,6 +96,24 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                             $result2 = $stmt->get_result();
                             $result2 = ($result2) ? $result2->fetch_all(MYSQLI_ASSOC) : false;
                             $stmt->close();
+
+                            // print_r($_SESSION["shopping_cart"]);
+                            // print_r($result2);
+                            $isValid = false;
+                            foreach ($result2 as $v) {
+                                if (in_array($v["stockitem_id"], array_keys($_SESSION["shopping_cart"])) ) {
+                                    $isValid = true;
+                                break;
+                                }
+                            }
+
+                            if ($isValid) {
+                                $_SESSION["promocode"] = $promocode;
+                                $success_messages[] = "Het kortingscode is toegepast.";
+                                $_SESSION["itemSpecificPromocode"] = true;
+                            } else {
+                                $errors[] = "Deze kortingscode is niet geldig voor dit artikel.";
+                            }
                         } else {
                             $_SESSION["promocode"] = $promocode;
                             $success_messages[] = "Het kortingscode is toegepast.";
@@ -102,6 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
                 case "remove_promocode":
                     $_SESSION["promocode"] = null;
+                    $_SESSION["itemSpecificPromocode"] = false;
                     $success_messages[] = "De kortingscode is verwijderd.";
                     break;
 
