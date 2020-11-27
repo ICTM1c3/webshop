@@ -67,31 +67,44 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
                     $success_messages[] = "Het product is toegevoegd aan de winkelwagen.";
                     break;
+
                 case "remove":
                     // Verwijderen van product uit winkelmand.
                     unset($_SESSION['shopping_cart'][$product_id]);
                     $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                     break;
+
                 case "add_promocode":
-                    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
+                    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price, itemSpecific FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
                     $stmt->bind_param("s", $promocode);
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $result = ($result) ? $result->fetch_assoc() : false;
                     $stmt->close();
-                    $connection->close();
-
+                    
                     if (!$result) {
                         $errors[] = "Dit is geen geldige kortingscode.";
                     } else {
-                        $_SESSION["promocode"] = $promocode;
-                        $success_messages[] = "Het kortingscode is toegepast.";
+                        if ($result["itemSpecific"] == 1) {
+                            $stmt = $connection->prepare("SELECT stockitem_id FROM promocodeStockitems WHERE promocode = ?;");
+                            $stmt->bind_param("s", $promocode);
+                            $stmt->execute();
+                            $result2 = $stmt->get_result();
+                            $result2 = ($result2) ? $result2->fetch_all(MYSQLI_ASSOC) : false;
+                            $stmt->close();
+                        } else {
+                            $_SESSION["promocode"] = $promocode;
+                            $success_messages[] = "Het kortingscode is toegepast.";
+                        }
                     }
+                    $connection->close();
                     break;
+
                 case "remove_promocode":
                     $_SESSION["promocode"] = null;
                     $success_messages[] = "De kortingscode is verwijderd.";
                     break;
+
                 default:
                     break;
             }
