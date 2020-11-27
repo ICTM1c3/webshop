@@ -70,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
 
 ?>
+
 <div class="container">
     <h1 class="mb-3">Afrekenen</h1>
     <div>
@@ -87,8 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         }
         ?>
     </div>
-
-
+    <div> <a href="shopping-cart.php">terug naar de winkelmand</a> </div>
     <?php
     if (isset($_SESSION['shopping_cart']) && !empty($_SESSION['shopping_cart'])) {
         $products = $_SESSION['shopping_cart'];
@@ -107,15 +107,15 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
             }
             $totale_prijs_plus_verzendkosten_metkorting =($totale_prijs_plus_verzendkosten- $korting);
-        ?>
+            ?>
             <div class="row">
                 <div class="col-sm-6 col-md-3">
                     <img src="public/<?= isset($product['ImagePath']) ? "stockitemimg/" . $product['ImagePath'] : "stockgroupimg/" . $product['BackupImagePath'] ?>"
-                        alt="" class="img-fluid">
+                         alt="" class="img-fluid">
                 </div>
                 <div class="col-sm-6 col-md-7">
                     <h3><a class="text-white" target="_blank"
-                        href="view.php?id=<?= $product['StockItemId'] ?>"><?= $product['StockItemName'] ?></a></h3>
+                           href="view.php?id=<?= $product['StockItemId'] ?>"><?= $product['StockItemName'] ?></a></h3>
                     <p class="mb-1"><span>Artikelnummer: <?= $product['StockItemId'] ?></span></p>
                     <p>
                         <span>Prijs: &euro;<?= number_format($productPrice, 2, ',', '.') ?> (&euro;<?= number_format($product['Price'], 2, ',', '.') ?> per stuk)</span>
@@ -124,29 +124,25 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                         <input type="hidden" name="product_id" id="product_id" value="<?= $product['StockItemId'] ?>">
                         <input type="hidden" name="action" value="update">
                         <div class="form-row">
-                            <div class="col-sm-2">
-                                <input min="1" required type="number" name="amount" class="form-control"
-                                    placeholder="Aantal" value="<?= $product['amount'] ?>">
-                            </div>
-                            <div class="col-sm-2">
-                                <button type="submit" class="btn btn-primary">Bijwerken</button>
-                            </div>
                         </div>
-                    </form>
-                    <form method="POST" action="shopping-cart.php">
-                        <input type="hidden" name="product_id" id="product_id" value="<?= $product['StockItemId'] ?>">
-                        <input type="hidden" name="action" value="remove">
-                        <button type="submit" class="btn btn-danger">Verwijderen</button>
                     </form>
                 </div>
             </div>
             <hr class="border-white"/>
-        <?php
-    }
-    ?>
-
-
-
+            <?php
+        }
+        ?>
+    <div class="row bg-dark">
+        <div class="col-12">
+            <div>
+                <form class="p-2" action="checkout.php" method="post">
+                    <label for="subtotaal">subtotaal:</label>
+                    <div name="subtotaal">
+                        <?php print($totale_prijs) ?>
+                        </div>
+                    </div>
+                </form>
+            </div>
 <?php
 include "footer.php";
 }
