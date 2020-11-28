@@ -62,7 +62,7 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
         <div class="col-lg-6 col-sm-12 px-0 mt-3 mt-md-0">
             <form method="GET" action="browse.php" class="search">
                 <div class="input-group w-100">
-                    <input name="search_string" type="text" class="form-control" placeholder="Search" value="<?php print (isset($_GET['search_string'])) ? htmlentities($_GET['search_string'], ENT_QUOTES | ENT_HTML5, 'UTF-8') : ""; ?>">
+                    <input name="search_string" type="text" class="form-control" placeholder="Zoeken" value="<?= (isset($_GET['search_string'])) ? htmlentities($_GET['search_string'], ENT_QUOTES | ENT_HTML5, 'UTF-8') : ""; ?>">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="submit">
                             <i class="fa fa-search"></i>
