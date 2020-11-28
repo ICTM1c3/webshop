@@ -4,45 +4,17 @@ include 'header.php';
 function InArray($needle, $stack)
 {
     for ($i = 0; $i < count($stack); $i++)
-        if (in_array($needle, $stack[$i]))
-            return true;
+        if (in_array($needle, $stack[$i])) return true;
     return false;
 }
 
-$SearchString = "";
 $ReturnableResult = null;
-if (isset($_GET['search_string'])) {
-    $SearchString = $_GET['search_string'];
-}
-
-$CategoryID = "";
-if (isset($_GET['categoryfilter'])) {
-    $CategoryID = $_GET['categoryfilter'];
-} else if (isset($_GET['category_id'])) {
-    $CategoryID = $_GET['category_id'];
-}
-
-if (isset($_GET['color_id'])) {
-    $ColorID = $_GET['color_id'];
-} else {
-    $ColorID = "";
-}
-
-if (isset($_GET['size'])) {
-    $Size = $_GET['size'];
-} else {
-    $Size = "";
-}
-
-if (isset($_GET['brand'])) {
-    $Brand = $_GET['brand'];
-} else {
-    $Brand = "";
-}
-
-$where = "where s.stockitemid in (select stockitemid from stockitemstockgroups where stockgroupid = " . $CategoryID . ")";
-if ($CategoryID == "")
-    $where = "";
+$CategoryID = (isset($_GET['category_id'])) ? $_GET['category_id'] : ((isset($_GET['categoryfilter'])) ? $_GET['categoryfilter'] : "");
+$SearchString = (isset($_GET['search_string'])) ? $_GET['search_string'] : "";
+$ColorID = (isset($_GET['color_id'])) ? $_GET['color_id'] : "";
+$Size = (isset($_GET['size'])) ? $_GET['size'] : "";
+$Brand = (isset($_GET['brand'])) ? $_GET['brand'] : "";
+$where = ($CategoryID == "") ? "" : "where s.stockitemid in (select stockitemid from stockitemstockgroups where stockgroupid = " . $CategoryID . ")";
 
 $Query = "SELECT colorid, colorname FROM colors where colorid in (select s.colorid from stockitems s " . $where . ") ORDER BY colorid";
 $Statement = mysqli_prepare($connection, $Query);
@@ -99,7 +71,6 @@ if (isset($_GET['sort'])) {
     $SortOnPage = "price_low_high";
     $_SESSION["sort"] = "price_low_high";
 }
-
 if (isset($_GET['products_on_page'])) {
     $ProductsOnPage = $_GET['products_on_page'];
     $_SESSION['products_on_page'] = $_GET['products_on_page'];
@@ -109,39 +80,19 @@ if (isset($_GET['products_on_page'])) {
     $ProductsOnPage = 25;
     $_SESSION['products_on_page'] = 25;
 }
-if (isset($_GET['page_number'])) {
-    $PageNumber = $_GET['page_number'];
-} else {
-    $PageNumber = 0;
-}
 
-$AmountOfPages = 0;
-$queryBuildResult = "";
-switch ($SortOnPage) {
-    case "price_high_low":
-    {
-        $Sort = "SellPrice DESC";
-        break;
-    }
-    case "name_low_high":
-    {
-        $Sort = "StockItemName";
-        break;
-    }
-    case "name_high_low";
-        $Sort = "StockItemName DESC";
-        break;
-    case "price_low_high":
-    {
-        $Sort = "SellPrice";
-        break;
-    }
-    default:
-    {
-        $Sort = "SellPrice";
-        $SortName = "price_low_high";
-    }
-}
+$ProductsOnPage = ($ProductsOnPage > 0 && $ProductsOnPage <= 75) ? $ProductsOnPage : 25;
+$PageNumber = (isset($_GET['page_number'])) ? $_GET['page_number'] : 1;
+
+$Sort = [
+    'price_high_low' => 'SellPrice DESC',
+    'price_low_high' => 'SellPrice',
+    'name_high_low' => 'StockItemName DESC',
+    'name_low_high' => 'StockItemName',
+];
+
+$Sort = $Sort[$SortOnPage] ?? 'StockItemName';
+
 $searchValues = explode(" ", $SearchString);
 
 $queryBuildResult = "";
@@ -183,11 +134,7 @@ if ($Brand != "") {
 
 $Offset = $PageNumber * $ProductsOnPage;
 
-$ShowStockLevel = 1000;
-
-
-$Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, ROUND(TaxRate * RecommendedRetailPrice / 100 + RecommendedRetailPrice,2) as SellPrice,
-                (CASE WHEN (SIH.QuantityOnHand) >= ? THEN 'Ruime voorraad beschikbaar.' ELSE CONCAT('Voorraad: ',QuantityOnHand) END) AS QuantityOnHand, 
+$Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, ROUND(TaxRate * RecommendedRetailPrice / 100 + RecommendedRetailPrice,2) as SellPrice, QuantityOnHand, 
                 (SELECT ImagePath
                 FROM stockitemimages 
                 WHERE StockItemID = SI.StockItemID LIMIT 1) as ImagePath,
@@ -202,233 +149,274 @@ $Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, 
                 GROUP BY StockItemID
                 ORDER BY " . $Sort . " 
                 LIMIT ? OFFSET ?";
-//var_dump($Query);
 $Statement = mysqli_prepare($connection, $Query);
-mysqli_stmt_bind_param($Statement, "iiissii", $ShowStockLevel, $CategoryID, $ColorID, $Size, $Brand, $ProductsOnPage, $Offset);
+mysqli_stmt_bind_param($Statement, "iissii", $CategoryID, $ColorID, $Size, $Brand, $ProductsOnPage, $Offset);
 mysqli_stmt_execute($Statement);
 $ReturnableResult = mysqli_stmt_get_result($Statement);
 $ReturnableResult = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC);
 
-$amount = 0;
-if ($ReturnableResult != null)
-    $amount = count($ReturnableResult[0]);
-if (isset($amount)) {
-    $AmountOfPages = ceil($amount / $ProductsOnPage);
-}
+$amount = ($ReturnableResult != null) ? count($ReturnableResult[0]) : 0;
+$AmountOfPages = (isset($amount)) ? ceil($amount / $ProductsOnPage) : 0;
 
 $Query = "SELECT Stockgroupid, stockgroupname FROM stockgroups ORDER BY stockgroupid";
 $Statement = mysqli_prepare($connection, $Query);
-//mysqli_stmt_bind_param($Statement, "i", $CategoryID);
 mysqli_stmt_execute($Statement);
 $categories = mysqli_stmt_get_result($Statement);
 $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
 
-
 ?>
 
-    <div id="FilterFrame"><h2 class="FilterText mb-0"><i class="fas fa-filter"></i> Filteren </h2>
-        <form>
-            <div id="FilterOptions">
-                <h4 class="FilterTopMargin"><i class="fas fa-search"></i> Zoeken</h4>
-                <input type="text" name="search_string" id="search_string"
-                       value="<?php print (isset($_GET['search_string'])) ? htmlentities($_GET['search_string'], ENT_QUOTES | ENT_HTML5, 'UTF-8') : ""; ?>"
-                       class="form-submit">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-md-4 mb-3 px-0">
+                <div class="bg-dark border-white filter-container px-3 pt-3 pb-3 pb-md-0">
+                    <a class="h2 mb-0 text-white" data-toggle="collapse" href="#filterCollapse" role="button"
+                       aria-expanded="false" aria-controls="collapseExample">
+                        <i class="fas fa-filter"></i> Filters <i class="fas fa-chevron-down d-md-none float-right"></i>
+                    </a>
+                    <form method="get" id="filterCollapse" class="collapse mt-3">
+                        <div class="mb-3">
+                            <h4><i class="fas fa-search"></i> Zoeken</h4>
+                            <input type="text" name="search_string" id="search_string" class="form-submit"
+                                   value="<?= (isset($_GET['search_string'])) ? htmlentities($_GET['search_string'], ENT_QUOTES | ENT_HTML5, 'UTF-8') : ""; ?>">
+                        </div>
 
-                <h4 class="FilterTopMargin"><i class="fas fa-sort"></i> Categorie</h4>
+                        <div class="mb-3">
+                            <h4><i class="fas fa-sort"></i> Categorie</h4>
+                            <select name="categoryfilter" id="categoryfilter" onchange="this.form.submit()">>
+                                <option value="">Alle</option>
+                                <?php
+                                for ($i = 0; $i < count($categories); $i++) {
+                                    $selected = ($categories[$i]["Stockgroupid"] == $CategoryID) ? "selected" : "";
+                                    print('<option value="' . $categories[$i]["Stockgroupid"] . '"' . $selected . '>' . $categories[$i]["stockgroupname"] . '</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
 
-                <select name="categoryfilter" id="categoryfilter" onchange="this.form.submit()">>
-                    <option value="">Alle
-                    </option>
+                        <div class="mb-3">
+                            <h4><i class="fas fa-sort"></i> Kleur</h4>
+                            <select name="color_id" id="color_id" onchange="this.form.submit()">>
+                                <option value="">Alle</option>
 
-                    <?php
-                    for ($i = 0; $i < count($categories); $i++) {
-                        $selected = "";
-                        if ($categories[$i]["Stockgroupid"] == $CategoryID)
-                            $selected = "selected";
+                                <?php
+                                for ($i = 0; $i < count($colors); $i++) {
+                                    $selected = ($colors[$i]["colorid"] == $ColorID) ? "selected" : "";
 
-                        print('
-                    <option value="' . $categories[$i]["Stockgroupid"] . '"' . $selected . '>' . $categories[$i]["stockgroupname"] . '
-                    </option>
-                    ');
-                    }
-                    ?>
-                </select>
+                                    print('<option value="' . $colors[$i]["colorid"] . '"' . $selected . '>' . $colors[$i]["colorname"] . '</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
 
-                <h4 class="FilterTopMargin"><i class="fas fa-sort"></i> Kleur</h4>
+                        <div class="mb-3">
+                            <h4><i class="fas fa-sort"></i> Grootte</h4>
+                            <select name="size" id="size" onchange="this.form.submit()">>
+                                <option value="">Alle</option>
 
-                <select name="color_id" id="color_id" onchange="this.form.submit()">>
-                    <option value="">Alle
-                    </option>
+                                <?php
+                                for ($i = 0; $i < count($sizes); $i++) {
+                                    if ($sizes[$i]["size"] == null) continue;
+                                    $selected = ($sizes[$i]["size"] == $Size) ? "selected" : "";
 
-                    <?php
-                    for ($i = 0; $i < count($colors); $i++) {
-                        $selected = "";
-                        if ($colors[$i]["colorid"] == $ColorID)
-                            $selected = "selected";
+                                    print('<option value="' . $sizes[$i]["size"] . '"' . $selected . '>' . $sizes[$i]["size"] . '</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
 
-                        print('
-                    <option value="' . $colors[$i]["colorid"] . '"' . $selected . '>' . $colors[$i]["colorname"] . '
-                    </option>
-                    ');
-                    }
-                    ?>
-                </select>
+                        <div class="mb-3">
+                            <h4><i class="fas fa-sort"></i> Merk</h4>
+                            <select name="brand" id="brand" onchange="this.form.submit()">>
+                                <option value="">Alle</option>
 
-                <h4 class="FilterTopMargin"><i class="fas fa-sort"></i> Grootte</h4>
+                                <?php
+                                for ($i = 0; $i < count($brands); $i++) {
+                                    $selected = ($brands[$i]["brand"] == $Brand) ? "selected" : "";
+                                    if ($brands[$i]["brand"] == null) continue;
 
-                <select name="size" id="size" onchange="this.form.submit()">>
-                    <option value="">Alle
-                    </option>
+                                    print('<option value="' . $brands[$i]["brand"] . '"' . $selected . '>' . $brands[$i]["brand"] . '</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
 
-                    <?php
-                    for ($i = 0; $i < count($sizes); $i++) {
-                        $selected = "";
-                        if ($sizes[$i]["size"] == null)
-                            continue;
+                        <div class="mb-3">
+                            <h4><i class="fas fa-list-ol"></i> Aantal producten per pagina</h4>
+                            <input type="hidden" name="category_id" id="category_id"
+                                   value="<?= (isset($_GET['category_id'])) ? $_GET['category_id'] : ""; ?>">
 
-                        if ($sizes[$i]["size"] == $Size)
-                            $selected = "selected";
+                            <select name="products_on_page" id="products_on_page" onchange="this.form.submit()">>
+                                <option value="10" <?php if ($_SESSION['products_on_page'] == 10) {
+                                    print "selected";
+                                } ?>>10
+                                </option>
+                                <option value="25" <?php if ($_SESSION['products_on_page'] == 25) {
+                                    print "selected";
+                                } ?>>25
+                                </option>
+                                <option value="50" <?php if ($_SESSION['products_on_page'] == 50) {
+                                    print "selected";
+                                } ?>>50
+                                </option>
+                                <option value="75" <?php if ($_SESSION['products_on_page'] == 75) {
+                                    print "selected";
+                                } ?>>75
+                                </option>
+                            </select>
+                        </div>
 
-                        print('
-                    <option value="' . $sizes[$i]["size"] . '"' . $selected . '>' . $sizes[$i]["size"] . '
-                    </option>
-                    ');
-                    }
-                    ?>
-                </select>
+                        <div class="mb-3">
+                            <h4><i class="fas fa-sort"></i> Sorteren</h4>
+                            <select name="sort" id="sort" onchange="this.form.submit()">>
+                                <option value="price_low_high" <?php if ($_SESSION['sort'] == "price_low_high") {
+                                    print "selected";
+                                } ?>>Prijs oplopend
+                                </option>
+                                <option value="price_high_low" <?php if ($_SESSION['sort'] == "price_high_low") {
+                                    print "selected";
+                                } ?> >Prijs aflopend
+                                </option>
+                                <option value="name_low_high" <?php if ($_SESSION['sort'] == "name_low_high") {
+                                    print "selected";
+                                } ?>>Naam oplopend
+                                </option>
+                                <option value="name_high_low" <?php if ($_SESSION['sort'] == "name_high_low") {
+                                    print "selected";
+                                } ?>>Naam aflopend
+                                </option>
+                            </select>
+                        </div>
 
-                <h4 class="FilterTopMargin"><i class="fas fa-sort"></i> Merk</h4>
-
-                <select name="brand" id="brand" onchange="this.form.submit()">>
-                    <option value="">Alle
-                    </option>
-
-                    <?php
-                    for ($i = 0; $i < count($brands); $i++) {
-                        $selected = "";
-                        if ($brands[$i]["brand"] == null)
-                            continue;
-
-                        if ($brands[$i]["brand"] == $Brand)
-                            $selected = "selected";
-
-                        print('
-                    <option value="' . $brands[$i]["brand"] . '"' . $selected . '>' . $brands[$i]["brand"] . '
-                    </option>
-                    ');
-                    }
-                    ?>
-                </select>
-
-                <h4 class="FilterTopMargin"><i class="fas fa-list-ol"></i> Aantal producten op pagina</h4>
-
-                <input type="hidden" name="category_id" id="category_id"
-                       value="<?php print (isset($_GET['category_id'])) ? $_GET['category_id'] : ""; ?>">
-
-                <select name="products_on_page" id="products_on_page" onchange="this.form.submit()">>
-                    <option value="25" <?php if ($_SESSION['products_on_page'] == 25) {
-                        print "selected";
-                    } ?>>25
-                    </option>
-                    <option value="50" <?php if ($_SESSION['products_on_page'] == 50) {
-                        print "selected";
-                    } ?>>50
-                    </option>
-                    <option value="75" <?php if ($_SESSION['products_on_page'] == 75) {
-                        print "selected";
-                    } ?>>75
-                    </option>
-                </select>
-                <h4 class="FilterTopMargin"><i class="fas fa-sort"></i> Sorteren</h4>
-                <select name="sort" id="sort" onchange="this.form.submit()">>
-                    <option value="price_low_high" <?php if ($_SESSION['sort'] == "price_low_high") {
-                        print "selected";
-                    } ?>>Prijs oplopend
-                    </option>
-                    <option value="price_high_low" <?php if ($_SESSION['sort'] == "price_high_low") {
-                        print "selected";
-                    } ?> >Prijs aflopend
-                    </option>
-                    <option value="name_low_high" <?php if ($_SESSION['sort'] == "name_low_high") {
-                        print "selected";
-                    } ?>>Naam oplopend
-                    </option>
-                    <option value="name_high_low" <?php if ($_SESSION['sort'] == "name_high_low") {
-                        print "selected";
-                    } ?>>Naam aflopend
-                    </option>
-                </select>
-        </form>
-    </div>
-    </div>
-    <div id="ResultsArea" class="Browse">
-        <?php
-        if (isset($ReturnableResult) && count($ReturnableResult) > 0) {
-            foreach ($ReturnableResult as $row) {
-                ?>
-                <a class="ListItem" href='view.php?id=<?php print $row['StockItemID']; ?>'>
-                    <div id="ProductFrame">
-                        <?php
-                        if (isset($row['ImagePath'])) { ?>
-                            <div class="ImgFrame"
-                                 style="background-image: url('<?php print "public/stockitemimg/" . $row['ImagePath']; ?>'); background-size: 230px; background-repeat: no-repeat; background-position: center;"></div>
-                        <?php } else if (isset($row['BackupImagePath'])) { ?>
-                            <div class="ImgFrame"
-                                 style="background-image: url('<?php print "public/stockgroupimg/" . $row['BackupImagePath'] ?>'); background-size: cover;"></div>
-                        <?php }
+                    </form>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-8">
+                <?php
+                if (isset($ReturnableResult) && count($ReturnableResult) > 0) {
+                    foreach ($ReturnableResult as $row) {
+                        $image = (isset($row['ImagePath'])) ? "public/stockitemimg/" . $row['ImagePath'] : "public/stockgroupimg/" . $row['BackupImagePath'];
                         ?>
+                        <div class="row mb-3">
+                            <div class="col-sm-4">
+                                <a href="view.php?id=<?php print $row['StockItemID']; ?>">
+                                    <img src="<?= $image ?>" class="img-fluid mb-2 mb-md-0" alt="">
+                                </a>
+                            </div>
 
-                        <div id="StockItemFrameRight">
-                            <div class="CenterPriceLeftChild">
-                                <h1 class="StockItemPriceText"><?php print sprintf("€ %0.2f", $row["SellPrice"]); ?></h1>
-                                <h6>Inclusief BTW </h6>
+                            <div class="col-sm-8">
+                                <a href="view.php?id=<?php print $row['StockItemID']; ?>" class="text-white">
+                                    <h3><?= $row["StockItemName"]; ?></h3>
+                                </a>
+                                <p class="mt-0 StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></p>
+                                <?= (isset($row["MarketingComments"]) && !empty($row['MarketingComments'])) ? "<p>$row[MarketingComments]</p>" : ""; ?>
+                                <h6>&euro;<?= number_format($row["SellPrice"], 2, ',', '.'); ?> <span
+                                            class="text-muted">incl. btw</span>
+                                </h6>
+                                <h6>
+                                    <?php
+                                    if ($row['QuantityOnHand'] < 1000) { ?>
+                                        <p class='mb-1 text-danger'>Lage voorraad, wees er snel bij!</p>
+                                    <?php } else if ($row['QuantityOnHand'] < 25000) { ?>
+                                        <p class='mb-1 text-warning'> Beperkte voorraad, koop snel!</p>
+                                    <?php } else if ($row['QuantityOnHand'] === 0) { ?>
+                                        <p class='mb-1 text-danger'> Binnenkort weer beschikbaar!</p>
+                                    <?php } else { ?>
+                                        <p class='mb-1 text-success'> Ruime Voorraad!</p>
+                                    <?php } ?>
+                                </h6>
                             </div>
                         </div>
-                        <h1 class="StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></h1>
-                        <p class="StockItemName"><?php print $row["StockItemName"]; ?></p>
-                        <p class="StockItemComments"><?php print $row["MarketingComments"]; ?></p>
-                        <h4 class="ItemQuantity"><?php print $row["QuantityOnHand"]; ?></h4>
-                    </div>
-                </a>
-            <?php } ?>
-
-            <form id="PageSelector">
-                <input type="hidden" name="search_string" id="search_string"
-                       value="<?php if (isset($_GET['search_string'])) {
-                           print ($_GET['search_string']);
-                       } ?>">
-                <input type="hidden" name="category_id" id="category_id" value="<?php if (isset($_GET['category_id'])) {
-                    print ($_GET['category_id']);
-                } ?>">
-                <input type="hidden" name="result_page_numbers" id="result_page_numbers"
-                       value="<?php print (isset($_GET['result_page_numbers'])) ? $_GET['result_page_numbers'] : "0"; ?>">
-                <input type="hidden" name="products_on_page" id="products_on_page"
-                       value="<?php print ($_SESSION['products_on_page']); ?>">
-                <input type="hidden" name="sort" id="sort" value="<?php print ($_SESSION['sort']); ?>">
-
-                <?php
-                if ($AmountOfPages > 0) {
-                    for ($i = 1; $i <= $AmountOfPages; $i++) {
-                        if ($PageNumber == ($i - 1)) {
-                            ?>
-                            <div id="SelectedPage"><?php print $i; ?></div><?php
-                        } else { ?>
-                            <button id="page_number" class="PageNumber" value="<?php print($i - 1); ?>" type="submit"
-                                    name="page_number"><?php print($i); ?></button>
-                        <?php }
+                        <hr class="border-white">
+                        <?php
                     }
+                    ?>
+                    <form id="PageSelector">
+                        <input type="hidden" name="search_string" id="search_string"
+                               value="<?php if (isset($_GET['search_string'])) {
+                                   print ($_GET['search_string']);
+                               } ?>">
+                        <input type="hidden" name="category_id" id="category_id"
+                               value="<?php if (isset($_GET['category_id'])) {
+                                   print ($_GET['category_id']);
+                               } ?>">
+                        <input type="hidden" name="result_page_numbers" id="result_page_numbers"
+                               value="<?php print (isset($_GET['result_page_numbers'])) ? $_GET['result_page_numbers'] : "0"; ?>">
+                        <input type="hidden" name="products_on_page" id="products_on_page"
+                               value="<?php print ($_SESSION['products_on_page']); ?>">
+                        <input type="hidden" name="sort" id="sort" value="<?php print ($_SESSION['sort']); ?>">
+
+
+                        <?php
+                        if ($AmountOfPages > 0) {
+                            function generatePaginationUrl($page)
+                            {
+                                $params = $_GET;
+                                $params['page_number'] = $page;
+                                return http_build_query($params);
+                            }
+
+                            ?>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item<?= ($PageNumber > 2) ? "" : " disabled" ?>"><a
+                                                class="bg-dark border-dark page-link text-white<?= ($PageNumber > 2) ? "" : " text-muted" ?>"
+                                                href="browse.php?<?= generatePaginationUrl($PageNumber - 1) ?>">Vorige
+                                            pagina</a></li>
+                                    <?php
+                                    if ($PageNumber > 2) {
+                                        ?>
+                                        <li class="page-item"><a class="bg-dark border-dark page-link text-white"
+                                                                 href="browse.php?<?= generatePaginationUrl($PageNumber - 2) ?>"><?= $PageNumber - 2; ?></a>
+                                        </li>
+                                        <?php
+                                    }
+                                    if ($PageNumber > 1) {
+                                        ?>
+                                        <li class="page-item"><a class="bg-dark border-dark page-link text-white"
+                                                                 href="browse.php?<?= generatePaginationUrl($PageNumber - 1) ?>"><?= $PageNumber - 1; ?></a>
+                                        </li>
+                                        <?php
+                                    }
+                                    ?>
+                                    <li class="page-item active"><a class="bg-dark border-dark page-link text-white"
+                                                                    href="browse.php?<?= generatePaginationUrl($PageNumber) ?>"><?= $PageNumber; ?></a>
+                                    </li>
+                                    <?php
+                                    if (($PageNumber + 1) <= $AmountOfPages) {
+                                        ?>
+                                        <li class="page-item"><a class="bg-dark border-dark page-link text-white"
+                                                                 href="browse.php?<?= generatePaginationUrl($PageNumber + 1) ?>"><?= $PageNumber + 1; ?></a>
+                                        </li>
+                                        <?php
+                                    }
+                                    if (($PageNumber + 2) <= $AmountOfPages) {
+                                        ?>
+                                        <li class="page-item"><a class="bg-dark border-dark page-link text-white"
+                                                                 href="browse.php?<?= generatePaginationUrl($PageNumber + 2) ?>"><?= $PageNumber + 2; ?></a>
+                                        </li>
+                                        <?php
+                                    }
+                                    ?>
+                                    <li class="page-item<?= (($PageNumber + 1) <= $AmountOfPages) ? "" : " disabled"; ?>">
+                                        <a class="bg-dark border-dark page-link text-white<?= (($PageNumber + 1) <= $AmountOfPages) ? "" : " text-muted"; ?>"
+                                           href="browse.php?<?= generatePaginationUrl($PageNumber + 1) ?>">Volgende
+                                            pagina</a></li>
+                                </ul>
+                            </nav>
+                            <?php
+                        }
+                        ?>
+                    </form>
+                    <?php
+                } else {
+                    ?>
+                    <h4>Er zijn geen producten gevonden.</h4>
+                    <?php
                 }
                 ?>
-            </form>
-            <?php
-        } else {
-            ?>
-            <h2 id="NoSearchResults">
-                Yarr, er zijn geen resultaten gevonden.
-            </h2>
-            <?php
-        }
-        ?>
+            </div>
+        </div>
     </div>
 <?php
 include 'footer.php';
