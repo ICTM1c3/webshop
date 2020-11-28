@@ -608,13 +608,6 @@ nav .navbar-brand img {
     height: 300px;
 }
 
-.filter-container {
-    border: 1px solid;
-}
-
-@media only screen and (min-width: 768px) {
-    #filterCollapse {
-        display: block;
-        transition: none;
-    }
+.winkelmandje-pos {
+    margin-top: 50px;
 }
