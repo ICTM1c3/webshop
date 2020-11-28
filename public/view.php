@@ -1,6 +1,13 @@
 <?php
 include 'header.php';
 
+function GetArrayWithCorrectKeys($array, $correctkey, $secondkey){
+    for($i = 0; $i < count($array); $i++){
+        $a[$array[$i][$correctkey]][$secondkey] = $array[$i][$secondkey];
+    }
+    return $a;
+}
+
 $Query = "SELECT DISTINCT SI.StockItemID,
 (RecommendedRetailPrice *(1 +(TaxRate / 100))) AS SellPrice, StockItemName, QuantityOnHand, SearchDetails,
 (CASE WHEN (RecommendedRetailPrice *(1 +(TaxRate / 100))) > 50 THEN 0 ELSE 6.95 END) AS SendCosts,
@@ -44,14 +51,25 @@ mysqli_stmt_bind_param($Statement, "i", $_GET['id']);
 mysqli_stmt_execute($Statement);
 $ItemImagePath = mysqli_stmt_get_result($Statement);
 $ItemImagePath = mysqli_fetch_all($ItemImagePath, MYSQLI_ASSOC);//bevat stockitemid's en hun afbeeldingen van de categorie van het stockitem dat bekeken wordt
+$ItemImagePath = GetArrayWithCorrectKeys($ItemImagePath, "stockitemid", "ImagePath");
 
-$Query = "select stockgroupid, imagepath from stockgroups where stockgroupid in (select stockgroupid from stockitemstockgroups where stockitemid = ?)";
+$Query = "select stockgroupid, ImagePath from stockgroups where stockgroupid in (select stockgroupid from stockitemstockgroups where stockitemid = ?)";
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_bind_param($Statement, "i", $_GET['id']);
 mysqli_stmt_execute($Statement);
 $CatImagePath = mysqli_stmt_get_result($Statement);
-$CatImagePath = mysqli_fetch_all($CatImagePath, MYSQLI_ASSOC);//bevat stockitemid's en hun afbeeldingen van de categorie van het stockitem dat bekeken wordt
+$CatImagePath = mysqli_fetch_all($CatImagePath, MYSQLI_ASSOC);
+//$CatImagePath = GetArrayWithCorrectKeys($CatImagePath, "stockgroupid", "ImagePath");
+
+$Query = "select stockitemid, stockitemname, (RecommendedRetailPrice *(1 +(TaxRate / 100))) AS SellPrice from stockitems 
+where stockitemid in (select stockitemid from stockitemstockgroups where stockgroupid in (select stockgroupid from stockitemstockgroups where stockitemid = ?))";
+$Statement = mysqli_prepare($connection, $Query);
+mysqli_stmt_bind_param($Statement, "i", $_GET['id']);
+mysqli_stmt_execute($Statement);
+$RelatedStockItems = mysqli_stmt_get_result($Statement);
+$RelatedStockItems = mysqli_fetch_all($RelatedStockItems, MYSQLI_ASSOC);
 mysqli_close($connection);
+
 ?>
 
 <div class="container mt-3">
@@ -202,18 +220,48 @@ mysqli_close($connection);
     } else {
         ?><h2 id="ProductNotFound">Het opgevraagde product is niet gevonden.</h2><?php
     } ?>
-    <div>
-        <?php var_dump($ItemImagePath); ?>
-        <img class="img-fluid" src="public/stockitemimg/<?php
-            for($i = 0; $i < 280; $i++) {
-                if(isset($ItemImagePath[$i]["ImagePath"])){
-                    print($ItemImagePath[$i]["ImagePath"]);
-                    break;
+    <div class="row">
+        <h3>Gerelateerde producten: </h3>
+    </div>
+    <div class="row">
+        <?php
+        $aantalUpXSellProducts = 4;
+        $UpXSellProducts = $RelatedStockItems;
+        unset($UpXSellProducts[intval($_GET['id'])]);
+        $randomkeys = array_rand($UpXSellProducts, $aantalUpXSellProducts);
+        for($i = 0; $i < $aantalUpXSellProducts; $i++){
+            $products[$i] = $randomkeys[$i];
+        }
+        //var_dump($ItemImagePath[$products[0]]["ImagePath"]);
+        for($a = 0; $a < $aantalUpXSellProducts; $a++){
+            if(array_key_exists($UpXSellProducts[$products[$a]]["stockitemid"], $ItemImagePath)){
+                $image = "stockitemimg/".$ItemImagePath[$UpXSellProducts[$products[$a]]["stockitemid"]]["ImagePath"];
+            } else {
+                for($i = 0; $i < count($CatImagePath); $i++) {
+                    if($CatImagePath[$i]["ImagePath"] != null){
+                        $image = "stockgroupimg/".$CatImagePath[$i]["ImagePath"];
+                        break;
+                    }
                 }
             }
-            ?>">
-    </div>
+            ?>
+            <div class="col-sm-12 col-md-3">
+                <a href="view.php?id=<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
+                    <img class="img-fluid" id="upcross-sell-image" style="margin: 20px;" src="<?php print('public/'.$image);?>">
+                    <span class="StockItemName"><?php print($UpXSellProducts[$products[$a]]["stockitemname"]); ?></span>
+                </a>
+                <form action="shopping-cart.php" method="POST">
+                    <input type="hidden" name="product_id" value="<?php print($products[$a]); ?>">
+                    <input type="hidden" name="action" value="add">
+                    <button type="submit" class="btn btn-success">In winkelwagen</button>
+                </form>
+                <span class="HomePagePriceHighlight">€<?php print(round($UpXSellProducts[$products[$a]]["SellPrice"], 2)); ?></span>
+            </div>
 
+        <?php
+        }
+        ?>
+    </div>
 </div>
 <?php
 include __DIR__ . "/footer.php";

@@ -608,6 +608,7 @@ nav .navbar-brand img {
     height: 300px;
 }
 
-.upcross-sell-image {
-    
+#upcross-sell-image {
+    max-width: 200px;
+    max-height: 200px;
 }
