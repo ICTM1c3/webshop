@@ -9,7 +9,7 @@ function InArray($needle, $stack)
 }
 
 $ReturnableResult = null;
-$CategoryID = (isset($_GET['category_id'])) ? $_GET['category_id'] : (isset($_GET['categoryfilter'])) ? $_GET['categoryfilter'] : "";
+$CategoryID = (isset($_GET['category_id'])) ? $_GET['category_id'] : ((isset($_GET['categoryfilter'])) ? $_GET['categoryfilter'] : "");
 $SearchString = (isset($_GET['search_string'])) ? $_GET['search_string'] : "";
 $ColorID = (isset($_GET['color_id'])) ? $_GET['color_id'] : "";
 $Size = (isset($_GET['size'])) ? $_GET['size'] : "";
@@ -411,7 +411,7 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
                     <?php
                 } else {
                     ?>
-                    <p>Er zijn geen producten gevonden.</p>
+                    <h4>Er zijn geen producten gevonden.</h4>
                     <?php
                 }
                 ?>
