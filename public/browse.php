@@ -9,7 +9,7 @@ function InArray($needle, $stack)
 }
 
 $ReturnableResult = null;
-$CategoryID = (isset($_GET['category_id'])) ? $_GET['category_id'] : ((isset($_GET['categoryfilter'])) ? $_GET['categoryfilter'] : "");
+$CategoryID = (isset($_GET['categoryfilter'])) ? $_GET['categoryfilter'] : ((isset($_GET['category_id'])) ? $_GET['category_id'] : "");
 $SearchString = (isset($_GET['search_string'])) ? $_GET['search_string'] : "";
 $ColorID = (isset($_GET['color_id'])) ? $_GET['color_id'] : "";
 $Size = (isset($_GET['size'])) ? $_GET['size'] : "";
@@ -30,9 +30,7 @@ if (count($colors) > 0) {
     $ColorID = "";
 }
 
-$Query = "select distinct sa.size from stockitems sa 
-            join stockitems s on sa.stockitemid = s.stockitemid
-            " . $where;
+$Query = "select distinct sa.size from stockitems sa join stockitems s on sa.stockitemid = s.stockitemid $where";
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_execute($Statement);
 $sizes = mysqli_stmt_get_result($Statement);
@@ -41,9 +39,7 @@ if (count($sizes) > 1) {
     if (!InArray($Size, $sizes)) {
         $Size = "";
     }
-} else {
-    $Size = "";
-}
+} else $Size = "";
 
 $Query = "select distinct sa.brand from stockitems sa 
             join stockitems s on sa.stockitemid = s.stockitemid
@@ -57,10 +53,7 @@ if (count($brands) > 1) {
     if (!InArray($Brand, $brands)) {
         $Brand = "";
     }
-} else {
-    $Brand = "";
-}
-
+} else $Brand = "";
 
 if (isset($_GET['sort'])) {
     $SortOnPage = $_GET['sort'];
