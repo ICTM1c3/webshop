@@ -9,7 +9,7 @@ if (!$authenticated) {
 ?>
 <div class="container">
     Je bent ingelogd!
-    <a href="logout.php">Uitloggen</a>
+    <a class="text-white" href="logout.php"><u>Uitloggen</u></a>
 </div>
 <?php
 include 'footer.php';
