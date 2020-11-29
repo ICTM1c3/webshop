@@ -256,13 +256,13 @@ mysqli_close($connection);
             ?>
             <div class="col-sm-12 col-md-3">
                 <a href="view.php?id=<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
-                    <div class="row">
+                    <div class="row" style="margin-top: 10px">
                         <div class="text-center">
                             <img class="img-fluid" id="upcross-sell-image" src="<?php print('public/'.$image);?>">
                         </div>
                     </div>
                     <div class="row">
-                        <p class="StockItemName" style="min-height: 100px;"><?php print($UpXSellProducts[$products[$a]]["stockitemname"]); ?></p>
+                        <p class="StockItemName" style="margin: 5px; min-height: 100px;"><?php print($UpXSellProducts[$products[$a]]["stockitemname"]); ?></p>
                     </div>
                 </a>
                 <div class="vr"></div>
