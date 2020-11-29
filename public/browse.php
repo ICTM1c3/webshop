@@ -9,7 +9,7 @@ function InArray($needle, $stack)
 }
 
 $ReturnableResult = null;
-$CategoryID = (isset($_GET['category_id'])) ? $_GET['category_id'] : ((isset($_GET['categoryfilter'])) ? $_GET['categoryfilter'] : "");
+$CategoryID = (isset($_GET['categoryfilter'])) ? $_GET['categoryfilter'] : ((isset($_GET['category_id'])) ? $_GET['category_id'] : "");
 $SearchString = (isset($_GET['search_string'])) ? $_GET['search_string'] : "";
 $ColorID = (isset($_GET['color_id'])) ? $_GET['color_id'] : "";
 $Size = (isset($_GET['size'])) ? $_GET['size'] : "";
@@ -30,9 +30,7 @@ if (count($colors) > 0) {
     $ColorID = "";
 }
 
-$Query = "select distinct sa.size from stockitems sa 
-            join stockitems s on sa.stockitemid = s.stockitemid
-            " . $where;
+$Query = "select distinct sa.size from stockitems sa join stockitems s on sa.stockitemid = s.stockitemid $where";
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_execute($Statement);
 $sizes = mysqli_stmt_get_result($Statement);
@@ -41,9 +39,7 @@ if (count($sizes) > 1) {
     if (!InArray($Size, $sizes)) {
         $Size = "";
     }
-} else {
-    $Size = "";
-}
+} else $Size = "";
 
 $Query = "select distinct sa.brand from stockitems sa 
             join stockitems s on sa.stockitemid = s.stockitemid
@@ -57,10 +53,7 @@ if (count($brands) > 1) {
     if (!InArray($Brand, $brands)) {
         $Brand = "";
     }
-} else {
-    $Brand = "";
-}
-
+} else $Brand = "";
 
 if (isset($_GET['sort'])) {
     $SortOnPage = $_GET['sort'];
@@ -82,7 +75,7 @@ if (isset($_GET['products_on_page'])) {
 }
 
 $ProductsOnPage = ($ProductsOnPage > 0 && $ProductsOnPage <= 75) ? $ProductsOnPage : 25;
-$PageNumber = (isset($_GET['page_number'])) ? $_GET['page_number'] : 1;
+$PageNumber = (isset($_GET['page_number']) && $_GET['page_number'] > 0) ? $_GET['page_number'] : 1;
 
 $Sort = [
     'price_high_low' => 'SellPrice DESC',
@@ -132,8 +125,6 @@ if ($Brand != "") {
     $brandsub = "IN (SELECT brand from stockitems s WHERE s.StockItemID = SI.StockItemID)";
 }
 
-$Offset = $PageNumber * $ProductsOnPage;
-
 $Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, ROUND(TaxRate * RecommendedRetailPrice / 100 + RecommendedRetailPrice,2) as SellPrice, QuantityOnHand, 
                 (SELECT ImagePath
                 FROM stockitemimages 
@@ -147,16 +138,17 @@ $Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, 
                  ? " . $sizesub . " AND
                  ? " . $brandsub . "
                 GROUP BY StockItemID
-                ORDER BY " . $Sort . " 
-                LIMIT ? OFFSET ?";
+                ORDER BY " . $Sort;
 $Statement = mysqli_prepare($connection, $Query);
-mysqli_stmt_bind_param($Statement, "iissii", $CategoryID, $ColorID, $Size, $Brand, $ProductsOnPage, $Offset);
+mysqli_stmt_bind_param($Statement, "iiss", $CategoryID, $ColorID, $Size, $Brand);
 mysqli_stmt_execute($Statement);
 $ReturnableResult = mysqli_stmt_get_result($Statement);
+$amount = ($ReturnableResult != null) ? $ReturnableResult->num_rows : 0;
 $ReturnableResult = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC);
 
-$amount = ($ReturnableResult != null) ? count($ReturnableResult[0]) : 0;
-$AmountOfPages = (isset($amount)) ? ceil($amount / $ProductsOnPage) : 0;
+$AmountOfPages = ceil($amount / $ProductsOnPage);
+
+$products = array_slice($ReturnableResult, ($ProductsOnPage * ($PageNumber - 1)), $ProductsOnPage);
 
 $Query = "SELECT Stockgroupid, stockgroupname FROM stockgroups ORDER BY stockgroupid";
 $Statement = mysqli_prepare($connection, $Query);
@@ -293,8 +285,8 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
             </div>
             <div class="col-sm-12 col-md-8">
                 <?php
-                if (isset($ReturnableResult) && count($ReturnableResult) > 0) {
-                    foreach ($ReturnableResult as $row) {
+                if (isset($products) && count($products) > 0) {
+                    foreach ($products as $row) {
                         $image = (isset($row['ImagePath'])) ? "public/stockitemimg/" . $row['ImagePath'] : "public/stockgroupimg/" . $row['BackupImagePath'];
                         ?>
                         <div class="row mb-3">
