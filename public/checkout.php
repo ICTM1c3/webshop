@@ -28,6 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         $stmt->close();
         $connection->close();
 
+
+
         if ($result) {
             switch ($action) {
                 case "add":
@@ -48,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                         header("Location: view.php?id=$product_id&add");
                         exit();
                     }
-
                     $success_messages[] = "Het product is toegevoegd aan de winkelwagen.";
                     break;
                 case "remove":
@@ -70,80 +71,133 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
 
 ?>
-
 <div class="container">
     <h1 class="mb-3">Afrekenen</h1>
-    <div>
-        <?php
-        foreach ($errors as $key => $value) {
-            ?>
-            <div class="alert alert-danger"><?= $value ?></div>
-            <?php
-        }
 
-        foreach ($success_messages as $key => $value) {
-            ?>
-            <div class="alert alert-success"><?= $value ?></div>
-            <?php
-        }
-        ?>
-    </div>
-    <div> <a href="shopping-cart.php">terug naar de winkelmand</a> </div>
     <?php
     if (isset($_SESSION['shopping_cart']) && !empty($_SESSION['shopping_cart'])) {
         $products = $_SESSION['shopping_cart'];
-        $totale_prijs = 0;
+        $item_total = 0;
+        $receipt_lines = array();
         foreach ($products as $product) {
-            $productPrice = $product['Price'] * $product['amount'];
-            $totale_prijs += $productPrice;
-            //bereken de prijs inclusief de verzendkosten
-            $korting = 10;
-            $verzendkosten = 5;
-            //er worden alleen verzendkosten gedeclareerd als het bedrag onder de 30 euro is.
-            if($totale_prijs< 30){
-                $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
-            } else{
-                $verzendkosten = 0;
-                $totale_prijs_plus_verzendkosten = ($totale_prijs + $verzendkosten );
-            }
-            $totale_prijs_plus_verzendkosten_metkorting =($totale_prijs_plus_verzendkosten- $korting);
-            ?>
-            <div class="row">
+            $productPrice = $product['Price'] * $product['amount']; // This code executes once for every item in the shopping cart
+            $item_total += $productPrice;
+
+        ?>
+            <div class="row"> <!-- This is one entry on the list of items in the shopping cart -->
                 <div class="col-sm-6 col-md-3">
                     <img src="public/<?= isset($product['ImagePath']) ? "stockitemimg/" . $product['ImagePath'] : "stockgroupimg/" . $product['BackupImagePath'] ?>"
-                         alt="" class="img-fluid">
+                        alt="" class="img-fluid">
                 </div>
                 <div class="col-sm-6 col-md-7">
                     <h3><a class="text-white" target="_blank"
-                           href="view.php?id=<?= $product['StockItemId'] ?>"><?= $product['StockItemName'] ?></a></h3>
+                        href="view.php?id=<?= $product['StockItemId'] ?>"><?= $product['StockItemName'] ?></a></h3>
                     <p class="mb-1"><span>Artikelnummer: <?= $product['StockItemId'] ?></span></p>
                     <p>
                         <span>Prijs: &euro;<?= number_format($productPrice, 2, ',', '.') ?> (&euro;<?= number_format($product['Price'], 2, ',', '.') ?> per stuk)</span>
                     </p>
+                    <!--
                     <form method="POST" action="shopping-cart.php" class="mb-3">
                         <input type="hidden" name="product_id" id="product_id" value="<?= $product['StockItemId'] ?>">
                         <input type="hidden" name="action" value="update">
+                        --!>
+
                         <div class="form-row">
+                            <!--
+                            <div class="col-sm-2">
+                                <input min="1" required type="number" name="amount" class="form-control"
+                                    placeholder="Aantal" value="<?= $product['amount'] ?>">
+                            </div>
+                            --!>
+                            <!--
+                            <div class="col-sm-2">
+                                <button type="submit" class="btn btn-primary">Bijwerken</button>
+                            </div>
+                            --!>
                         </div>
+                        <!--
                     </form>
+                    <form method="POST" action="shopping-cart.php">
+                        <input type="hidden" name="product_id" id="product_id" value="<?= $product['StockItemId'] ?>">
+                        <input type="hidden" name="action" value="remove">
+                        <button type="submit" class="btn btn-danger">Verwijderen</button>
+                    </form>
+                    --!>
                 </div>
             </div>
             <hr class="border-white"/>
-            <?php
+        <?php
+    }
+        /*
+    // This code executes after the whole shopping cart list has been 'built'
+
+    // Calculate shipping costs
+    if ($item_total < 30) {
+        $shipping_costs = 5;
+    } else {
+        $shipping_costs = 0;
+    }
+
+    // Calculate promocode
+    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
+    $stmt->bind_param("s", $_SESSION["promocode"]);
+    $stmt->execute();
+    $promocode_discount = $stmt->get_result();
+    $promocode_discount = ($promocode_discount) ? $promocode_discount->fetch_assoc() : false;
+    $stmt->close();
+    $connection->close();
+
+    if ($promocode_discount) {
+        if ($item_total > $promocode_discount["minimum_price"] || $promocode_discount["minimum_price"] == null && $item_total < $promocode_discount["maximum_price"] || $promocode_discount["maximum_price"] == null) {
+            if ($promocode_discount["type"] === "FIXED") {
+                $discount = -$promocode_discount["value"];
+            } elseif ($promocode_discount["type"] === "DYNAMIC") {
+                $discount = -($item_total * $promocode_discount["value"]);
+            }
         }
-        ?>
+    } else {
+        $discount = 0;
+    }
+
+    // Calculate final total
+    $total = max($item_total + $discount + $shipping_costs, 0);
+
+    array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => "&euro;".number_format($item_total, 2, ',', '.')));
+    if ($discount < 0) {
+        array_push($receipt_lines, array("NAME" => "Kortingscode", "VALUE" => "&euro;".number_format($discount, 2, ',', '.')));
+    }
+    array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : "&euro;".number_format($shipping_costs, 2, ',', '.')));
+    array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => "&euro;".number_format($total, 2, ',', '.')));
+    $_SESSION["receipt_lines"]=$receipt_lines;
+        */
+    ?>
+
+    <!-- Begin bottom div with promocode and totals -->
+    <?php
+    $receipt_lines = ($_SESSION["receipt_lines"]) ? $_SESSION["receipt_lines"] : array();
+    ?>
     <div class="row bg-dark">
         <div class="col-12">
-            <div>
-                <form class="p-2" action="checkout.php" method="post">
-                    <label for="subtotaal">subtotaal:</label>
-                    <div name="subtotaal">
-                        <?php print($totale_prijs) ?>
-                        </div>
+            <hr class="border-white"/>
+            <div class="col-12"> <!-- Div with the totals row -->
+                <?php
+                foreach ($receipt_lines as $key => $line) {?>
+                    <div class="row">
+                        <span class="mr-5 ml-4"><strong><?=$line["NAME"]?></strong></span>
+                        <span><?=$line["VALUE"]?></span>
                     </div>
-                </form>
+                    <?php if ($key + 1 < count($receipt_lines)) { ?> <hr class="border-white"/> <?php } // Prints a horizontal line after the item if it's not the last in the list ?>
+                    <?php
+                }
+                ?>
             </div>
-<?php
+            <hr class="border-white"/>
+        </div>
+    </div>
+</div>
+
+
+    <?php
+    }
 include "footer.php";
-}
     ?>

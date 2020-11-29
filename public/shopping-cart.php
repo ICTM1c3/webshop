@@ -242,6 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     }
     array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : "&euro;".number_format($shipping_costs, 2, ',', '.')));
     array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => "&euro;".number_format($total, 2, ',', '.')));
+    $_SESSION["receipt_lines"]=$receipt_lines;
     ?>
 
     <!-- Begin bottom div with promocode and totals -->
