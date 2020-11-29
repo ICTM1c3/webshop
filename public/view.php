@@ -261,12 +261,12 @@ mysqli_close($connection);
             <div class="col-sm-12 col-md-3">
                 <a href="view.php?id=<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
                     <div class="row" style="margin-top: 10px">
-                        <div style="min-height: 240px; border: 10px solid rgba(255,255,255,.02);">
+                        <div class="img-fluid" style="max-width: 220px; min-height: 230px; border: 10px solid rgba(255,255,255,.02);">
                             <img class="img-fluid" id="upcross-sell-image" src="<?php print('public/'.$image);?>">
                         </div>
                     </div>
                     <div class="row">
-                        <div style="min-height: 100px; max-height: 120px; max-width: 300px; border: 1px solid rgba(255,255,255,0);">
+                        <div style="min-height: 100px; max-width: 300px; border: 1px solid rgba(255,255,255,0);">
                             <p class="StockItemName" style="margin: 5px; min-height: 100px;"><?php PrintMaxCharsOfString($UpXSellProducts[$products[$a]]["stockitemname"],50); if(strlen($UpXSellProducts[$products[$a]]["stockitemname"]) > 50) print("...");?></p>
                         </div>
                     </div>
