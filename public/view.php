@@ -221,6 +221,9 @@ mysqli_close($connection);
         ?><h2 id="ProductNotFound">Het opgevraagde product is niet gevonden.</h2><?php
     } ?>
     <div class="row">
+        <hr class="border-white"></hr>
+    </div>
+    <div class="row">
         <h3>Gerelateerde producten: </h3>
     </div>
     <div class="row">
@@ -247,15 +250,17 @@ mysqli_close($connection);
             ?>
             <div class="col-sm-12 col-md-3">
                 <a href="view.php?id=<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
-                    <img class="img-fluid" id="upcross-sell-image" style="margin: 20px;" src="<?php print('public/'.$image);?>">
-                    <span class="StockItemName"><?php print($UpXSellProducts[$products[$a]]["stockitemname"]); ?></span>
+                    <img class="img-fluid" id="upcross-sell-image" style="margin: 20px; position: center;" src="<?php print('public/'.$image);?>">
+                    <div class="row">
+                        <p class="StockItemName" style="margin: 20px; min-height: 100px;"><?php print($UpXSellProducts[$products[$a]]["stockitemname"]); ?></p>
+                    </div>
                 </a>
-                <form action="shopping-cart.php" method="POST">
-                    <input type="hidden" name="product_id" value="<?php print($products[$a]); ?>">
+                <form class="row" action="shopping-cart.php" method="POST">
+                    <input type="hidden" name="product_id" value="<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
                     <input type="hidden" name="action" value="add">
                     <button type="submit" class="btn btn-success">In winkelwagen</button>
+                    <span class="upxsell-price">€<?php print(round($UpXSellProducts[$products[$a]]["SellPrice"], 2)); ?></span>
                 </form>
-                <span class="HomePagePriceHighlight">€<?php print(round($UpXSellProducts[$products[$a]]["SellPrice"], 2)); ?></span>
             </div>
 
         <?php

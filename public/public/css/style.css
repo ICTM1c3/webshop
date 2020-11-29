@@ -612,3 +612,16 @@ nav .navbar-brand img {
     max-width: 200px;
     max-height: 200px;
 }
+
+.vl {
+    border: 1px solid white;
+    height: 300px;
+    position: absolute;
+}
+
+.upxsell-price{
+    color: crimson;
+    font-weight: bold;
+    font-size: 30px;
+    margin-left: 5px;
+}
