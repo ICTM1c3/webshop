@@ -8,6 +8,12 @@ function GetArrayWithCorrectKeys($array, $correctkey, $secondkey){
     return $a;
 }
 
+function PrintPrice($price){
+    $cprice = round($price, 2);
+
+    print(bcadd($cprice, 0, 2));
+}
+
 $Query = "SELECT DISTINCT SI.StockItemID,
 (RecommendedRetailPrice *(1 +(TaxRate / 100))) AS SellPrice, StockItemName, QuantityOnHand, SearchDetails,
 (CASE WHEN (RecommendedRetailPrice *(1 +(TaxRate / 100))) > 50 THEN 0 ELSE 6.95 END) AS SendCosts,
@@ -226,6 +232,7 @@ mysqli_close($connection);
     <div class="row">
         <h3>Gerelateerde producten: </h3>
     </div>
+    <br>
     <div class="row">
         <?php
         $aantalUpXSellProducts = 4;
@@ -235,7 +242,6 @@ mysqli_close($connection);
         for($i = 0; $i < $aantalUpXSellProducts; $i++){
             $products[$i] = $randomkeys[$i];
         }
-        //var_dump($ItemImagePath[$products[0]]["ImagePath"]);
         for($a = 0; $a < $aantalUpXSellProducts; $a++){
             if(array_key_exists($UpXSellProducts[$products[$a]]["stockitemid"], $ItemImagePath)){
                 $image = "stockitemimg/".$ItemImagePath[$UpXSellProducts[$products[$a]]["stockitemid"]]["ImagePath"];
@@ -250,16 +256,21 @@ mysqli_close($connection);
             ?>
             <div class="col-sm-12 col-md-3">
                 <a href="view.php?id=<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
-                    <img class="img-fluid" id="upcross-sell-image" style="margin: 20px; position: center;" src="<?php print('public/'.$image);?>">
                     <div class="row">
-                        <p class="StockItemName" style="margin: 20px; min-height: 100px;"><?php print($UpXSellProducts[$products[$a]]["stockitemname"]); ?></p>
+                        <div class="text-center">
+                            <img class="img-fluid" id="upcross-sell-image" src="<?php print('public/'.$image);?>">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p class="StockItemName" style="min-height: 100px;"><?php print($UpXSellProducts[$products[$a]]["stockitemname"]); ?></p>
                     </div>
                 </a>
+                <div class="vr"></div>
                 <form class="row" action="shopping-cart.php" method="POST">
                     <input type="hidden" name="product_id" value="<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
                     <input type="hidden" name="action" value="add">
                     <button type="submit" class="btn btn-success">In winkelwagen</button>
-                    <span class="upxsell-price">€<?php print(round($UpXSellProducts[$products[$a]]["SellPrice"], 2)); ?></span>
+                    <span class="upxsell-price">€<?php PrintPrice($UpXSellProducts[$products[$a]]["SellPrice"]); ?></span>
                 </form>
             </div>
 

@@ -611,6 +611,7 @@ nav .navbar-brand img {
 #upcross-sell-image {
     max-width: 200px;
     max-height: 200px;
+    margin-left: 30px;
 }
 
 .vl {
@@ -620,7 +621,7 @@ nav .navbar-brand img {
 }
 
 .upxsell-price{
-    color: crimson;
+    color: #dc143c;
     font-weight: bold;
     font-size: 30px;
     margin-left: 5px;
