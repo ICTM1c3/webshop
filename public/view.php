@@ -14,6 +14,10 @@ function PrintPrice($price){
     print(bcadd($cprice, 0, 2));
 }
 
+function PrintMaxCharsOfString($str, $chars){
+    print(substr($str, 0, $chars));
+}
+
 $Query = "SELECT DISTINCT SI.StockItemID,
 (RecommendedRetailPrice *(1 +(TaxRate / 100))) AS SellPrice, StockItemName, QuantityOnHand, SearchDetails,
 (CASE WHEN (RecommendedRetailPrice *(1 +(TaxRate / 100))) > 50 THEN 0 ELSE 6.95 END) AS SendCosts,
@@ -257,12 +261,14 @@ mysqli_close($connection);
             <div class="col-sm-12 col-md-3">
                 <a href="view.php?id=<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
                     <div class="row" style="margin-top: 10px">
-                        <div class="text-center">
+                        <div style="min-height: 240px; border: 10px solid rgba(255,255,255,.02);">
                             <img class="img-fluid" id="upcross-sell-image" src="<?php print('public/'.$image);?>">
                         </div>
                     </div>
                     <div class="row">
-                        <p class="StockItemName" style="margin: 5px; min-height: 100px;"><?php print($UpXSellProducts[$products[$a]]["stockitemname"]); ?></p>
+                        <div style="min-height: 100px; max-height: 120px; max-width: 300px; border: 1px solid rgba(255,255,255,0);">
+                            <p class="StockItemName" style="margin: 5px; min-height: 100px;"><?php PrintMaxCharsOfString($UpXSellProducts[$products[$a]]["stockitemname"],50); if(strlen($UpXSellProducts[$products[$a]]["stockitemname"]) > 50) print("...");?></p>
+                        </div>
                     </div>
                 </a>
                 <div class="vr"></div>
