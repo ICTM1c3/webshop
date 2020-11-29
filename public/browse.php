@@ -150,7 +150,7 @@ $AmountOfPages = ceil($amount / $ProductsOnPage);
 
 $products = array_slice($ReturnableResult, ($ProductsOnPage * ($PageNumber - 1)), $ProductsOnPage);
 
-$Query = "SELECT Stockgroupid, stockgroupname FROM stockgroups ORDER BY stockgroupid";
+$Query = "SELECT Stockgroupid, stockgroupname FROM stockgroups WHERE stockgroupid IN (SELECT stockgroupid FROM stockitemstockgroups) ORDER BY stockgroupid";
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_execute($Statement);
 $categories = mysqli_stmt_get_result($Statement);
