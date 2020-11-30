@@ -12,53 +12,51 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     if (isset($_POST["shipping_method"]) && !empty("shipping_method")) {
         $shipping_method = $_POST["shipping_method"];
     } else {
-        $errors[] = "je moet een verzendmethode kiezen";
+        $errors[] = "Je moet een verzendmethode kiezen";
     }
 
     if (isset($_POST["delivery_date"]) && !empty("delivery_date")) {
         $delivery_date = $_POST["delivery_date"];
     } else {
-        $errors[] = "je moet een bezorgmoment kiezen";
+        $errors[] = "Je moet een bezorgmoment kiezen";
     }
 
     if (isset($_POST["payment_method"]) && !empty("payment_method")) {
         $payment_method = $_POST["payment_method"];
     } else {
-        $errors[] = "je moet een betaalmethode kiezen";
+        $errors[] = "Je moet een betaalmethode kiezen";
     }
 
-    if (isset($_POST["address"]) && !empty("address")) {
-        if ($_POST["address"] == 0) {
+    if (isset($_POST["address"]) && $_POST["address"] !== "" && !is_int($_POST["address"])) {
+        $address = (int) $_POST["address"];
 
-            if (isset($_POST["street"]) && !empty("street")) {
+        if ($address === 0) {
+            if (isset($_POST["street"]) && !empty($_POST["street"])) {
                 $street = $_POST["street"];
             } else {
-                $errors[] = "je moet een straat kiezen";
+                $errors[] = "Je moet een straat en huisnummer invoeren.";
             }
 
-            if (isset($_POST["postal_code"]) && !empty("postal_code")) {
+            if (isset($_POST["postal_code"]) && !empty($_POST["postal_code"])) {
                 $postal_code = $_POST["postal_code"];
             } else {
-                $errors[] = "je moet een postcode invoeren";
+                $errors[] = "Je moet een postcode invoeren.";
             }
 
-            if (isset($_POST["city"]) && !empty("city")) {
+            if (isset($_POST["city"]) && !empty($_POST["city"])) {
                 $city = $_POST["city"];
             } else {
-                $errors[] = "je moet een plaats opgeven";
+                $errors[] = "Je moet een plaats invoeren.";
             }
 
-            if (isset($_POST["country"]) && !empty("county")) {
+            if (isset($_POST["country"]) && !empty($_POST["country"])) {
                 $country = $_POST["country"];
             } else {
-                $errors[] = "je moet een land kiezen";
+                $errors[] = "Je moet een land kiezen.";
             }
-
-        } else {
-            $address = $_POST["address"];
         }
     } else {
-        $errors[] = "je moet een bezorgmoment kiezen";
+        $errors[] = "Je moet een adres selecteren";
     }
 
     if (empty($errors)) {
@@ -73,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 }
 
 include 'header.php';
-
 
 ?>
 
