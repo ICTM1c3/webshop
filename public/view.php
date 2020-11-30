@@ -269,7 +269,7 @@ mysqli_close($connection);
             <div class="col-sm-12 col-md-3">
                 <a href="view.php?id=<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
                     <div class="row" style="margin-top: 10px">
-                        <div class="img-fluid" style="max-width: 400px; min-height: 300px; border: 10px solid rgba(255,255,255,.02);">
+                        <div class="img-fluid" style="max-width: 400px; border: 10px solid rgba(255,255,255,.02);">
                             <img class="img-fluid" src="<?php print('public/'.$image);?>">
                         </div>
                     </div>
