@@ -18,6 +18,13 @@ function PrintMaxCharsOfString($str, $chars){
     print(substr($str, 0, $chars));
 }
 
+function GetKeyWithStockItemID($array, $id){
+    for($i = 0; $i < count($array); $i++){
+        if($array[$i]["stockitemid"] == $id)
+            return $i;
+    }
+}
+
 $Query = "SELECT DISTINCT SI.StockItemID,
 (RecommendedRetailPrice *(1 +(TaxRate / 100))) AS SellPrice, StockItemName, QuantityOnHand, SearchDetails,
 (CASE WHEN (RecommendedRetailPrice *(1 +(TaxRate / 100))) > 50 THEN 0 ELSE 6.95 END) AS SendCosts,
@@ -237,14 +244,18 @@ mysqli_close($connection);
         <h3>Gerelateerde producten: </h3>
     </div>
     <br>
-    <div class="row">
+    <div class="row" id="iets">
         <?php
         $aantalUpXSellProducts = 4;
         $UpXSellProducts = $RelatedStockItems;
-        unset($UpXSellProducts[intval($_GET['id'])]);
-        $randomkeys = array_rand($UpXSellProducts, $aantalUpXSellProducts);
+        //unset($UpXSellProducts[intval($_GET['id'])]);
+        //$randomkeys = array_rand($UpXSellProducts, $aantalUpXSellProducts);
+
         for($i = 0; $i < $aantalUpXSellProducts; $i++){
-            $products[$i] = $randomkeys[$i];
+            $correctie = 0;
+            if(GetKeyWithStockItemID($UpXSellProducts, $_GET['id']) + 1 + $i >= count($UpXSellProducts))
+                $correctie = -count($UpXSellProducts);
+            $products[$i] = GetKeyWithStockItemID($UpXSellProducts, $_GET['id']) + $correctie + 1 + $i;
         }
         for($a = 0; $a < $aantalUpXSellProducts; $a++){
             if(array_key_exists($UpXSellProducts[$products[$a]]["stockitemid"], $ItemImagePath)){
@@ -261,8 +272,8 @@ mysqli_close($connection);
             <div class="col-sm-12 col-md-3">
                 <a href="view.php?id=<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
                     <div class="row" style="margin-top: 10px">
-                        <div class="img-fluid" style="max-width: 220px; min-height: 230px; border: 10px solid rgba(255,255,255,.02);">
-                            <img class="img-fluid" id="upcross-sell-image" src="<?php print('public/'.$image);?>">
+                        <div class="img-fluid" style="max-width: 400px; min-height: 300px; border: 10px solid rgba(255,255,255,.02);">
+                            <img class="img-fluid" src="<?php print('public/'.$image);?>">
                         </div>
                     </div>
                     <div class="row">
@@ -275,6 +286,7 @@ mysqli_close($connection);
                 <form class="row" action="shopping-cart.php" method="POST">
                     <input type="hidden" name="product_id" value="<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
                     <input type="hidden" name="action" value="add">
+                    <input type="hidden" name="page" value="<?php print($_GET['id']);?>">
                     <button type="submit" class="btn btn-success">In winkelwagen</button>
                     <span class="upxsell-price">€<?php PrintPrice($UpXSellProducts[$products[$a]]["SellPrice"]); ?></span>
                 </form>
