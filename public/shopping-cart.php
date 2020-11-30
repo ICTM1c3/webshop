@@ -45,10 +45,14 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
                     } else $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount]);
 
                     if ($action === "add") {
-                        if(isset($_POST['page']))
+                        if(isset($_GET['goto'])) {
+                            header("Location: $_GET[goto]&add");
+                        } elseif(isset($_POST['page'])) {
                             header("Location: view.php?id=".$_POST['page']."");
-                        else
+                        } else {
                             header("Location: view.php?id=$product_id&add");
+                        }
+
                         exit();
                     }
 
