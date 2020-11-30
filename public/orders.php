@@ -8,18 +8,22 @@ if (!$authenticated) {
 }
 
 $query = "SELECT
-	id,
-    created_at,
-	(SELECT COUNT(stockitem_id) FROM webshoporderstockitems WHERE webshoporder_id = webshoporders.id) AS product_count,
+    wo.id,
+    wo.created_at,
+    shipping_status,
+	(SELECT COUNT(stockitem_id) FROM webshoporderstockitems WHERE webshoporder_id = wo.id) AS product_count,
    	ROUND((SELECT
 		SUM(amount * (si.RecommendedRetailPrice * (si.TaxRate / 100)))
 		FROM webshoporderstockitems wosi
         JOIN stockitems si ON wosi.webshoporder_id = si.StockItemId
-        WHERE webshoporder_id = webshoporders.id
+        WHERE webshoporder_id = wo.id
 	), 2) AS order_subtotal,
-    dm.DeliveryMethodName AS shipping_method
-FROM webshoporders
-JOIN deliverymethods dm ON dm.DeliveryMethodID = webshoporders.deliverymethod_id
+    dm.DeliveryMethodName AS shipping_method,
+    p.is_finalised,
+    p.finalised_at
+FROM webshoporders wo
+JOIN deliverymethods dm ON dm.DeliveryMethodID = wo.deliverymethod_id
+LEFT JOIN payments p on wo.id = p.webshoporder_id AND p.paymentmethod_id = (SELECT MAX(paymentmethod_id) FROM payments WHERE p.webshoporder_id = wo.id AND p.is_finalised = 1)
 WHERE customer_id = ?;";
 
 $stmt = $connection->prepare($query);
@@ -51,7 +55,7 @@ $connection->close();
             ?>
             <tr>
                 <th scope="row">#<?= $order['id'] ?></th>
-                <td><?= $order['id'] ?></td>
+                <td><?= ($order['shipping_status'] === 1) ? "Verzonden" : (($order['is_finalised'] === 1) ? "Betaald" : "Wachten op betaling") ?></td>
                 <td>&euro;<?= number_format(($order['order_subtotal'] > 30) ? ($order['order_subtotal'] + 10) : $order['order_subtotal'], 2, ',', '.') ?></td>
                 <td><?= $order['shipping_method'] ?></td>
                 <td><?= $order['created_at'] ?></td>

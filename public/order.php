@@ -19,6 +19,7 @@ $query = "SELECT
 	si.StockItemName,
     si.TaxRate,
     si.RecommendedRetailPrice,
+    wo.shipping_status,
     wosi.amount,
     dm.DeliveryMethodName as shipping_method,
     p.is_finalised AS payment_is_finialised,
@@ -48,10 +49,12 @@ $subtotal_price = 0;
 $total_price = 0;
 
 $shipping_method = ($result[0]) ? " (" . $result[0]['shipping_method'] . ")" : "";
+$order_status = ($result[0]) ? (($result[0]['shipping_status'] === 1) ? "Verzonden" : (($result[0]['payment_is_finialised'] === 1) ? "Betaald" : "Wachten op betaling")) : "Onbekend";
 
 ?>
 <div class="container">
     <h1>Bestelling #<?= $order_id ?></h1>
+    <p class="mb-0">Status: <?= $order_status ?></p>
     <p><u><a class="text-white" href="orders.php">Terug naar overzicht.</a></u></p>
     <table class="table table-dark">
         <thead>
