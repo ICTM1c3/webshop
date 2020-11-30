@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             $connection->close();
         }
 
-        if ($result || $promo_action) {
+        if (isset($result) || $promo_action) {
             switch ($action) {
                 case "add":
                 case "update":
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 case "remove":
                     // Verwijderen van product uit winkelmand.
                     unset($_SESSION['shopping_cart'][$product_id]);
-                    if ($_SESSION["itemSpecificPromocode"]) {
+                    if (isset($_SESSION["itemSpecificPromocode"])) {
                         $_SESSION["itemSpecificPromocode"] = false;
                         $_SESSION["promocode"] = null;
                     }
@@ -109,14 +109,14 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
                             if ($isValid) {
                                 $_SESSION["promocode"] = $promocode;
-                                $success_messages[] = "Het kortingscode is toegepast.";
+                                $success_messages[] = "De kortingscode is toegepast.";
                                 $_SESSION["itemSpecificPromocode"] = true;
                             } else {
                                 $errors[] = "Deze kortingscode is niet geldig voor dit artikel.";
                             }
                         } else {
                             $_SESSION["promocode"] = $promocode;
-                            $success_messages[] = "Het kortingscode is toegepast.";
+                            $success_messages[] = "De kortingscode is toegepast.";
                         }
                     }
                     $connection->close();
@@ -206,21 +206,18 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     // This code executes after the whole shopping cart list has been 'built'
     
     // Calculate shipping costs
-    if ($item_total < 30) {
-        $shipping_costs = 5;
-    } else {
-        $shipping_costs = 0;
-    }
+    $shipping_costs = ($item_total < 30) ? 5 : 0;
     
     // Calculate promocode
-    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
+    $stmt = $connection->prepare("SELECT code, type, value, minimum_price, maximum_price FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
     $stmt->bind_param("s", $_SESSION["promocode"]);
     $stmt->execute();
     $promocode_discount = $stmt->get_result();
     $promocode_discount = ($promocode_discount) ? $promocode_discount->fetch_assoc() : false;
     $stmt->close();
     $connection->close();
-    
+
+    $discount = 0;
     if ($promocode_discount) {
         if ($item_total > $promocode_discount["minimum_price"] || $promocode_discount["minimum_price"] == null && $item_total < $promocode_discount["maximum_price"] || $promocode_discount["maximum_price"] == null) {
             if ($promocode_discount["type"] === "FIXED") {
@@ -229,8 +226,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 $discount = -($item_total * $promocode_discount["value"]);
             }
         }
-    } else {
-        $discount = 0;
     }
 
     // Calculate final total
@@ -238,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     
     array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => "&euro;".number_format($item_total, 2, ',', '.')));
     if ($discount < 0) {
-        array_push($receipt_lines, array("NAME" => "Kortingscode", "VALUE" => "&euro;".number_format($discount, 2, ',', '.')));
+        array_push($receipt_lines, array("NAME" => "Korting ($promocode_discount[code])", "VALUE" => "&euro;".number_format($discount, 2, ',', '.')));
     }
     array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : "&euro;".number_format($shipping_costs, 2, ',', '.')));
     array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => "&euro;".number_format($total, 2, ',', '.')));
@@ -252,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 <form class="p-2" action="shopping-cart.php" method="POST">
                     <label for="kortingscodeveld">Kortingscode:</label>
                     <div class="input-group">
-                        <input class="form-control" name="promocode" value="<?php if (isset($_SESSION["promocode"])) {print($_SESSION["promocode"]);} else {print("");} ?>" type="text">
+                        <input class="form-control" name="promocode" value="<?= (isset($_SESSION["promocode"])) ? $_SESSION["promocode"] : "" ?>" type="text">
                         <div class="input-group-append">
                             <button type="submit" name="action" value="add_promocode" class="btn btn-primary">Toepassen</button>
                             <button type="submit" name="action" value="remove_promocode" class="btn btn-danger">Verwijderen</button>
