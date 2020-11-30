@@ -70,6 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <button type="submit" class="btn btn-primary">Login</button>
     </form>
+
+    <p class="mt-3">Heb je nog geen account? <u><a class="text-white" href="register.php">Registreren</a></u></p>
 </div>
 <?php
 include 'footer.php';

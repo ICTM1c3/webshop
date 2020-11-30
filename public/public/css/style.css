@@ -347,7 +347,7 @@ ul#ul-class-price li {
 #Wrap {
     width: 100%;
     height: 600px;
-    margin-top: 3%;
+    margin-top: 0%;
     position: relative;
     text-align: center;
     text-decoration: none;
@@ -374,36 +374,36 @@ ul#ul-class-price li {
 }
 
 #StockGroup1 {
-    width: 18%;
-    height: 600px;
-    margin-left: 5%;
+    width: 22%;
+    height: 500px;
+    margin-left: 2.15%;
 }
 
 #StockGroup2 {
-    width: 18%;
-    height: 600px;
+    width: 22%;
+    height: 500px;
     background-size: cover;
 }
 
 #StockGroup3 {
-    width: 15%;
-    height: 41.5%;
+    width: 17%;
+    height: 40%;
 }
 
 #StockGroup4 {
     width: 30%;
-    height: 250px;
+    height: 240px;
 }
 
 #StockGroup5 {
-    width: 25%;
-    height: 53.5%;
+    width: 27%;
+    height: 40.5%;
     margin-top: 1.5%;
 }
 
 #StockGroup6 {
     width: 20%;
-    height: 53.5%;
+    height: 40.5%;
     margin-left: 1.5%;
     margin-top: 1.5%;
 }
@@ -590,7 +590,6 @@ ul#ul-class-price li {
 }
 
 footer {
-    /*position: absolute;*/
     background-color: #343a40 !important;
     width: 100%;
 }
@@ -608,33 +607,13 @@ nav .navbar-brand img {
     height: 300px;
 }
 
-
-
-.testcontainer{
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto;
-    background-color: deeppink;
-    padding-bottom: 90px;
-}
-.testrow{
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
+.filter-container {
+    border: 1px solid;
 }
 
-.tets{
-    position: relative;
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-}
-
-
-.winkelmandbox{
+@media only screen and (min-width: 768px) {
+    #filterCollapse {
+        display: block;
+        transition: none;
+    }
 }
