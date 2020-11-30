@@ -46,9 +46,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
 
                     if ($action === "add") {
                         if(isset($_GET['goto'])) {
-                            header("Location: $_GET[goto]&add");
-                        } elseif(isset($_POST['page'])) {
-                            header("Location: view.php?id=".$_POST['page']."");
+                            header("Location: $_GET[goto]");
                         } else {
                             header("Location: view.php?id=$product_id&add");
                         }

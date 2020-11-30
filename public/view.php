@@ -244,13 +244,10 @@ mysqli_close($connection);
         <h3>Gerelateerde producten: </h3>
     </div>
     <br>
-    <div class="row" id="iets">
+    <div class="row" id="upxpos">
         <?php
         $aantalUpXSellProducts = 4;
         $UpXSellProducts = $RelatedStockItems;
-        //unset($UpXSellProducts[intval($_GET['id'])]);
-        //$randomkeys = array_rand($UpXSellProducts, $aantalUpXSellProducts);
-
         for($i = 0; $i < $aantalUpXSellProducts; $i++){
             $correctie = 0;
             if(GetKeyWithStockItemID($UpXSellProducts, $_GET['id']) + 1 + $i >= count($UpXSellProducts))
@@ -283,7 +280,7 @@ mysqli_close($connection);
                     </div>
                 </a>
                 <div class="vr"></div>
-                <form class="row" action="shopping-cart.php?goto=<?= $_SERVER['REQUEST_URI'] . '#iets' ?>" method="POST">
+                <form class="row" action="shopping-cart.php?goto=<?= $_SERVER['REQUEST_URI'] . '#upxpos' ?>" method="POST">
                     <input type="hidden" name="product_id" value="<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="page" value="<?php print($_GET['id']);?>">
