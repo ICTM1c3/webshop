@@ -6,7 +6,7 @@ $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
     include 'config.php';
-
+/*
     if (isset($_POST['product_id']) && !empty($_POST['product_id'])) {
         $product_id = $_POST['product_id'];
     } else $errors[] = "Een product ID is verplicht.";
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             $amount = $_POST['amount'] ?? 1;
         }
     } else $errors[] = "Een actie is verplicht.";
-
+*/
     if (empty($errors)) {
         $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price, (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath, (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath FROM stockitems Si WHERE StockItemID = ?;");
         $stmt->bind_param("i", $product_id);
@@ -30,39 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
 
 
-        if ($result) {
-            switch ($action) {
-                case "add":
-                case "update":
-                    // Toevoegen/bewerken van product aan/in winkelmand.
-
-                    if ((int)$amount === 0) {
-                        unset($_SESSION['shopping_cart'][$product_id]);
-                        $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
-                        break;
-                    }
-
-                    if (isset($_SESSION['shopping_cart'][$product_id]) && $action == "add") {
-                        $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount + $_SESSION['shopping_cart'][$product_id]['amount']]);
-                    } else $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount]);
-
-                    if ($action === "add") {
-                        header("Location: view.php?id=$product_id&add");
-                        exit();
-                    }
-                    $success_messages[] = "Het product is toegevoegd aan de winkelwagen.";
-                    break;
-                case "remove":
-                    // Verwijderen van product uit winkelmand.
-                    unset($_SESSION['shopping_cart'][$product_id]);
-                    $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
-                    break;
-                case "add_promocode":
-                    break;
-                default:
-                    break;
-            }
-        } else $errors[] = "Er is geen product gevonden met dit ID.";
     }
     include 'header.php';
 } else {
@@ -172,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         */
     ?>
 
-    <!-- Begin bottom div with promocode and totals -->
+    <!-- Begin bottom div with totals -->
     <?php
     $receipt_lines = ($_SESSION["receipt_lines"]) ? $_SESSION["receipt_lines"] : array();
     ?>
@@ -194,8 +161,36 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             <hr class="border-white"/>
         </div>
     </div>
+    <div>
+        <div class="col-12">
+        </div>
+    </div>
+    <div class="row bg-dark">
+        <div class="col-12">
+            <hr class="border-white">
+            <div class="col-12">
+                <form action="checkout.php" method="post">
+                <div class="col-md-5 mb-3">
+                    <div class="input-group">
+                        <label for="adress"></label>
+                        <select class="form-control" id="adress" required>
+                            <option value=>kies een adres</option>
+                            <option value="standaard_adres">standaard opgeven adres bij aanmaken account</option>
+                            <option value="nieuw_adres">nieuw adres</option>
+                        </select>
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-secondary">gebruik
+                            </button>
+                        </div>
+                    </div>
+                    <label for="postcode">postcode</label>
+                    <input type="text" class="form-control" id="postcode">
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
-
 
     <?php
     }
