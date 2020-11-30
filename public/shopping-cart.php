@@ -278,7 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             
             <hr class="border-white"/> 
 
-            <a class="btn btn-primary btn-lg btn-block mb-4" href="checkout-login.php" type="submit">Afrekenen</a> <!-- Knop afrekenen -->
+            <a class="btn btn-primary btn-lg btn-block mb-4" href="login.php?goto=checkout.php" type="submit">Afrekenen</a> <!-- Knop afrekenen -->
 
         </div>
     </div>
