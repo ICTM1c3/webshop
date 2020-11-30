@@ -608,16 +608,6 @@ nav .navbar-brand img {
     height: 300px;
 }
 
-#upcross-sell-image {
-    /*width: 15vw;*/
-}
-
-.vl {
-    border: 1px solid white;
-    height: 300px;
-    position: absolute;
-}
-
 .upxsell-price{
     color: #dc143c;
     font-weight: bold;
