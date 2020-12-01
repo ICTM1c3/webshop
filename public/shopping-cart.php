@@ -4,10 +4,10 @@ ob_start();
 $success_messages = [];
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] === "POST") {
+if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
     include 'config.php';
     
-    if (isset($_POST['action']) && !empty($_POST['action'])) {
+    if (isset($_POST['action']) && !empty($_POST['action'])) { // Check wether 'action' field is empty
         $action = $_POST['action'];
         
         if ($action === "add" || $action === "update") {
@@ -15,37 +15,46 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         }
     } else $errors[] = "Een actie is verplicht.";
     
-    if ($action === "add_promocode" || $action === "remove_promocode") {
+    $promo_action = false;
+    if ($action === "add_promocode" || $action === "remove_promocode") { // Set flag if promocode is to be used
         $promo_action = true;
-    } else {
-        $promo_action = false;
     }
 
     if ($promo_action) {
-        if (isset($_POST['promocode']) && !empty($_POST['promocode'])) {
+        if (isset($_POST['promocode']) && !empty($_POST['promocode'])) { // Check wether 'promocode' field is empty
             $promocode = $_POST['promocode'];
         } else $errors[] = "Een kortingscode is verplicht.";
     }
 
     if (!$promo_action) {
-        if (isset($_POST['product_id']) && !empty($_POST['product_id'])) {
+        if (isset($_POST['product_id']) && !empty($_POST['product_id'])) { // Check wether 'product_id' field is empty
             $product_id = $_POST['product_id'];
         } else $errors[] = "Een product ID is verplicht.";
     }
 
     if (empty($errors)) {
-        if (!$promo_action) {
+
+        $result = false; // Default result to false, in case of errors
+        if (!$promo_action) { // If not a promocode action, get stockitem information, and store in $result
             $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price, (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath, (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath FROM stockitems Si WHERE StockItemID = ?;");
             $stmt->bind_param("i", $product_id);
             $stmt->execute();
             $result = $stmt->get_result();
             $result = ($result) ? $result->fetch_assoc() : false;
             $stmt->close();
-            $connection->close();
         }
 
-        if (isset($result) || $promo_action) {
-            switch ($action) {
+        if ($promo_action) { // If a promocode action, get promocode information, and store in $result
+            $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price, itemSpecific FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
+            $stmt->bind_param("s", $promocode);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $result = ($result) ? $result->fetch_assoc() : false;
+            $stmt->close();
+        }
+
+        if (isset($result)) {
+            switch ($action) { // Handle the various page actions
                 case "add":
                 case "update":
                     // Toevoegen/bewerken van product aan/in winkelmand.
@@ -70,73 +79,86 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
                 case "remove":
                     // Verwijderen van product uit winkelmand.
+                    
+                    // TODO: make this handle deleting specific items
                     unset($_SESSION['shopping_cart'][$product_id]);
-                    if (isset($_SESSION["itemSpecificPromocode"])) {
-                        $_SESSION["itemSpecificPromocode"] = false;
-                        $_SESSION["promocode"] = null;
+                    if (isset($_SESSION["promocode"]["specificPromocode"])) {
+                        $allSpecificItemsCleared = true;
+                        foreach ($_SESSION["promocode"]["specificPromocodeItems"] as $v) {
+                            if (in_array($v, $_SESSION["shopping_cart"])) {
+                                $allSpecificItemsCleared = false;
+                                break;
+                            }
+                        }
+
+                        if ($allSpecificItemsCleared) {
+                            $_SESSION["promocode"]["specificPromocode"] = false;
+                            $_SESSION["promocode"]["code"] = null;
+                        }
                     }
                     $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                     break;
 
                 case "add_promocode":
-                    $stmt = $connection->prepare("SELECT type, value, minimum_price, maximum_price, itemSpecific FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
-                    $stmt->bind_param("s", $promocode);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    $result = ($result) ? $result->fetch_assoc() : false;
-                    $stmt->close();
-                    
-                    if (!$result) {
-                        $errors[] = "Dit is geen geldige kortingscode.";
-                    } else {
-                        if ($result["itemSpecific"] == 1) {
-                            $stmt = $connection->prepare("SELECT stockitem_id FROM promocodeStockitems WHERE promocode = ?;");
-                            $stmt->bind_param("s", $promocode);
-                            $stmt->execute();
-                            $result2 = $stmt->get_result();
-                            $result2 = ($result2) ? $result2->fetch_all(MYSQLI_ASSOC) : false;
-                            $stmt->close();
+                    if ($result["itemSpecific"] == 1) { // If the promocode applies to one specific item
+                        // Fetch the items for which the code is valid
+                        $stmt = $connection->prepare("SELECT stockitem_id FROM promocodeStockitems WHERE promocode = ?;");
+                        $stmt->bind_param("s", $promocode);
+                        $stmt->execute();
+                        $result2 = $stmt->get_result();
+                        $result2 = ($result2) ? $result2->fetch_all(MYSQLI_ASSOC) : false;
+                        $stmt->close();
 
-                            // print_r($_SESSION["shopping_cart"]);
-                            // print_r($result2);
-                            $isValid = false;
-                            foreach ($result2 as $v) {
-                                if (in_array($v["stockitem_id"], array_keys($_SESSION["shopping_cart"])) ) {
-                                    $isValid = true;
-                                break;
-                                }
+                        $isValid = false; 
+                        foreach ($result2 as $v) { // Check wether the promocode is valid for at least one item in the shopping cart
+                            if (in_array($v["stockitem_id"], array_keys($_SESSION["shopping_cart"])) ) {
+                                $isValid = true;
+                            break;
                             }
-
-                            if ($isValid) {
-                                $_SESSION["promocode"] = $promocode;
-                                $success_messages[] = "De kortingscode is toegepast.";
-                                $_SESSION["itemSpecificPromocode"] = true;
-                            } else {
-                                $errors[] = "Deze kortingscode is niet geldig voor dit artikel.";
-                            }
-                        } else {
-                            $_SESSION["promocode"] = $promocode;
-                            $success_messages[] = "De kortingscode is toegepast.";
                         }
+
+                        if ($isValid) {
+                            $_SESSION["promocode"]["code"] = $promocode;
+                            $_SESSION["promocode"]["type"] = $result["type"];
+                            $_SESSION["promocode"]["value"] = $result["value"];
+                            $_SESSION["promocode"]["specificPromocode"] = true;
+                            $_SESSION["promocode"]["specificPromocodeItems"] = array();
+                            foreach ($result2 as $v) { // Add all items for which the promocode is valid to a session variable
+                                array_push($_SESSION["promocode"]["specificPromocodeItems"], $v["stockitem_id"]);
+                            }
+                            $success_messages[] = "De kortingscode is toegepast.";
+                        } else {
+                            $errors[] = "Deze kortingscode is niet geldig voor de artikelen in uw winkelmand.";
+                        }
+                    } else { // If it is a 'full cart' promocode
+                        $_SESSION["promocode"]["code"] = $promocode;
+                        $_SESSION["promocode"]["type"] = $result["type"];
+                        $_SESSION["promocode"]["value"] = $result["value"];
+                        $success_messages[] = "De kortingscode is toegepast.";
                     }
                     $connection->close();
                     break;
 
                 case "remove_promocode":
-                    $_SESSION["promocode"] = null;
-                    $_SESSION["itemSpecificPromocode"] = false;
+                    $_SESSION["promocode"]["code"] = null;
+                    $_SESSION["promocode"]["specificPromocode"] = false;
                     $success_messages[] = "De kortingscode is verwijderd.";
                     break;
 
                 default:
                     break;
             }
-        } else $errors[] = "Er is geen product gevonden met dit ID.";
+            $connection->close();
+        } else {
+            if (!$promo_action) {
+                $errors[] = "Er is geen product gevonden met dit ID.";
+            } else {
+                $errors[] = "Dit is geen geldige kortingscode.";
+            }
+        }
     }
-    include 'header.php';
-} else {
-    include 'header.php';
 }
+include 'header.php';
 
 ?>
 <div class="container">
@@ -162,10 +184,22 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     if (isset($_SESSION['shopping_cart']) && !empty($_SESSION['shopping_cart'])) {
         $products = $_SESSION['shopping_cart'];
         $item_total = 0;
+        $discount = 0;
         $receipt_lines = array();
-        foreach ($products as $product) {
+        
+        foreach ($products as $product_id_key => $product) {
             $productPrice = $product['Price'] * $product['amount']; // This code executes once for every item in the shopping cart
             $item_total += $productPrice;
+
+            if (isset($_SESSION["promocode"]["code"]) && $_SESSION["promocode"]["type"] == "DYNAMIC") {
+                if ($_SESSION["promocode"]["specificPromocode"]) {
+                    if (in_array($product_id_key, $_SESSION["promocode"]["specificPromocodeItems"])) {
+                        $discount += -($productPrice * $_SESSION["promocode"]["value"]);
+                    }
+                } else {
+                    $discount += -($productPrice * $_SESSION["promocode"]["value"]);
+                }
+            }
             
         ?>
             <div class="row"> <!-- This is one entry on the list of items in the shopping cart -->
@@ -201,65 +235,57 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 </div>
             </div>
             <hr class="border-white"/> 
-        <?php
-    }
-    // This code executes after the whole shopping cart list has been 'built'
-    
-    // Calculate shipping costs
-    $shipping_costs = ($item_total < 30) ? 5 : 0;
-    
-    // Calculate promocode
-    $stmt = $connection->prepare("SELECT code, type, value, minimum_price, maximum_price FROM promocodes WHERE code = ? AND (valid_from < NOW() AND valid_until > NOW() OR valid_from IS NULL AND valid_until IS NULL);");
-    $stmt->bind_param("s", $_SESSION["promocode"]);
-    $stmt->execute();
-    $promocode_discount = $stmt->get_result();
-    $promocode_discount = ($promocode_discount) ? $promocode_discount->fetch_assoc() : false;
-    $stmt->close();
-    $connection->close();
-
-    $discount = 0;
-    if ($promocode_discount) {
-        if ($item_total > $promocode_discount["minimum_price"] || $promocode_discount["minimum_price"] == null && $item_total < $promocode_discount["maximum_price"] || $promocode_discount["maximum_price"] == null) {
-            if ($promocode_discount["type"] === "FIXED") {
-                $discount = -$promocode_discount["value"];
-            } elseif ($promocode_discount["type"] === "DYNAMIC") {
-                $discount = -($item_total * $promocode_discount["value"]);
-            }
+            <?php
         }
-    }
 
-    // Calculate final total
-    $total = max($item_total + $discount + $shipping_costs, 0);
-    
-    array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => "&euro;".number_format($item_total, 2, ',', '.')));
-    if ($discount < 0) {
-        array_push($receipt_lines, array("NAME" => "Korting ($promocode_discount[code])", "VALUE" => "&euro;".number_format($discount, 2, ',', '.')));
-    }
-    array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : "&euro;".number_format($shipping_costs, 2, ',', '.')));
-    array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => "&euro;".number_format($total, 2, ',', '.')));
-    $_SESSION["receipt_lines"]=$receipt_lines;
-    ?>
+        // This code executes after the whole shopping cart list has been 'built'
 
-    <!-- Begin bottom div with promocode and totals -->
-    <div class="row bg-dark">
-        <div class="col-12">
-            <div> <!-- Div with the promocode entry box and text -->
-                <form class="p-2" action="shopping-cart.php" method="POST">
-                    <label for="kortingscodeveld">Kortingscode:</label>
-                    <div class="input-group">
-                        <input class="form-control" name="promocode" value="<?= (isset($_SESSION["promocode"])) ? $_SESSION["promocode"] : "" ?>" type="text">
-                        <div class="input-group-append">
-                            <button type="submit" name="action" value="add_promocode" class="btn btn-primary">Toepassen</button>
-                            <button type="submit" name="action" value="remove_promocode" class="btn btn-danger">Verwijderen</button>
+        // Calculate fixed promocode discount
+        if (isset($_SESSION["promocode"]["code"]) && $_SESSION["promocode"]["type"] == "FIXED") {
+            $discount = -$_SESSION["promocode"]["value"];
+        }
+
+        // Calculate subtotal
+        $subtotal = max($item_total + $discount, 0);
+        
+        // Calculate shipping costs
+        $shipping_costs = ($subtotal < 30) ? 5 : 0;
+        
+        // Calculate final total
+        $total = max($subtotal + $shipping_costs, 0);
+        
+
+        // Create the receipt lines and push them to the array
+        array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => "&euro;".number_format($item_total, 2, ',', '.')));
+        if ($discount < 0) {
+            array_push($receipt_lines, array("NAME" => "Korting (".$_SESSION["promocode"]["code"].")", "VALUE" => "&euro;".number_format($discount, 2, ',', '.')));
+        }
+        array_push($receipt_lines, array("NAME" => "Subtotaal", "VALUE" => "&euro;".number_format($subtotal, 2, ',', '.')));
+        array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : "&euro;".number_format($shipping_costs, 2, ',', '.')));
+        array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => "&euro;".number_format($total, 2, ',', '.')));
+        $_SESSION["receipt_lines"]=$receipt_lines;
+        ?>
+
+        <!-- Begin bottom div with promocode and totals -->
+        <div class="row bg-dark">
+            <div class="col-12">
+                <div> <!-- Div with the promocode entry box and text -->
+                    <form class="p-2" action="shopping-cart.php" method="POST">
+                        <label for="kortingscodeveld">Kortingscode:</label>
+                        <div class="input-group">
+                            <input class="form-control" name="promocode" value="<?= (isset($_SESSION["promocode"]["code"])) ? $_SESSION["promocode"]["code"] : "" ?>" type="text">
+                            <div class="input-group-append">
+                                <button type="submit" name="action" value="add_promocode" class="btn btn-primary">Toepassen</button>
+                                <button type="submit" name="action" value="remove_promocode" class="btn btn-danger">Verwijderen</button>
+                            </div>
                         </div>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </div>
 
-            <hr class="border-white"/> 
-            
-            <div class="col-12"> <!-- Div with the totals row -->
-                <?php
+                <hr class="border-white"/> 
+                
+                <div class="col-12"> <!-- Div with the totals row -->
+                    <?php
                     foreach ($receipt_lines as $key => $line) {?>
                         <div class="row">
                             <span class="mr-5 ml-4"><strong><?=$line["NAME"]?></strong></span>
@@ -269,24 +295,23 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                         <?php
                     }
                     ?>
+                </div>
+                
+                <hr class="border-white"/> 
+
+                <a class="btn btn-primary btn-lg btn-block mb-4" href="login.php?goto=checkout.php" type="submit">Afrekenen</a> <!-- Knop afrekenen -->
+
             </div>
-            
-            <hr class="border-white"/> 
-
-            <a class="btn btn-primary btn-lg btn-block mb-4" href="login.php?goto=checkout.php" type="submit">Afrekenen</a> <!-- Knop afrekenen -->
-
         </div>
-    </div>
-</div>
-<?php
-} else {
-    ?>
-    <p class="mb-1">Er zitten geen producten in de winkelwagen.</p>
-    <p>Klik <a href="index.php">hier</a> om terug naar de homepagina te gaan.</p>
-    <?php
-}
+        </div>
+        <?php
+    } else {
+        ?>
+        <p class="mb-1">Er zitten geen producten in de winkelwagen.</p>
+        <p>Klik <a href="index.php">hier</a> om terug naar de homepagina te gaan.</p>
+        <?php
+    }
 ?>
-</div>
 <?php
 include 'footer.php';
 ?>
