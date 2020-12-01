@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute();
                 $result = $stmt->get_result();
 
-                $success_messages[] = "Het adres is aangepast.";
+                $success_messages[] = "Het adres is aangepast. <a href=\"addresses.php\">Terug naar het overzicht</a>";
                 break;
             
             default:
