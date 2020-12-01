@@ -300,8 +300,12 @@ include 'header.php';
                     <?php
                     foreach ($receipt_lines as $key => $line) {?>
                         <div class="row">
-                            <span class="ml-4"><strong><?=$line["NAME"]?></strong></span>
-                            <span class="float-right mr-4"><?=$line["VALUE"]?></span>
+                            <div class="col">
+                                <strong><?=$line["NAME"]?></strong>
+                            </div>
+                           <div class="col text-right">
+                               <span><?=$line["VALUE"]?></span>
+                           </div>
                         </div>
                         <?php if ($key + 1 < count($receipt_lines)) { ?> <hr class="border-white"/> <?php } // Prints a horizontal line after the item if it's not the last in the list ?>
                         <?php
