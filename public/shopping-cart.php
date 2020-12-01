@@ -292,7 +292,7 @@ include 'header.php';
         if ($maxMinBreached) {
             array_push($receipt_lines, array("NAME" => "Korting (".$_SESSION["promocode"]["code"].") (Deze kortingscode is niet geldig voor dit artikeltotaal)", "VALUE" => "&euro; 0,00"));
         }
-        array_push($receipt_lines, array("NAME" => "Subtotaal", "VALUE" => "&euro;".number_format($subtotal, 2, ',', '.')));
+        array_push($receipt_lines, array("NAME" => "Subtotaal incl. btw", "VALUE" => "&euro;".number_format($subtotal, 2, ',', '.')));
         array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : "&euro;".number_format($shipping_costs, 2, ',', '.')));
         array_push($receipt_lines, array("NAME" => "Totaal", "VALUE" => "&euro;".number_format($total, 2, ',', '.')));
         $_SESSION["receipt_lines"]=$receipt_lines;
