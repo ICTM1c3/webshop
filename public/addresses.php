@@ -67,11 +67,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // This code executes once for ever address
                     ?><div class="row">
                         <div class="col"><?= $v["street"].", ".$v["city"]." ".$v["postal_code"]." ".$v["country"] ?></div>
-                        <div class="col text-right"><form method="POST" action="addresses.php">
-                            <input type="hidden" name="action" value="remove">
-                            <input type="hidden" name="address_id" value="<?= $v["id"] ?>">
-                            <button type="submit" class="btn btn-danger">Verwijderen</button>
-                        </form></div>
+                        <div class="col text-right col-md-auto">
+                            <form method="GET" action="address.php">
+                                <input type="hidden" name="address_id" value="<?= $v["id"] ?>">
+                                <button type="submit" class="btn btn-primary">Bewerken</button>
+                            </form>
+                        </div>
+                        <div class="col text-right col-md-auto">
+                            <form method="POST" action="addresses.php">
+                                <input type="hidden" name="action" value="remove">
+                                <input type="hidden" name="address_id" value="<?= $v["id"] ?>">
+                                <button type="submit" class="btn btn-danger">Verwijderen</button>
+                            </form>
+                        </div>
                     </div>
                     
                     <?php if ($k + 1 < count($result)) { ?> <hr class="border-white"/> <?php } // Prints a horizontal line after the item if it's not the last in the list ?>
