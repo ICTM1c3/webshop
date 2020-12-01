@@ -29,14 +29,17 @@ $query = "SELECT
     pc.type, 
     pc.value, 
     pc.minimum_price, 
-    pc.maximum_price
+    pc.maximum_price,
+    pc.itemSpecific,
+    pcsi.stockitem_id as promoItem
 FROM webshoporders wo
 JOIN deliverymethods dm ON dm.DeliveryMethodID = wo.deliverymethod_id
 JOIN webshoporderstockitems wosi ON wosi.webshoporder_id = wo.id
 JOIN stockitems si ON si.StockItemID = wosi.stockitem_id
 LEFT JOIN payments p ON p.webshoporder_id = wo.id
 LEFT JOIN promocodes pc ON wo.promocode = pc.code
-WHERE wo.customer_id = ? AND wo.id = ?;";
+LEFT JOIN promocodeStockitems pcsi ON wo.promocode = pcsi.promocode AND si.stockitemid = pcsi.stockitem_id
+WHERE wo.customer_id = ? AND wo.id = ?";
 
 $stmt = $connection->prepare($query);
 $stmt->bind_param("ii", $user['id'], $order_id);
@@ -75,6 +78,7 @@ $order_status = ($result[0]) ? (($result[0]['shipping_status'] === 1) ? "Verzond
         </thead>
         <tbody>
         <?php
+        var_dump($result[1]["promoItem"].",".$result[0]["StockItemName"]);
         foreach ($result as $order) {
             $product_price = $order['RecommendedRetailPrice'] * (1 + ($order['TaxRate'] / 100));
             $total_product_price = $product_price * $order['amount']; //added
@@ -99,7 +103,15 @@ $order_status = ($result[0]) ? (($result[0]['shipping_status'] === 1) ? "Verzond
 
         $korting = 0;
         if($result[0]["promocode"] != null){
-            $korting = $result[0]["value"] * $subtotal_price;
+            if($result[0]["itemSpecific"] == 1){
+                foreach ($result as $order) {
+                    if($order["promoItem"] != null)
+                        $korting += $order["value"] * $order['amount'] * $order['RecommendedRetailPrice'] * (1 + ($order['TaxRate'] / 100));
+
+                }
+            } else {
+                $korting = $result[0]["value"] * $subtotal_price;
+            }
 
             if($result[0]["minimum_price"] != null){
                 if($result[0]["minimum_price"] > $subtotal_price){
