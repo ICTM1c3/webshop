@@ -40,8 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (count($errors) === 0) {
-        mysqli_report(MYSQLI_REPORT_ALL);
-
         $stmt = $connection->prepare("INSERT INTO users (first_name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, ?);");
         $stmt->bind_param("sssss", $first_name, $last_name, $email, $password, $date);
         $date = date('Y-m-d H:i:s');

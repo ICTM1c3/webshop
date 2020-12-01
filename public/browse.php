@@ -302,28 +302,24 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
                                 </a>
                                 <p class="mt-0 StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></p>
                                 <?= (isset($row["MarketingComments"]) && !empty($row['MarketingComments'])) ? "<p>$row[MarketingComments]</p>" : ""; ?>
-                                <h6>&euro;<?= number_format($row["SellPrice"], 2, ',', '.'); ?> <span
-                                            class="text-muted">incl. btw</span>
-                                </h6>
+                                <h6>&euro;<?= number_format($row["SellPrice"], 2, ',', '.'); ?> <span class="text-muted">incl. btw</span></h6>
                                 <?php
                                 $voorraad = $row['QuantityOnHand'];
-                                if($voorraad == 0) {
+                                if ($voorraad == 0) {
                                     $class = "text-danger";
                                     $indicatie = "Binnenkort weer beschikbaar!";
-                                }else if($voorraad <= 1000) {
-                                    $class="text-warning";
+                                } else if ($voorraad <= 1000) {
+                                    $class = "text-warning";
                                     $indicatie = "Lage voorraad, wees er snel bij!";
-                                }else if($voorraad <= 25000) {
+                                } else if ($voorraad <= 25000) {
                                     $class = "text-warning";
                                     $indicatie = "Beperkte voorraad, koop snel!";
-                                }else if($voorraad > 25000) {
+                                } else if ($voorraad > 25000) {
                                     $class = "text-success";
                                     $indicatie = "Ruime Voorraad!";
                                 }
                                 ?>
-                                <h6>
-                                    <p class='mb-1 <?php print($class);?>'><?php print($indicatie);?></p>
-                                </h6>
+                                <p class='mb-1 <?= $class ?? "" ?>'><?= $indicatie ?? "" ?></p>
                             </div>
                         </div>
                         <hr class="border-white">
