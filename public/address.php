@@ -4,76 +4,141 @@ include 'header.php';
 
 $errors = [];
 $success_messages = [];
+$address_id = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['email']) && !empty($_POST['email'])) {
-        $email = $_POST['email'];
-    } else $errors[] = "Het e-mailadres veld is verplicht.";
-
-    if (count($errors) === 0 && emailExists($email)) {
-        $random_string = willekeurig(200);
-        $date = date('Y-m-d H:i:s');
-
-        $reset_url = 'http://' . $_SERVER['HTTP_HOST'] . str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])) . '/password-reset.php?token=' . $random_string;
-
-        $body = file_get_contents(__DIR__ . '/../email-templates/password-reset-inline.html');
-        $body = str_replace('{{RESET_URL}}', $reset_url, $body);
-
-        $mail = sendMail([$email], "Wachtwoord vergeten | NerdyGadgets", $body);
-
-        if ($mail) {
-            $stmt = $connection->prepare("INSERT INTO password_resets VALUES (?, ?, ?);");
-            $stmt->bind_param("sss", $email, $random_string, $date);
-            $result = $stmt->execute();
-            $stmt->close();
-            $connection->close();
-        }
-    }
-
-    $success_messages[] = "Als dit e-mailadres bekend is bij ons, is er zojuist een wachtwoord herstel e-mail verstuurd.";
-}
-
-function emailExists($email) {
     include 'config.php';
+    // This code is executed if a post form is sent to the page
 
-    $stmt = $connection->prepare("SELECT email FROM users WHERE deleted_at IS NULL AND email = ?;");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $count = $stmt->get_result()->num_rows;
+    if (isset($_POST['action']) && !empty($_POST['action'])) { // Check wether 'action' field is empty
+        $action = $_POST['action'];
+    } else $errors[] = "Een actie is verplicht.";
 
-    $stmt->close();
-    $connection->close();
+    if (isset($_POST['address_id']) && !empty($_POST['address_id'])) { // Check wether 'action' field is empty
+        $address_id = $_POST['address_id'];
+    } else $errors[] = "Een adres_id is verplicht.";
+    
+    if (isset($_POST["street"]) && !empty($_POST["street"])) {
+        $street = $_POST["street"];
+    } else {
+        $errors[] = "Je moet een straat en huisnummer invoeren.";
+    }
+    
+    if (isset($_POST["city"]) && !empty($_POST["city"])) {
+        $city = $_POST["city"];
+    } else {
+        $errors[] = "Je moet een plaats invoeren.";
+    }
+    
+    if (isset($_POST["postal_code"]) && !empty($_POST["postal_code"])) {
+        $postal_code = $_POST["postal_code"];
+    } else {
+        $errors[] = "Je moet een postcode invoeren.";
+    }
+    
+    if (isset($_POST["country"]) && !empty($_POST["country"])) {
+        $country = $_POST["country"];
+    } else {
+        $errors[] = "Je moet een land kiezen.";
+    }
+    
+    if (empty($errors)) {
+        // This code executes only if no errors were encountered
+        switch ($action) {
+            case "update":
+                $stmt = $connection->prepare("UPDATE address SET street = ?, city = ?, postal_code = ?, country = ? WHERE user_id = ? and id = ?;");
+                $stmt->bind_param("ssssii", $street, $city, $postal_code, $country, $user["id"], $address_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
 
-    return $count > 0;
+                $success_messages[] = "Het adres is aangepast.";
+                break;
+            
+            default:
+        break;
+    }
+}
 }
 ?>
 <div class="container">
-    <form method="POST">
-        <h4>Wachtwoord vergeten</h4>
-        <p>Ben je je wachtwoord vergeten?<br>Vul dan hieronder je e-mailadres in en we sturen een verificatiemail met daarin een link om je wachtwoord opnieuw in te stellen.</p>
+    <?php
+    if (isset($user)) { // Only show the addresses if the user is signed in?>
+        <h1 class="mb-3">Adres bewerken:</h1>
         <?php
-        foreach($errors as $key => $value) {
-            ?>
-            <div class="alert alert-danger"><?=$value?></div>
-            <?php
+        if (!(isset($address_id) && !empty($address_id)) && (isset($_GET["address_id"]) && !empty($_GET["address_id"]))) {
+            $address_id = $_GET["address_id"];
         }
+        if (isset($address_id) && !empty($address_id)) {
+            ?>
 
-        foreach($success_messages as $key => $value) {
-            ?>
-            <div class="alert alert-success"><?=$value?></div>
+        <div>
             <?php
-        }
-        ?>
-        <div class="form-group">
-            <label for="email">E-mailadres
-                <input type="email" name="email" id="email" class="form-control" required>
-            </label>
+            foreach ($errors as $key => $value) {
+                ?>
+                <div class="alert alert-danger"><?= $value ?></div>
+                <?php
+            }
+            
+            foreach ($success_messages as $key => $value) {
+                ?>
+                <div class="alert alert-success"><?= $value ?></div>
+                <?php
+            }
+            ?>
         </div>
+        <div class="col-12 bg-dark p-3">
+            <?php
+            $stmt = $connection->prepare("SELECT id, street, city, postal_code, country FROM address WHERE user_id = ? AND id = ? AND active = 1;");
+            $stmt->bind_param("ii", $user["id"], $address_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $result = ($result) ? $result->fetch_assoc() : false;
 
-        <button type="submit" class="btn btn-primary">Verstuur verificatie e-mail</button>
-    </form>
-
-    <p class="mt-3">Weet je je wachtwoord weer? <u><a class="text-white" href="login.php">Inloggen</a></u></p>
+            if ($result) { ?>
+            <form method="POST" action="address.php">
+                <div class="form-row pb-2">
+                    <div class="col-sm-12 col-md-4 mb-3">
+                        <label for="street">Straat en huisnummer</label>
+                        <input type="text" name="street" value="<?= $result["street"] ?>" id="street" class="form-control">
+                    </div>
+                    <div class="col-sm-12 col-md-4 mb-3">
+                        <label for="city">Stad</label>
+                        <input type="text" name="city" value="<?= $result["city"] ?>" id="city" class="form-control">
+                    </div>
+                    <div class="col-sm-12 col-md-4 mb-3">
+                        <label for="postal_code">Postcode</label>
+                        <input type="text" name="postal_code" value="<?= $result["postal_code"] ?>" id="postal_code" class="form-control">
+                    </div>
+                    <div class="col-sm-12 col-md-6 mb-3">
+                        <label for="country">Land</label>
+                        <select class="custom-select d-block" value="<?= $result["country"] ?>" id="country" name="country">
+                            <option value="" disabled>Maak een keuze</option>
+                            <option value="NL" selected>Nederland</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row pb-2 pl-2">
+                    <input type="hidden" name="address_id" value="<?= $address_id ?>">
+                    <input type="hidden" name="action" value="update">
+                    <button type="submit" class="btn btn-primary">Bevestigen</button>
+                </div>
+            </form>
+                <?php
+            } else {
+                ?><div class="row">Er is geen adres gevonden met dit id.</div><?php
+            }
+        ?>
+        </div>
+        <?php 
+        } else { ?>
+            Dit is geen geldig adres_id.
+            <?php
+        } ?>
+        <?php 
+    } else { ?>
+        <h1 class="mb-3">U moet ingelogd zijn om deze pagina te gebruiken.</h1>
+    <?php
+    } ?>
 </div>
 <?php
 include 'footer.php';
