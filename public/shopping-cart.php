@@ -121,6 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
                             $_SESSION["promocode"]["code"] = $promocode;
                             $_SESSION["promocode"]["type"] = $result["type"];
                             $_SESSION["promocode"]["value"] = $result["value"];
+                            $_SESSION["promocode"]["minimum_price"] = $result["minimum_price"];
+                            $_SESSION["promocode"]["maximum_price"] = $result["maximum_price"];
                             $_SESSION["promocode"]["specificPromocode"] = true;
                             $_SESSION["promocode"]["specificPromocodeItems"] = array();
                             foreach ($result2 as $v) { // Add all items for which the promocode is valid to a session variable
@@ -245,6 +247,13 @@ include 'header.php';
             $discount = -$_SESSION["promocode"]["value"];
         }
 
+        // Reset discount to 0 if the minimum or maximum price are not reached/gone over
+        $maxMinBreached = false;
+        if ($item_total <= $_SESSION["promocode"]["minimum_price"] || $item_total >= $_SESSION["promocode"]["maximum_price"]) {
+            $discount = 0;
+            $maxMinBreached = true;
+        }
+
         // Calculate subtotal
         $subtotal = max($item_total + $discount, 0);
         
@@ -256,9 +265,12 @@ include 'header.php';
         
 
         // Create the receipt lines and push them to the array
-        array_push($receipt_lines, array("NAME" => "Prijs artikelen", "VALUE" => "&euro;".number_format($item_total, 2, ',', '.')));
+        array_push($receipt_lines, array("NAME" => "Artikeltotaal", "VALUE" => "&euro;".number_format($item_total, 2, ',', '.')));
         if ($discount < 0) {
             array_push($receipt_lines, array("NAME" => "Korting (".$_SESSION["promocode"]["code"].")", "VALUE" => "&euro;".number_format($discount, 2, ',', '.')));
+        }
+        if ($maxMinBreached) {
+            array_push($receipt_lines, array("NAME" => "Korting (".$_SESSION["promocode"]["code"].") (Deze kortingscode is niet geldig voor dit artikeltotaal)", "VALUE" => "&euro; 0,00"));
         }
         array_push($receipt_lines, array("NAME" => "Subtotaal", "VALUE" => "&euro;".number_format($subtotal, 2, ',', '.')));
         array_push($receipt_lines, array("NAME" => "Verzendkosten", "VALUE" => ($shipping_costs == 0) ? "Gratis" : "&euro;".number_format($shipping_costs, 2, ',', '.')));
@@ -288,8 +300,8 @@ include 'header.php';
                     <?php
                     foreach ($receipt_lines as $key => $line) {?>
                         <div class="row">
-                            <span class="mr-5 ml-4"><strong><?=$line["NAME"]?></strong></span>
-                            <span><?=$line["VALUE"]?></span>
+                            <span class="ml-4"><strong><?=$line["NAME"]?></strong></span>
+                            <span class="float-right mr-4"><?=$line["VALUE"]?></span>
                         </div>
                         <?php if ($key + 1 < count($receipt_lines)) { ?> <hr class="border-white"/> <?php } // Prints a horizontal line after the item if it's not the last in the list ?>
                         <?php
