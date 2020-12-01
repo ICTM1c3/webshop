@@ -228,9 +228,8 @@ include 'header.php';
                         <div class="col-sm-12 col-md-6 mb-3">
                             <label for="country">Land</label>
                             <select class="custom-select d-block" id="country" name="country">
-                                <option value="" disabled selected>Maak een keuze</option>
-                                <option value="NL">Nederland</option>
-                                <option value="DE">Duitsland</option>
+                                <option value="" disabled>Maak een keuze</option>
+                                <option value="NL" selected>Nederland</option>
                             </select>
                         </div>
                     </div>
