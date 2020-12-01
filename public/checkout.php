@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     }
 
     if (isset($_POST["address"]) && $_POST["address"] !== "" && !is_int($_POST["address"])) {
-        $address = (int) $_POST["address"];
+        $address = (int)$_POST["address"];
 
         if ($address === 0) {
             if (isset($_POST["street"]) && !empty($_POST["street"])) {
@@ -54,20 +54,19 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             } else {
                 $errors[] = "Je moet een land kiezen.";
             }
+            $address = ($street . " " . $postal_code . " " . $city . " " . $country);
         }
     } else {
         $errors[] = "Je moet een adres selecteren";
     }
 
-    if (empty($errors)) {
-        $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price, (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath, (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath FROM stockitems Si WHERE StockItemID = ?;");
-        $stmt->bind_param("i", $product_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $result = ($result) ? $result->fetch_assoc() : false;
-        $stmt->close();
-        $connection->close();
+    if (isset($_SESSION["promocode"]["code"]) && $_SESSION["promocode"]["code"] != null) {
+        $promocode = $_SESSION["promocode"]["code"];
+    } else {
+        $promocode = null;
     }
+
+
 }
 
 include 'header.php';
@@ -165,9 +164,20 @@ include 'header.php';
                         <label for="shipping_method">Verzendmethode</label>
                         <select class="custom-select d-block" id="shipping_method" name="shipping_method">
                             <option value="" disabled selected>Maak een keuze</option>
-                            <option value="3">Delivery Van</option>
-                            <option value="1">Post</option>
-                            <option value="2">Courier</option>
+                            <?php
+
+                            $stmt = $connection->prepare("select DeliveryMethodID, DeliveryMethodName from deliverymethods;");
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $result = ($result) ? $result->fetch_all(MYSQLI_ASSOC) : false;
+                            $stmt->close();
+
+                            foreach ($result as $v){
+                                ?> <option value="<?= $v["DeliveryMethodID"] ?>"><?= $v["DeliveryMethodName"] ?></option>
+                                <?php
+                            }
+
+                            ?>
                         </select>
                     </div>
                     <div class="col-sm-6 mb-3">
@@ -229,8 +239,20 @@ include 'header.php';
                         <label for="payment_method">Betaalmethode</label>
                         <select class="custom-select d-block" id="payment_method" name="payment_method">
                             <option value="" disabled selected>Maak een keuze</option>
-                            <option value="ideal">iDEAL</option>
-                            <option value="paypal">PayPal</option>
+                            <?php
+
+                            $stmt = $connection->prepare("select id, payment_method from webshoppaymentmethods;");
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $result = ($result) ? $result->fetch_all(MYSQLI_ASSOC) : false;
+                            $stmt->close();
+
+                            foreach ($result as $v){
+                            ?> <option value="<?= $v["id"] ?>"><?= $v["payment_method"] ?></option>
+                            <?php
+                            }
+
+                            ?>
                         </select>
                     </div>
                 </div>
@@ -244,9 +266,10 @@ include 'header.php';
     if (count($errors) === 0 && isset($_POST["bestel_knop"])) {
         mysqli_report(MYSQLI_REPORT_ALL);
 
-        $stmt = $connection->prepare("INSERT INTO users (first_name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, ?);");
-        $stmt->bind_param("sssss", $first_name, $last_name, $email, $password, $date);
-        $date = date('Y-m-d H:i:s');
+        $stmt = $connection->prepare("insert into webshoporders (customer_id, deliverymethod_id, billing_address, shipping_address, payment_method, delivery_date, promocode)
+values (?,?,?,?,?,?,?); ");
+        $stmt->bind_param("iississ", $user,  $shipping_method, $address, $address, $payment_method, $delivery_date, $promocode);
+        $delivery_date = date('Y-m-d H:i:s');
 
         $result = $stmt->execute();
         $stmt->close();
