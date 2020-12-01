@@ -121,8 +121,16 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
                             $_SESSION["promocode"]["code"] = $promocode;
                             $_SESSION["promocode"]["type"] = $result["type"];
                             $_SESSION["promocode"]["value"] = $result["value"];
-                            $_SESSION["promocode"]["minimum_price"] = $result["minimum_price"];
-                            $_SESSION["promocode"]["maximum_price"] = $result["maximum_price"];
+                            if (isset($result["minimum_price"])) {
+                                $_SESSION["promocode"]["minimum_price"] = $result["minimum_price"];
+                            } else {
+                                $_SESSION["promocode"]["minimum_price"] = null;
+                            }
+                            if (isset($result["maximum_price"])) {
+                                $_SESSION["promocode"]["maximum_price"] = $result["maximum_price"];
+                            } else {
+                                $_SESSION["promocode"]["maximum_price"] = null;
+                            }
                             $_SESSION["promocode"]["specificPromocode"] = true;
                             $_SESSION["promocode"]["specificPromocodeItems"] = array();
                             foreach ($result2 as $v) { // Add all items for which the promocode is valid to a session variable
@@ -136,19 +144,31 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
                         $_SESSION["promocode"]["code"] = $promocode;
                         $_SESSION["promocode"]["type"] = $result["type"];
                         $_SESSION["promocode"]["value"] = $result["value"];
+                        if (isset($result["minimum_price"])) {
+                            $_SESSION["promocode"]["minimum_price"] = $result["minimum_price"];
+                        } else {
+                            $_SESSION["promocode"]["minimum_price"] = null;
+                        }
+                        if (isset($result["maximum_price"])) {
+                            $_SESSION["promocode"]["maximum_price"] = $result["maximum_price"];
+                        } else {
+                            $_SESSION["promocode"]["maximum_price"] = null;
+                        }
                         $success_messages[] = "De kortingscode is toegepast.";
                     }
                     $connection->close();
-                    break;
-
+                break;
+                
                 case "remove_promocode":
                     $_SESSION["promocode"]["code"] = null;
                     $_SESSION["promocode"]["specificPromocode"] = false;
+                    $_SESSION["promocode"]["minimum_price"] = null;
+                    $_SESSION["promocode"]["maximum_price"] = null;
                     $success_messages[] = "De kortingscode is verwijderd.";
-                    break;
-
+                break;
+                
                 default:
-                    break;
+            break;
             }
             $connection->close();
         } else {
@@ -249,7 +269,7 @@ include 'header.php';
 
         // Reset discount to 0 if the minimum or maximum price are not reached/gone over
         $maxMinBreached = false;
-        if ($item_total <= $_SESSION["promocode"]["minimum_price"] || $item_total >= $_SESSION["promocode"]["maximum_price"]) {
+        if ($_SESSION["promocode"]["minimum_price"] != null && $item_total <= $_SESSION["promocode"]["minimum_price"] || $_SESSION["promocode"]["maximum_price"] != null && $item_total >= $_SESSION["promocode"]["maximum_price"]) {
             $discount = 0;
             $maxMinBreached = true;
         }
