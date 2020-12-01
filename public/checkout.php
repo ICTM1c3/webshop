@@ -25,14 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     } else {
         $errors[] = "Je moet een betaalmethode kiezen.";
     }
-
-    if (isset($_POST["billing_address"]) && !empty("billing_address")) {
-        $billing_address = $_POST["billing_address"];
-    } else {
-        $errors[] = "Je moet een factuuradres selecteren.";
-    }
-
-    if (isset($_POST["shipping_address"]) && $_POST["shipping_address"] !== "" && !is_int($_POST["shipping_address"])) {
+    
+    if (isset($_POST["shipping_address"])) {
         $shipping_address = (int) $_POST["shipping_address"];
         if ($shipping_address === 0) {
             if (isset($_POST["street"]) && !empty($_POST["street"])) {
@@ -40,36 +34,53 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             } else {
                 $errors[] = "Je moet een straat en huisnummer invoeren.";
             }
-
+            
             if (isset($_POST["postal_code"]) && !empty($_POST["postal_code"])) {
                 $postal_code = $_POST["postal_code"];
             } else {
                 $errors[] = "Je moet een postcode invoeren.";
             }
-
+            
             if (isset($_POST["city"]) && !empty($_POST["city"])) {
                 $city = $_POST["city"];
             } else {
                 $errors[] = "Je moet een plaats invoeren.";
             }
-
+            
             if (isset($_POST["country"]) && !empty($_POST["country"])) {
                 $country = $_POST["country"];
             } else {
                 $errors[] = "Je moet een land kiezen.";
             }
-            $address = ($street . " " . $postal_code . " " . $city . " " . $country);
+            
+            if (empty($errors)) {
+                $stmt = $connection->prepare("INSERT INTO address (user_id, street, city, postal_code, country) VALUES (?,?,?,?,?);");
+                $stmt->bind_param("issss", $user["id"],  $street, $city, $postal_code, $country);
+                $result = $stmt->execute();
+                $last_id = $connection->insert_id;
+                $stmt->close();
+                
+                $shipping_address = $last_id;
+            }
         }
     } else {
-        $errors[] = "Je moet een adres selecteren";
+        $errors[] = "Je moet een verzendadres selecteren.";
     }
-
+    
+    if (isset($_POST["billing_address"]) && !empty("billing_address")) {
+        $billing_address = (int) $_POST["billing_address"];
+        if ($billing_address == 0) {
+            $billing_address = $shipping_address;
+        }
+    } else {
+        $errors[] = "Je moet een factuuradres selecteren.";
+    }
+    
     if (isset($_SESSION["promocode"]["code"]) && $_SESSION["promocode"]["code"] != null) {
         $promocode = $_SESSION["promocode"]["code"];
     } else {
         $promocode = null;
     }
-
 
 }
 
@@ -135,7 +146,7 @@ include 'header.php';
                             </td>
                             <td>
                                 <a href="#" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-times-circle"></i>
+                                    <em class="fas fa-times-circle"></em>
                                 </a>
                             </td>
                         </tr>
@@ -203,20 +214,38 @@ include 'header.php';
                         <select class="custom-select d-block" id="shipping_address" name="shipping_address">
                             <option value="" disabled selected>Maak een keuze</option>
                             <option value="0">Nieuw adres toevoegen</option>
-                            <option value="1">Voorbeeld 1a, 1111AA, NL</option>
-                            <option value="2">Voorbeeld 1a, 1111AA, NL</option>
-                            <option value="3">Voorbeeld 1a, 1111AA, NL</option>
-                            <option value="4">Voorbeeld 1a, 1111AA, NL</option>
+                            <?php
+                            $stmt = $connection->prepare("SELECT id, street, city, postal_code, country FROM address WHERE user_id = ?;");
+                            $stmt->bind_param("i", $user["id"]);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $result = ($result) ? $result->fetch_all(MYSQLI_ASSOC) : false;
+                            $stmt->close();
+
+                            foreach ($result as $v){
+                                ?> <option value="<?= $v["id"] ?>"><?= $v["street"].", ".$v["city"]." ".$v["postal_code"]." ".$v["country"] ?></option>
+                                <?php
+                            }
+                            ?>
                         </select>
                     </div>
                     <div class="col-sm-12 col-md-4 mb-3">
                         <label for="billing_address">Factuuradres</label>
                         <select class="custom-select d-block" id="billing_address" name="billing_address">
                             <option value="0" selected>Gebruik verzendadres</option>
-                            <option value="1">Voorbeeld 1a, 1111AA, NL</option>
-                            <option value="2">Voorbeeld 1a, 1111AA, NL</option>
-                            <option value="3">Voorbeeld 1a, 1111AA, NL</option>
-                            <option value="4">Voorbeeld 1a, 1111AA, NL</option>
+                            <?php
+                            $stmt = $connection->prepare("SELECT id, street, city, postal_code, country FROM address WHERE user_id = ?;");
+                            $stmt->bind_param("i", $user["id"]);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $result = ($result) ? $result->fetch_all(MYSQLI_ASSOC) : false;
+                            $stmt->close();
+
+                            foreach ($result as $v){
+                                ?> <option value="<?= $v["id"] ?>"><?= $v["street"].", ".$v["city"]." ".$v["postal_code"]." ".$v["country"] ?></option>
+                                <?php
+                            }
+                            ?>
                         </select>
                     </div>
                 </div>
@@ -276,21 +305,14 @@ include 'header.php';
     </div>
     <?php
     // de query die de order naar de database stuurt als er geen errors zijn
-    if (count($errors) === 0 && isset($_POST["bestel_knop"])) {
+    if (empty($errors) && isset($_POST["bestel_knop"])) {
         mysqli_report(MYSQLI_REPORT_ALL);
 
-        $stmt = $connection->prepare("insert into webshoporders (customer_id, deliverymethod_id, billing_address, shipping_address, payment_method, delivery_date, promocode)
-values (?,?,?,?,?,?,?); ");
-        $stmt->bind_param("iississ", $user,  $shipping_method, $address, $address, $payment_method, $delivery_date, $promocode);
-        $delivery_date = date('Y-m-d H:i:s');
-
+        $stmt = $connection->prepare("INSERT INTO webshoporders (customer_id, deliverymethod_id, billing_address, shipping_address, payment_method, delivery_date, promocode) VALUES (?,?,?,?,?,?,?); ");
+        $stmt->bind_param("iiiiiss", $user["id"],  $shipping_method, $billing_address, $shipping_address, $payment_method, $delivery_date, $promocode);
         $result = $stmt->execute();
         $stmt->close();
         $connection->close();
-
-        if (!$result) {
-            $errors[] = "Er is een fout opgetreden.";
-        } else $success_messages[] = "Je bestelling is geplaatst.";
     }
 
     include "footer.php";
