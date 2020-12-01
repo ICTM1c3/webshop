@@ -20,16 +20,22 @@ $query = "SELECT
     si.TaxRate,
     si.RecommendedRetailPrice,
     wo.shipping_status,
+    wo.promocode,
     wosi.amount,
     dm.DeliveryMethodName as shipping_method,
     p.is_finalised AS payment_is_finialised,
     p.finalised_at AS payment_finialised_at,
-    wo.created_at
+    wo.created_at,
+    pc.type, 
+    pc.value, 
+    pc.minimum_price, 
+    pc.maximum_price
 FROM webshoporders wo
 JOIN deliverymethods dm ON dm.DeliveryMethodID = wo.deliverymethod_id
 JOIN webshoporderstockitems wosi ON wosi.webshoporder_id = wo.id
 JOIN stockitems si ON si.StockItemID = wosi.stockitem_id
 LEFT JOIN payments p ON p.webshoporder_id = wo.id
+LEFT JOIN promocodes pc ON wo.promocode = pc.code
 WHERE wo.customer_id = ? AND wo.id = ?;";
 
 $stmt = $connection->prepare($query);
@@ -37,6 +43,9 @@ $stmt->bind_param("ii", $user['id'], $order_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $result = ($result) ? $result->fetch_all(MYSQLI_ASSOC) : null;
+
+//$query = "p.type, p.value, p.minimum_price, p.maximum_price from promocodes p where promocode = ?";
+
 $stmt->close();
 $connection->close();
 
@@ -67,10 +76,11 @@ $order_status = ($result[0]) ? (($result[0]['shipping_status'] === 1) ? "Verzond
         <tbody>
         <?php
         foreach ($result as $order) {
-            $product_price = $order['RecommendedRetailPrice'];
-            $total_product_price = $product_price * $order['amount'];
-            $subtotal_price += $total_product_price;
-            $total_price += $total_product_price * (1 + ($order['TaxRate'] / 100));
+            $product_price = $order['RecommendedRetailPrice'] * (1 + ($order['TaxRate'] / 100));
+            $total_product_price = $product_price * $order['amount']; //added
+            //$subtotal_price += $total_product_price;
+            //$total_price += $total_product_price * (1 + ($order['TaxRate'] / 100));
+            $total_price += $total_product_price; //added
             ?>
             <tr>
                 <th scope="row">
@@ -84,8 +94,28 @@ $order_status = ($result[0]) ? (($result[0]['shipping_status'] === 1) ? "Verzond
             </tr>
             <?php
         }
-
+        $subtotal_price = $total_price;
         if($total_price < 30) $total_price += 30;
+
+        $korting = 0;
+        if($result[0]["promocode"] != null){
+            $korting = $result[0]["value"] * $subtotal_price;
+
+            if($result[0]["minimum_price"] != null){
+                if($result[0]["minimum_price"] > $subtotal_price){
+                    $korting = 0;
+                }
+            }
+            if($result[0]["maximum_price"] != null){
+                if($result[0]["maximum_price"] < $subtotal_price){
+                    $korting = 0;
+                }
+            }
+            if($result[0]["type"] == "FIXED" && $korting != 0){
+                $korting = $result[0]["value"];
+            }
+        }
+        $total_price -= $korting;
 
         ?>
         <tr>
@@ -94,14 +124,14 @@ $order_status = ($result[0]) ? (($result[0]['shipping_status'] === 1) ? "Verzond
             <td>&euro;<?= number_format($subtotal_price, 2, ',', '.') ?></td>
         </tr>
         <tr>
+            <th><?php if($korting > 0) print("Kortingscode (".$result[0]["promocode"]."):"); else print("Geen kortingscode");?></th>
+            <td></td>
+            <td><?php if($korting > 0) print("&euro;".number_format(-$korting, 2, ',', '.'));?></td>
+        </tr>
+        <tr>
             <th>Verzending<?= $shipping_method ?></th>
             <td></td>
             <td><?= ($subtotal_price < 30) ? "&euro;30,-" : "Gratis" ?></td>
-        </tr>
-        <tr>
-            <th>Btw</th>
-            <td></td>
-            <td>&euro;<?= number_format(($total_price - $subtotal_price), 2, ',', '.') ?></td>
         </tr>
         <tr>
             <th>Totaal</th>
