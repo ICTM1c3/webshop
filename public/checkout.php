@@ -7,30 +7,35 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
     include 'config.php';
 
-
     // de code die kijkt of er velden ontbreken
     if (isset($_POST["shipping_method"]) && !empty("shipping_method")) {
         $shipping_method = $_POST["shipping_method"];
     } else {
-        $errors[] = "Je moet een verzendmethode kiezen";
+        $errors[] = "Je moet een verzendmethode kiezen.";
     }
 
     if (isset($_POST["delivery_date"]) && !empty("delivery_date")) {
         $delivery_date = $_POST["delivery_date"];
     } else {
-        $errors[] = "Je moet een bezorgmoment kiezen";
+        $errors[] = "Je moet een bezorgmoment kiezen.";
     }
 
     if (isset($_POST["payment_method"]) && !empty("payment_method")) {
         $payment_method = $_POST["payment_method"];
     } else {
-        $errors[] = "Je moet een betaalmethode kiezen";
+        $errors[] = "Je moet een betaalmethode kiezen.";
     }
 
-    if (isset($_POST["address"]) && $_POST["address"] !== "" && !is_int($_POST["address"])) {
-        $address = (int) $_POST["address"];
+    if (isset($_POST["billing_address"]) && !empty("billing_address")) {
+        $billing_address = $_POST["billing_address"];
+    } else {
+        $errors[] = "Je moet een factuuradres selecteren.";
+    }
 
-        if ($address === 0) {
+    if (isset($_POST["shipping_address"]) && $_POST["shipping_address"] !== "" && !is_int($_POST["shipping_address"])) {
+        $shipping_address = (int) $_POST["shipping_address"];
+
+        if ($shipping_address === 0) {
             if (isset($_POST["street"]) && !empty($_POST["street"])) {
                 $street = $_POST["street"];
             } else {
@@ -161,7 +166,7 @@ include 'header.php';
             <div class="mt-3 bg-dark px-3">
                 <h3 class="pt-2">Verzendgegevens</h3>
                 <div class="form-row pt-2">
-                    <div class="col-sm-6 mb-3">
+                    <div class="col-sm-6 col-md-3 mb-3">
                         <label for="shipping_method">Verzendmethode</label>
                         <select class="custom-select d-block" id="shipping_method" name="shipping_method">
                             <option value="" disabled selected>Maak een keuze</option>
@@ -170,7 +175,7 @@ include 'header.php';
                             <option value="2">Courier</option>
                         </select>
                     </div>
-                    <div class="col-sm-6 mb-3">
+                    <div class="col-sm-6 col-md-4 mb-3">
                         <label for="delivery_date">Bezorgmoment</label>
                         <select class="custom-select d-block" id="delivery_date" name="delivery_date">
                             <option value="" disabled selected>Maak een keuze</option>
@@ -185,10 +190,20 @@ include 'header.php';
                 </div>
                 <div class="form-row pt-2">
                     <div class="col-sm-12 col-md-4 mb-3">
-                        <label for="address">Adres</label>
-                        <select class="custom-select d-block" id="address" name="address">
+                        <label for="shipping_address">Verzendadres</label>
+                        <select class="custom-select d-block" id="shipping_address" name="shipping_address">
                             <option value="" disabled selected>Maak een keuze</option>
                             <option value="0">Nieuw adres toevoegen</option>
+                            <option value="1">Voorbeeld 1a, 1111AA, NL</option>
+                            <option value="2">Voorbeeld 1a, 1111AA, NL</option>
+                            <option value="3">Voorbeeld 1a, 1111AA, NL</option>
+                            <option value="4">Voorbeeld 1a, 1111AA, NL</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-12 col-md-4 mb-3">
+                        <label for="billing_address">Factuuradres</label>
+                        <select class="custom-select d-block" id="billing_address" name="billing_address">
+                            <option value="0" selected>Gebruik verzendadres</option>
                             <option value="1">Voorbeeld 1a, 1111AA, NL</option>
                             <option value="2">Voorbeeld 1a, 1111AA, NL</option>
                             <option value="3">Voorbeeld 1a, 1111AA, NL</option>
