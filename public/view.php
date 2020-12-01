@@ -108,7 +108,25 @@ mysqli_close($connection);
             <div class="col-sm-12 col-md-8">
                 <h2 class="mb-0"><?= $Result['StockItemName']; ?></h2>
                 <p class="mb-1 text-muted">Artikelnummer: <?= $Result["StockItemID"]; ?></p>
-                <p class="mb-1">Voorraad: <?= $Result['QuantityOnHand']; ?></p>
+                <?php
+                $voorraad = $Result['QuantityOnHand'];
+                if($voorraad == 0) {
+                    $class = "text-danger";
+                    $indicatie = "Binnenkort weer beschikbaar!";
+                }else if($voorraad <= 1000) {
+                    $class="text-warning";
+                    $indicatie = "Lage voorraad, wees er snel bij!";
+                }else if($voorraad <= 25000) {
+                    $class = "text-warning";
+                    $indicatie = "Beperkte voorraad, koop snel!";
+                }else if($voorraad > 25000) {
+                    $class = "text-success";
+                    $indicatie = "Ruime Voorraad!";
+                }
+                ?>
+                <h6>
+                    <p class="mb-1 <?php print($class);?>"><?php print($indicatie);?></p>
+                </h6>
                 <?php if (isset($Result['Temperature'])) { ?>
                     <p class="mb-1"><?= $Result['Temperature']; ?></p>
                 <?php } ?>

@@ -305,17 +305,24 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
                                 <h6>&euro;<?= number_format($row["SellPrice"], 2, ',', '.'); ?> <span
                                             class="text-muted">incl. btw</span>
                                 </h6>
+                                <?php
+                                $voorraad = $row['QuantityOnHand'];
+                                if($voorraad == 0) {
+                                    $class = "text-danger";
+                                    $indicatie = "Binnenkort weer beschikbaar!";
+                                }else if($voorraad <= 1000) {
+                                    $class="text-warning";
+                                    $indicatie = "Lage voorraad, wees er snel bij!";
+                                }else if($voorraad <= 25000) {
+                                    $class = "text-warning";
+                                    $indicatie = "Beperkte voorraad, koop snel!";
+                                }else if($voorraad > 25000) {
+                                    $class = "text-success";
+                                    $indicatie = "Ruime Voorraad!";
+                                }
+                                ?>
                                 <h6>
-                                    <?php
-                                    if ($row['QuantityOnHand'] < 1000) { ?>
-                                        <p class='mb-1 text-danger'>Lage voorraad, wees er snel bij!</p>
-                                    <?php } else if ($row['QuantityOnHand'] < 25000) { ?>
-                                        <p class='mb-1 text-warning'> Beperkte voorraad, koop snel!</p>
-                                    <?php } else if ($row['QuantityOnHand'] === 0) { ?>
-                                        <p class='mb-1 text-danger'> Binnenkort weer beschikbaar!</p>
-                                    <?php } else { ?>
-                                        <p class='mb-1 text-success'> Ruime Voorraad!</p>
-                                    <?php } ?>
+                                    <p class='mb-1 <?php print($class);?>'><?php print($indicatie);?></p>
                                 </h6>
                             </div>
                         </div>
