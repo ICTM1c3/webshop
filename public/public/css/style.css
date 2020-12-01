@@ -617,3 +617,12 @@ nav .navbar-brand img {
         transition: none;
     }
 }
+
+.checkout-table tbody tr img {
+    max-width: 64px;
+    max-height: 64px;
+}
+
+.background-none {
+    background: none;
+}

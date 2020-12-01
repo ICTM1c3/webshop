@@ -29,6 +29,7 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
             integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
             crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/c8d3158d87.js" crossorigin="anonymous"></script>
+    <script src="public/app.js"></script>
 
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="57x57" href="public/favicon/apple-icon-57x57.png">
