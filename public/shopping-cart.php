@@ -78,13 +78,13 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
                         $connection->close();
                         if ($enoughStock) {
                             if(isset($_GET['goto'])) {
-                                header("Location: $_GET[goto]&add");
+                                header("Location: $_GET[goto]");
                             } else {
                                 header("Location: view.php?id=$product_id&add");
                             }
                         } else {
                             if(isset($_GET['goto'])) {
-                                header("Location: $_GET[goto]&addfail");
+                                header("Location: $_GET[goto]");
                             } else {
                                 header("Location: view.php?id=$product_id&addfail");
                             }
