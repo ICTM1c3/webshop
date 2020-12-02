@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
 
         $result = false; // Default result to false, in case of errors
         if (!$promo_action) { // If not a promocode action, get stockitem information, and store in $result
-            $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price, (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath, (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath FROM stockitems Si WHERE StockItemID = ?;");
+            $stmt = $connection->prepare("SELECT Si.StockItemId, Si.StockItemName, ROUND(Si.TaxRate * Si.RecommendedRetailPrice / 100 + Si.RecommendedRetailPrice,2) as Price,  (SELECT ImagePath FROM stockitemimages WHERE StockItemID = Si.StockItemID LIMIT 1) as ImagePath,  (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = Si.StockItemID LIMIT 1) as BackupImagePath, sih.QuantityOnHand as voorraad FROM stockitems Si  JOIN stockitemholdings sih ON Si.stockitemid = sih.stockitemid WHERE Si.StockItemID = ?;");
             $stmt->bind_param("i", $product_id);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -64,10 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
                         $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                         break;
                     }
+                    if ($result["voorraad"]!=0 ){
+                        if (isset($_SESSION['shopping_cart'][$product_id])&& $action == "add") {
+                            $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount + $_SESSION['shopping_cart'][$product_id]['amount']]);
+                        } else $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount]);
+                    }
 
-                    if (isset($_SESSION['shopping_cart'][$product_id]) && $action == "add") {
-                        $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount + $_SESSION['shopping_cart'][$product_id]['amount']]);
-                    } else $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount]);
+
 
                     if ($action === "add") {
                         if(isset($_GET['goto'])) {
