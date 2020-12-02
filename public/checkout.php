@@ -143,11 +143,6 @@ include 'header.php';
                             <td>&euro;<?= number_format($productPrice, 2, ',', '.') ?>
                                 (&euro;<?= number_format($product['Price'], 2, ',', '.') ?> per stuk)
                             </td>
-                            <td>
-                                <a href="#" class="btn btn-danger btn-sm">
-                                    <em class="fas fa-times-circle"></em>
-                                </a>
-                            </td>
                         </tr>
                         <?php
                     }
