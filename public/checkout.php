@@ -311,8 +311,11 @@ include 'header.php';
         $stmt = $connection->prepare("INSERT INTO webshoporders (customer_id, deliverymethod_id, billing_address, shipping_address, payment_method, delivery_date, promocode) VALUES (?,?,?,?,?,?,?); ");
         $stmt->bind_param("iiiiiss", $user["id"],  $shipping_method, $billing_address, $shipping_address, $payment_method, $delivery_date, $promocode);
         $result = $stmt->execute();
+        $last_id = $connection->insert_id;
         $stmt->close();
         $connection->close();
+
+        $last_id; // This variable now contains the order_id for the order that was just inserted with this^ statement. Use this as the webshoporder_id when inserting into webshoporderstockitems.
     }
 
     include "footer.php";
