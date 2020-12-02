@@ -46,9 +46,6 @@ $stmt->bind_param("ii", $user['id'], $order_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $result = ($result) ? $result->fetch_all(MYSQLI_ASSOC) : null;
-
-//$query = "p.type, p.value, p.minimum_price, p.maximum_price from promocodes p where promocode = ?";
-
 $stmt->close();
 $connection->close();
 
