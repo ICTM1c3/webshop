@@ -24,6 +24,7 @@ $ReturnableResult = mysqli_stmt_get_result($Statement);
 if ($ReturnableResult && mysqli_num_rows($ReturnableResult) == 1) {
     $Result = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC)[0];
 } else $Result = null;
+$geen_voorraad = "Dit product is momenteel onbeschikbaar";
 
 //Get Images
 $Query = "SELECT ImagePath FROM stockitemimages WHERE StockItemID = ?";
@@ -131,8 +132,23 @@ mysqli_close($connection);
                             <div class="col-sm-12 col-md-2">
                                 <input min="1" required type="number" name="amount" class="form-control" placeholder="Aantal" value="1">
                             </div>
+                            <!-- If a product is out of stock -->
+                            <?php
+                            if ($Result['QuantityOnHand']== 0){
+                                ?>
+                                <div class="col mt-3 mt-md-0">
+                                <button type="submit" class="btn btn-inactive">Toevoegen aan winkelwagen</button>
+                                <?php
+                                print $geen_voorraad;
+                            }
+
+                            else {
+                            ?>
                             <div class="col mt-3 mt-md-0">
                                 <button type="submit" class="btn btn-success">Toevoegen aan winkelwagen</button>
+                            <?php
+                            }
+                            ?>
                             </div>
                         </div>
                     </form>
