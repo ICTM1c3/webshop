@@ -590,7 +590,6 @@ ul#ul-class-price li {
 }
 
 footer {
-    /*position: absolute;*/
     background-color: #343a40 !important;
     width: 100%;
 }
@@ -625,3 +624,13 @@ nav .navbar-brand img {
         transition: none;
     }
 }
+
+.checkout-table tbody tr img {
+    max-width: 64px;
+    max-height: 64px;
+}
+
+.background-none {
+    background: none;
+}
+

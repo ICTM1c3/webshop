@@ -3,7 +3,9 @@ ob_start();
 include 'header.php';
 
 if ($authenticated) {
-    header("Location: customer.php");
+    if (isset($_GET['goto'])) {
+        header("Location: " . $_GET['goto']);
+    } else header("Location: customer.php");
     exit();
 }
 
