@@ -114,10 +114,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="col-sm-12 col-md-6 mb-3">
                                 <label for="country">Land</label>
-                                <select class="custom-select d-block" value="<?= $result["country"] ?>" id="country"
-                                        name="country">
+                                <select class="custom-select d-block" id="country" name="country">
                                     <option value="" disabled>Maak een keuze</option>
-                                    <option value="NL" selected>Nederland</option>
+                                    <?php 
+                                    $landen  = array("NL" => "Nederland");
+                                    foreach ($landen as $k => $v) { ?>
+                                        <option value="<?= $k ?>" <?= ($k = $result["country"]) ? "selected" : "" ?>><?=$v?></option>
+                                    <?php
+                                    }
+                                    ?>
                                 </select>
                             </div>
                         </div>
