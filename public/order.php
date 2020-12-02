@@ -128,9 +128,9 @@ $order_status = ($result[0]) ? (($result[0]['shipping_status'] === 1) ? "Verzond
 
         ?>
         <tr>
-            <th>Subtotaal</th>
+            <th style="font-size: 20px;">Subtotaal</th>
             <td></td>
-            <td>&euro;<?= number_format($subtotal_price, 2, ',', '.') ?></td>
+            <td style="font-size: 20px;">&euro;<?= number_format($subtotal_price, 2, ',', '.') ?></td>
         </tr>
         <tr>
             <th><?php if($korting > 0) print("Kortingscode (".$result[0]["promocode"].")"); else print("Geen kortingscode");?></th>
@@ -143,9 +143,9 @@ $order_status = ($result[0]) ? (($result[0]['shipping_status'] === 1) ? "Verzond
             <td><?= ($subtotal_price < 30) ? "&euro;30,-" : "Gratis" ?></td>
         </tr>
         <tr>
-            <th>Totaal</th>
+            <th style="font-size: 24px;">Totaal</th>
             <td></td>
-            <td>&euro;<?= number_format($total_price, 2, ',', '.') ?></td>
+            <td style="font-size: 24px;">&euro;<?= number_format($total_price, 2, ',', '.') ?></td>
         </tr>
         </tbody>
     </table>
