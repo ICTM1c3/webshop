@@ -215,7 +215,7 @@ include 'header.php';
                             <option value="" disabled selected>Maak een keuze</option>
                             <option value="0">Nieuw adres toevoegen</option>
                             <?php
-                            $stmt = $connection->prepare("SELECT id, street, city, postal_code, country FROM address WHERE user_id = ?;");
+                            $stmt = $connection->prepare("SELECT id, street, city, postal_code, country FROM address WHERE user_id = ? AND active = 1;");
                             $stmt->bind_param("i", $user["id"]);
                             $stmt->execute();
                             $result = $stmt->get_result();
@@ -234,7 +234,7 @@ include 'header.php';
                         <select class="custom-select d-block" id="billing_address" name="billing_address">
                             <option value="0" selected>Gebruik verzendadres</option>
                             <?php
-                            $stmt = $connection->prepare("SELECT id, street, city, postal_code, country FROM address WHERE user_id = ?;");
+                            $stmt = $connection->prepare("SELECT id, street, city, postal_code, country FROM address WHERE user_id = ? AND active = 1;");
                             $stmt->bind_param("i", $user["id"]);
                             $stmt->execute();
                             $result = $stmt->get_result();
