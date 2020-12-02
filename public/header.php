@@ -65,7 +65,7 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
                     <input name="search_string" type="text" class="form-control" placeholder="Zoeken" value="<?= (isset($_GET['search_string'])) ? htmlentities($_GET['search_string'], ENT_QUOTES | ENT_HTML5, 'UTF-8') : ""; ?>">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="submit">
-                            <i class="fa fa-search"></i>
+                            <em class="fa fa-search"></em>
                         </button>
                     </div>
                 </div>
@@ -86,6 +86,7 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="orders.php">Mijn bestellingen</a>
+                        <a class="dropdown-item" href="addresses.php">Mijn adressen</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="logout.php">Uitloggen</a>
                     </div>
