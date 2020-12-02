@@ -173,7 +173,13 @@ mysqli_close($connection);
                     $indicatie = "Ruime Voorraad!";
                 }
                 ?>
-                <p class="mb-1 <?= $class ?? "" ?>"><?= $indicatie ?? "" ?></p>
+                <p class="mb-1 font-weight-bold <?= $class ?? "" ?>"><?= $indicatie ?? "" ?></p>
+                <?php
+                if ($Result['QuantityOnHand'] > 0 ){ ?>
+                    <p class='mb-1 text-success'> Voor 23:59 besteld morgen in huis <i class="fas fa-exclamation-circle"></i> </p>
+                <?php
+                }
+                ?>
                 <?php if (isset($Result['Temperature'])) { ?>
                     <p class="mb-1"><?= $Result['Temperature']; ?></p>
                 <?php } ?>
