@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php
                 }
             } else {
-                ?><div class="row">U hebt nog geen adressen geregistreerd.</div><?php
+                ?><p class="mb-1">Er zijn geen adressen bij ons bekend. Voeg er een toe door een bestelling te plaatsen.</p><?php
             }
         ?>
         </div>
