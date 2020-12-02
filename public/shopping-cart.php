@@ -292,7 +292,7 @@ include 'header.php';
 
         // Reset discount to 0 if the minimum or maximum price are not reached/gone over
         $maxMinBreached = false;
-        if ($_SESSION["promocode"]["minimum_price"] != null && $item_total <= $_SESSION["promocode"]["minimum_price"] || $_SESSION["promocode"]["maximum_price"] != null && $item_total >= $_SESSION["promocode"]["maximum_price"]) {
+        if (isset($_SESSION["promocode"]["code"]) && ($_SESSION["promocode"]["minimum_price"] != null && $item_total <= $_SESSION["promocode"]["minimum_price"] || $_SESSION["promocode"]["maximum_price"] != null && $item_total >= $_SESSION["promocode"]["maximum_price"])) {
             $discount = 0;
             $maxMinBreached = true;
         }
