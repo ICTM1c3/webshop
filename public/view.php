@@ -157,18 +157,36 @@ mysqli_close($connection);
             <div class="col-sm-12 col-md-8">
                 <h2 class="mb-0"><?= $Result['StockItemName']; ?></h2>
                 <p class="mb-1 text-muted">Artikelnummer: <?= $Result["StockItemID"]; ?></p>
-                <p class="mb-1">Voorraad: <?= $Result['QuantityOnHand']; ?></p>
+                <?php
+                $voorraad = $Result['QuantityOnHand'];
+                if ($voorraad == 0) {
+                    $class = "text-danger";
+                    $indicatie = "Binnenkort weer beschikbaar!";
+                } else if ($voorraad <= 1000) {
+                    $class = "text-warning";
+                    $indicatie = "Lage voorraad, wees er snel bij!";
+                } else if ($voorraad <= 25000) {
+                    $class = "text-warning";
+                    $indicatie = "Beperkte voorraad, koop snel!";
+                } else if ($voorraad > 25000) {
+                    $class = "text-success";
+                    $indicatie = "Ruime Voorraad!";
+                }
+                ?>
+                <p class="mb-1 <?= $class ?? "" ?>"><?= $indicatie ?? "" ?></p>
                 <?php if (isset($Result['Temperature'])) { ?>
                     <p class="mb-1"><?= $Result['Temperature']; ?></p>
                 <?php } ?>
 
                 <div>
-                    <p><span class="product-price">&euro;<?= number_format($Result['SellPrice'], 2, ',', '.'); ?></span> <span class="text-muted">inclusief btw</span></p>
+                    <p><span class="product-price">&euro;<?= number_format($Result['SellPrice'], 2, ',', '.'); ?></span>
+                        <span class="text-muted">inclusief btw</span></p>
                 </div>
                 <?php
                 if (isset($_GET['add'])) {
                     ?>
-                    <div class="alert alert-success">Het product is toegevoegd aan de <u><a href="shopping-cart.php">winkelwagen</a></u>.</div>
+                    <div class="alert alert-success">Het product is toegevoegd aan de <u><a href="shopping-cart.php">winkelwagen</a></u>.
+                    </div>
                     <?php
                 }
                 ?>
@@ -178,7 +196,8 @@ mysqli_close($connection);
                         <input type="hidden" name="action" value="add">
                         <div class="form-row">
                             <div class="col-sm-12 col-md-2">
-                                <input min="1" required type="number" name="amount" class="form-control" placeholder="Aantal" value="1">
+                                <input min="1" required type="number" name="amount" class="form-control"
+                                       placeholder="Aantal" value="1">
                             </div>
                             <div class="col mt-3 mt-md-0">
                                 <button type="submit" class="btn btn-success">Toevoegen aan winkelwagen</button>
