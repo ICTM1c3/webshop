@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 }
 
 include 'header.php';
-
+print_r($_SESSION["shopping_cart"])
 ?>
 
 
@@ -313,9 +313,14 @@ include 'header.php';
         $result = $stmt->execute();
         $last_id = $connection->insert_id;
         $stmt->close();
+        
+        foreach ($_SESSION["shopping_cart"] as $k => $v) {
+            $stmt = $connection->prepare("INSERT INTO webshoporderstockitems (webshoporder_id, stockitem_id, amount) VALUES (?,?,?); ");
+            $stmt->bind_param("iii", $last_id, $k, $v["amount"]);
+            $result = $stmt->execute();
+            $stmt->close();
+        }
         $connection->close();
-
-        $last_id; // This variable now contains the order_id for the order that was just inserted with this^ statement. Use this as the webshoporder_id when inserting into webshoporderstockitems.
     }
 
     include "footer.php";
