@@ -137,7 +137,7 @@ mysqli_close($connection);
                             if ($Result['QuantityOnHand']== 0){
                                 ?>
                                 <div class="col mt-3 mt-md-0">
-                                <button type="submit" class="btn btn-inactive" >Toevoegen aan winkelwagen</button>
+                                <button type="submit" class="btn btn-inactive" disabled >Toevoegen aan winkelwagen</button>
                                 <?php
 
                             }
