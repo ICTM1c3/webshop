@@ -607,6 +607,13 @@ nav .navbar-brand img {
     height: 300px;
 }
 
+.upxsell-price{
+    color: #dc143c;
+    font-weight: bold;
+    font-size: 30px;
+    margin-left: 5px;
+}
+
 .filter-container {
     border: 1px solid;
 }
@@ -626,3 +633,4 @@ nav .navbar-brand img {
 .background-none {
     background: none;
 }
+

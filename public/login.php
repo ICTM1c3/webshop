@@ -57,18 +57,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         ?>
         <div class="form-group">
-            <label for="email">E-mailadres:
+            <label for="email">E-mailadres
                 <input type="email" name="email" id="email" class="form-control">
             </label>
         </div>
 
         <div class="form-group">
-            <label for="email">Wachtwoord:
+            <label for="email">Wachtwoord
                 <input type="password" name="password" id="password" class="form-control">
             </label>
         </div>
 
         <button type="submit" class="btn btn-primary">Login</button>
+        <a href="password-forgotten.php" class="btn btn-secondary ml-2">Wachtwoord vergeten?</a>
     </form>
 
     <p class="mt-3">Heb je nog geen account? <u><a class="text-white" href="register.php">Registreren</a></u></p>

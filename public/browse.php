@@ -302,21 +302,24 @@ $categories = mysqli_fetch_all($categories, MYSQLI_ASSOC);
                                 </a>
                                 <p class="mt-0 StockItemID">Artikelnummer: <?php print $row["StockItemID"]; ?></p>
                                 <?= (isset($row["MarketingComments"]) && !empty($row['MarketingComments'])) ? "<p>$row[MarketingComments]</p>" : ""; ?>
-                                <h6>&euro;<?= number_format($row["SellPrice"], 2, ',', '.'); ?> <span
-                                            class="text-muted">incl. btw</span>
-                                </h6>
-                                <h6>
-                                    <?php
-                                    if ($row['QuantityOnHand'] < 1000) { ?>
-                                        <p class='mb-1 text-danger'>Lage voorraad, wees er snel bij!</p>
-                                    <?php } else if ($row['QuantityOnHand'] < 25000) { ?>
-                                        <p class='mb-1 text-warning'> Beperkte voorraad, koop snel!</p>
-                                    <?php } else if ($row['QuantityOnHand'] === 0) { ?>
-                                        <p class='mb-1 text-danger'> Binnenkort weer beschikbaar!</p>
-                                    <?php } else { ?>
-                                        <p class='mb-1 text-success'> Ruime Voorraad!</p>
-                                    <?php } ?>
-                                </h6>
+                                <h6>&euro;<?= number_format($row["SellPrice"], 2, ',', '.'); ?> <span class="text-muted">incl. btw</span></h6>
+                                <?php
+                                $voorraad = $row['QuantityOnHand'];
+                                if ($voorraad == 0) {
+                                    $class = "text-danger";
+                                    $indicatie = "Binnenkort weer beschikbaar!";
+                                } else if ($voorraad <= 1000) {
+                                    $class = "text-warning";
+                                    $indicatie = "Lage voorraad, wees er snel bij!";
+                                } else if ($voorraad <= 25000) {
+                                    $class = "text-warning";
+                                    $indicatie = "Beperkte voorraad, koop snel!";
+                                } else if ($voorraad > 25000) {
+                                    $class = "text-success";
+                                    $indicatie = "Ruime Voorraad!";
+                                }
+                                ?>
+                                <p class='mb-1 <?= $class ?? "" ?>'><?= $indicatie ?? "" ?></p>
                             </div>
                         </div>
                         <hr class="border-white">

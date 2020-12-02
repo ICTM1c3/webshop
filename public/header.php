@@ -28,8 +28,10 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
             crossorigin="anonymous"></script>
-    <script src="https://kit.fontawesome.com/c8d3158d87.js" crossorigin="anonymous"></script>
+
+
     <script src="public/app.js"></script>
+    <script src="https://kit.fontawesome.com/cc11040cc7.js" crossorigin="anonymous"></script>
 
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="57x57" href="public/favicon/apple-icon-57x57.png">
@@ -66,7 +68,7 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
                     <input name="search_string" type="text" class="form-control" placeholder="Zoeken" value="<?= (isset($_GET['search_string'])) ? htmlentities($_GET['search_string'], ENT_QUOTES | ENT_HTML5, 'UTF-8') : ""; ?>">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="submit">
-                            <i class="fa fa-search"></i>
+                            <em class="fa fa-search"></em>
                         </button>
                     </div>
                 </div>
@@ -87,6 +89,7 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="orders.php">Mijn bestellingen</a>
+                        <a class="dropdown-item" href="addresses.php">Mijn adressen</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="logout.php">Uitloggen</a>
                     </div>
