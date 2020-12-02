@@ -313,9 +313,19 @@ include 'header.php';
         $result = $stmt->execute();
         $last_id = $connection->insert_id;
         $stmt->close();
-        $connection->close();
+
 
         $last_id; // This variable now contains the order_id for the order that was just inserted with this^ statement. Use this as the webshoporder_id when inserting into webshoporderstockitems.
+
+        foreach ($products as $product) {
+            mysqli_report(MYSQLI_REPORT_ALL);
+
+            $stmt = $connection->prepare("INSERT INTO webshoporderstockitems (webshoporder_id,stockitem_id,amount) values (?,?,?); ");
+            $stmt->bind_param("iii", $last_id, $product["StockItemId"], $product["amount"]);
+            $result = $stmt->execute();
+            $stmt->close();
+        }
+        $connection->close();
     }
 
     include "footer.php";
