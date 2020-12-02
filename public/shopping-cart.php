@@ -237,7 +237,7 @@ include 'header.php';
             $item_total += $productPrice;
 
             if (isset($_SESSION["promocode"]["code"]) && $_SESSION["promocode"]["type"] == "DYNAMIC") {
-                if ($_SESSION["promocode"]["specificPromocode"]) {
+                if (isset($_SESSION["promocode"]["specificPromocode"]) && $_SESSION["promocode"]["specificPromocode"]) {
                     if (in_array($product_id_key, $_SESSION["promocode"]["specificPromocodeItems"])) {
                         $discount += -($productPrice * $_SESSION["promocode"]["value"]);
                     }
