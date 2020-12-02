@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
                     
                     // TODO: make this handle deleting specific items
                     unset($_SESSION['shopping_cart'][$product_id]);
-                    if (isset($_SESSION["promocode"]["specificPromocode"])) {
+                    if (isset($_SESSION["promocode"]["specificPromocode"]) && isset($_SESSION["promocode"]["specificPromocodeItems"])) {
                         $allSpecificItemsCleared = true;
                         foreach ($_SESSION["promocode"]["specificPromocodeItems"] as $v) {
                             if (in_array($v, $_SESSION["shopping_cart"])) {
