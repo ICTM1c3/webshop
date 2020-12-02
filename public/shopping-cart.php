@@ -64,7 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
                         $success_messages[] = "Het product is verwijderd uit de winkelwagen.";
                         break;
                     }
-                    if ($result["voorraad"]!=0 ){
+                    $enoughStock = false;
+                    if ($result["voorraad"] != 0 && $amount <= $result["voorraad"]){
+                        $enoughStock = true;
                         if (isset($_SESSION['shopping_cart'][$product_id])&& $action == "add") {
                             $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount + $_SESSION['shopping_cart'][$product_id]['amount']]);
                         } else $_SESSION['shopping_cart'][$product_id] = array_merge($result, ["amount" => $amount]);
@@ -73,16 +75,29 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
 
 
                     if ($action === "add") {
-                        if(isset($_GET['goto'])) {
-                            header("Location: $_GET[goto]");
+                        if ($enoughStock) {
+                            if(isset($_GET['goto'])) {
+                                header("Location: $_GET[goto]&add");
+                            } else {
+                                header("Location: view.php?id=$product_id&add");
+                            }
                         } else {
-                            header("Location: view.php?id=$product_id&add");
+                            if(isset($_GET['goto'])) {
+                                header("Location: $_GET[goto]&addfail");
+                            } else {
+                                header("Location: view.php?id=$product_id&addfail");
+                            }
                         }
 
                         exit();
                     }
 
-                    $success_messages[] = "Het product is toegevoegd aan de winkelwagen.";
+                    if ($enoughStock) {
+                        $success_messages[] = "Het product is toegevoegd aan de winkelwagen.";
+                    } else {
+                        $errors[] = "Het product is niet toegevoegd aan de winkelwagen.";
+                    }
+
                     break;
 
                 case "remove":
