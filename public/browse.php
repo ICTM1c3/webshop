@@ -90,6 +90,8 @@ $searchValues = explode(" ", $SearchString);
 
 $queryBuildResult = "";
 if ($SearchString != "") {
+    $SearchString = mysqli_real_escape_string($connection, $SearchString);
+
     for ($i = 0; $i < count($searchValues); $i++) {
         if ($i != 0) {
             $queryBuildResult .= "AND ";
@@ -102,8 +104,7 @@ if ($SearchString != "") {
     if ($SearchString != "" || $SearchString != null) {
         $queryBuildResult .= "SI.StockItemID ='$SearchString'";
     }
-} else
-    $queryBuildResult = "true";
+} else $queryBuildResult = "true";
 
 $subCat = "-1 = -1";
 if ($CategoryID != "") {
@@ -126,13 +127,11 @@ if ($Brand != "") {
 }
 
 $Query = "       SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, ROUND(TaxRate * RecommendedRetailPrice / 100 + RecommendedRetailPrice,2) as SellPrice, QuantityOnHand, 
-                (SELECT ImagePath
-                FROM stockitemimages 
-                WHERE StockItemID = SI.StockItemID LIMIT 1) as ImagePath,
+                (SELECT ImagePath FROM stockitemimages WHERE StockItemID = SI.StockItemID LIMIT 1) as ImagePath,
                 (SELECT ImagePath FROM stockgroups JOIN stockitemstockgroups USING(StockGroupID) WHERE StockItemID = SI.StockItemID LIMIT 1) as BackupImagePath
                 FROM stockitems SI
                 JOIN stockitemholdings SIH USING(stockitemid)
-                WHERE (" . $queryBuildResult . ") AND
+                WHERE ($queryBuildResult) AND
                  ? " . $subCat . " AND
                  ? " . $colorsub . " AND
                  ? " . $sizesub . " AND
