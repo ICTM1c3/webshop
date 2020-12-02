@@ -85,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 }
 
 include 'header.php';
-print_r($_SESSION["shopping_cart"])
 ?>
 
 
