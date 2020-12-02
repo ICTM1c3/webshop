@@ -75,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
 
 
                     if ($action === "add") {
+                        $connection->close();
                         if ($enoughStock) {
                             if(isset($_GET['goto'])) {
                                 header("Location: $_GET[goto]&add");
@@ -179,7 +180,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
                         }
                         $success_messages[] = "De kortingscode is toegepast.";
                     }
-                    $connection->close();
                 break;
                 
                 case "remove_promocode":
@@ -191,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") { // Handle page actions
                 break;
                 
                 default:
-            break;
+                break;
             }
             $connection->close();
         } else {
