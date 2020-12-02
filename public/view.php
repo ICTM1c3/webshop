@@ -326,6 +326,7 @@ mysqli_close($connection);
                 <div class="vr"></div>
                 <form class="row" action="shopping-cart.php?goto=<?= $_SERVER['REQUEST_URI'] . '#upxpos' ?>" method="POST">
                     <input type="hidden" name="product_id" value="<?php print($UpXSellProducts[$products[$a]]["stockitemid"]); ?>">
+                    <input type="hidden" name="upxproduct" value="upx">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="page" value="<?php print($_GET['id']);?>">
                     <button type="submit" class="btn btn-success">In winkelwagen</button>
