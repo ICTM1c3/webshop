@@ -86,12 +86,14 @@ $Sort = [
 
 $Sort = $Sort[$SortOnPage] ?? 'StockItemName';
 
+$SearchString = str_replace("'", "", $SearchString);
+$SearchString = str_replace(";", "", $SearchString);
+$SearchString = str_replace("--", "", $SearchString);
+
 $searchValues = explode(" ", $SearchString);
 
 $queryBuildResult = "";
 if ($SearchString != "") {
-    $SearchString = mysqli_real_escape_string($connection, $SearchString);
-
     for ($i = 0; $i < count($searchValues); $i++) {
         if ($i != 0) {
             $queryBuildResult .= "AND ";
