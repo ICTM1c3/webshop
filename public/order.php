@@ -78,13 +78,10 @@ $order_status = ($result[0]) ? (($result[0]['shipping_status'] === 1) ? "Verzond
         </thead>
         <tbody>
         <?php
-        var_dump($result[1]["promoItem"].",".$result[0]["StockItemName"]);
         foreach ($result as $order) {
-            $product_price = $order['RecommendedRetailPrice'] * (1 + ($order['TaxRate'] / 100));
-            $total_product_price = $product_price * $order['amount']; //added
-            //$subtotal_price += $total_product_price;
-            //$total_price += $total_product_price * (1 + ($order['TaxRate'] / 100));
-            $total_price += $total_product_price; //added
+            $product_price = round($order['RecommendedRetailPrice'] * (1 + ($order['TaxRate'] / 100)), 2);
+            $total_product_price = round($product_price * $order['amount'], 2);
+            $total_price += $total_product_price;
             ?>
             <tr>
                 <th scope="row">
@@ -136,7 +133,7 @@ $order_status = ($result[0]) ? (($result[0]['shipping_status'] === 1) ? "Verzond
             <td>&euro;<?= number_format($subtotal_price, 2, ',', '.') ?></td>
         </tr>
         <tr>
-            <th><?php if($korting > 0) print("Kortingscode (".$result[0]["promocode"]."):"); else print("Geen kortingscode");?></th>
+            <th><?php if($korting > 0) print("Kortingscode (".$result[0]["promocode"].")"); else print("Geen kortingscode");?></th>
             <td></td>
             <td><?php if($korting > 0) print("&euro;".number_format(-$korting, 2, ',', '.'));?></td>
         </tr>
