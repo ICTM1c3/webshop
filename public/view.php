@@ -48,6 +48,7 @@ $ReturnableResult = mysqli_stmt_get_result($Statement);
 if ($ReturnableResult && mysqli_num_rows($ReturnableResult) == 1) {
     $Result = mysqli_fetch_all($ReturnableResult, MYSQLI_ASSOC)[0];
 } else $Result = null;
+$geen_voorraad = "Dit product is momenteel onbeschikbaar";
 
 //Get Images
 $Query = "SELECT ImagePath FROM stockitemimages WHERE StockItemID = ?";
@@ -195,20 +196,38 @@ mysqli_close($connection);
                     </div>
                     <?php
                 }
+                if (isset($_GET['addfail'])) {
+                    ?>
+                    <div class="alert alert-danger">Het product is niet toegevoegd aan de <u><a href="shopping-cart.php">winkelwagen</a></u>.
+                    </div>
+                    <?php
+                }
                 ?>
                 <div>
-                    <form action="shopping-cart.php" method="POST">
+                    <form action="shopping-cart.php?goto=<?= $_SERVER['REQUEST_URI'] ?>" method="POST">
                         <input type="hidden" name="product_id" value="<?= $Result['StockItemID'] ?>">
                         <input type="hidden" name="action" value="add">
-                        <div class="form-row">
+                        <?php if ($Result["QuantityOnHand"] > 0) { ?>
+                        <div class="form-row"> 
+                            <!-- The div with the buttons active -->
                             <div class="col-sm-12 col-md-2">
-                                <input min="1" required type="number" name="amount" class="form-control"
-                                       placeholder="Aantal" value="1">
+                                <input min="1" required type="number" name="amount" class="form-control" placeholder="Aantal" value="1">
                             </div>
                             <div class="col mt-3 mt-md-0">
                                 <button type="submit" class="btn btn-success">Toevoegen aan winkelwagen</button>
                             </div>
                         </div>
+                        <?php } else { ?>
+                        <div class="form-row"> 
+                            <!-- The div with the buttons inactive -->
+                            <div class="col-sm-12 col-md-2">
+                                <input min="1" required type="number" name="amount" class="form-control" placeholder="Aantal" value="1" disabled>
+                            </div>
+                            <div class="col mt-3 mt-md-0">
+                                <button type="submit" class="btn btn-danger disabled">Toevoegen aan winkelwagen</button>
+                            </div>
+                        </div>
+                        <?php } ?>
                     </form>
                 </div>
             </div>
