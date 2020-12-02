@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute();
                 $result = $stmt->get_result();
 
-                $success_messages[] = "Het adres is aangepast. <a href=\"addresses.php\">Terug naar het overzicht</a>";
+                $success_messages[] = "Het adres is aangepast.";
                 break;
 
             default:
@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php
     if (isset($user)) { // Only show the addresses if the user is signed in?>
         <h1 class="mb-3">Adres bewerken</h1>
+        <p><u><a class="text-white" href='addresses.php'>Terug naar het overzicht</a></u>.</p>
         <?php
         if (!(isset($address_id) && !empty($address_id)) && (isset($_GET["address_id"]) && !empty($_GET["address_id"]))) {
             $address_id = $_GET["address_id"];
