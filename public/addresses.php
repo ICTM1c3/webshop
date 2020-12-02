@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container">
     <?php
     if (isset($user)) { // Only show the addresses if the user is signed in?>
-        <h1 class="mb-3">Uw geregistreerde adressen:</h1>
+        <h1 class="mb-3">Mijn adressen</h1>
         <div>
         <?php
             foreach ($errors as $key => $value) {
