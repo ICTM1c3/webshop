@@ -130,16 +130,16 @@ mysqli_close($connection);
                         <input type="hidden" name="action" value="add">
                         <div class="form-row">
                             <div class="col-sm-12 col-md-2">
-                                <input min="1" required type="number" name="amount" class="form-control" placeholder="Aantal" value="1">
+                                <input min="1" required type="<?php  if ($Result['QuantityOnHand']== 0) print ("hidden"); else print ("number"); ?>" name="amount" class="form-control" placeholder="Aantal" value="1" <?php if ($Result['QuantityOnHand']== 0) print ("disabled"); ?> >
                             </div>
                             <!-- If a product is out of stock -->
                             <?php
                             if ($Result['QuantityOnHand']== 0){
                                 ?>
                                 <div class="col mt-3 mt-md-0">
-                                <button type="submit" class="btn btn-inactive">Toevoegen aan winkelwagen</button>
+                                <button type="submit" class="btn btn-inactive" >Toevoegen aan winkelwagen</button>
                                 <?php
-                                print $geen_voorraad;
+
                             }
 
                             else {
