@@ -60,19 +60,19 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 $stmt->close();
 
                 $shipping_address = $last_id;
+
+                if (isset($_POST["billing_address"]) && !empty("billing_address")) {
+                    $billing_address = (int)$_POST["billing_address"];
+                    if ($billing_address == 0) {
+                        $billing_address = $shipping_address;
+                    }
+                } else {
+                    $errors[] = "Je moet een factuuradres selecteren.";
+                }
             }
         }
     } else {
         $errors[] = "Je moet een verzendadres selecteren.";
-    }
-
-    if (isset($_POST["billing_address"]) && !empty("billing_address")) {
-        $billing_address = (int)$_POST["billing_address"];
-        if ($billing_address == 0) {
-            $billing_address = $shipping_address;
-        }
-    } else {
-        $errors[] = "Je moet een factuuradres selecteren.";
     }
 
     if (isset($_SESSION["promocode"]["code"]) && $_SESSION["promocode"]["code"] != null) {
