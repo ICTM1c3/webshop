@@ -1,5 +1,4 @@
 <?php
-ob_start();
 
 $success_messages = [];
 $errors = [];
@@ -25,68 +24,91 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     } else {
         $errors[] = "Je moet een betaalmethode kiezen.";
     }
-    
+
     if (isset($_POST["shipping_address"])) {
-        $shipping_address = (int) $_POST["shipping_address"];
+        $shipping_address = (int)$_POST["shipping_address"];
         if ($shipping_address === 0) {
             if (isset($_POST["street"]) && !empty($_POST["street"])) {
                 $street = $_POST["street"];
             } else {
                 $errors[] = "Je moet een straat en huisnummer invoeren.";
             }
-            
+
             if (isset($_POST["postal_code"]) && !empty($_POST["postal_code"])) {
                 $postal_code = $_POST["postal_code"];
             } else {
                 $errors[] = "Je moet een postcode invoeren.";
             }
-            
+
             if (isset($_POST["city"]) && !empty($_POST["city"])) {
                 $city = $_POST["city"];
             } else {
                 $errors[] = "Je moet een plaats invoeren.";
             }
-            
+
             if (isset($_POST["country"]) && !empty($_POST["country"])) {
                 $country = $_POST["country"];
             } else {
                 $errors[] = "Je moet een land kiezen.";
             }
-            
+
             if (empty($errors)) {
                 $stmt = $connection->prepare("INSERT INTO address (user_id, street, city, postal_code, country) VALUES (?,?,?,?,?);");
-                $stmt->bind_param("issss", $user["id"],  $street, $city, $postal_code, $country);
+                $stmt->bind_param("issss", $user["id"], $street, $city, $postal_code, $country);
                 $result = $stmt->execute();
                 $last_id = $connection->insert_id;
                 $stmt->close();
-                
+
                 $shipping_address = $last_id;
             }
         }
     } else {
         $errors[] = "Je moet een verzendadres selecteren.";
     }
-    
+
     if (isset($_POST["billing_address"]) && !empty("billing_address")) {
-        $billing_address = (int) $_POST["billing_address"];
+        $billing_address = (int)$_POST["billing_address"];
         if ($billing_address == 0) {
             $billing_address = $shipping_address;
         }
     } else {
         $errors[] = "Je moet een factuuradres selecteren.";
     }
-    
+
     if (isset($_SESSION["promocode"]["code"]) && $_SESSION["promocode"]["code"] != null) {
         $promocode = $_SESSION["promocode"]["code"];
     } else {
         $promocode = null;
     }
+}
 
+// de query die de order naar de database stuurt als er geen errors zijn
+if (empty($errors) && isset($_POST["bestel_knop"])) {
+    $stmt = $connection->prepare("INSERT INTO webshoporders (customer_id, deliverymethod_id, billing_address, shipping_address, payment_method, delivery_date, promocode) VALUES (?,?,?,?,?,?,?); ");
+    $stmt->bind_param("iiiiiss", $user["id"],  $shipping_method, $billing_address, $shipping_address, $payment_method, $delivery_date, $promocode);
+    $result = $stmt->execute();
+    $last_id = $connection->insert_id;
+    $stmt->close();
+
+    foreach ($_SESSION["shopping_cart"] as $k => $v) {
+        $stmt = $connection->prepare("INSERT INTO webshoporderstockitems (webshoporder_id, stockitem_id, amount) VALUES (?,?,?); ");
+        $stmt->bind_param("iii", $last_id, $k, $v["amount"]);
+        $result = $stmt->execute();
+        $stmt->close();
+    }
+    $connection->close();
+
+    ob_start();
+    include_once(__DIR__ . '/../email-templates/order-confirmation.php');
+    $html = ob_get_clean();
+
+    if (isset($_SESSION['user']['email'])) {
+        sendMail([$_SESSION['user']['email']], "Bestelbevestiging | NerdyGadgets", $html);
+    } else $errors[] = "Er is een fout opgetreden tijdens het versturen van de e-mail.";
 }
 
 include 'header.php';
 ?>
-
 
 <div class="container checkout-container">
     <h1 class="mb-3">Afrekenen</h1>
@@ -181,8 +203,9 @@ include 'header.php';
                             $result = ($result) ? $result->fetch_all(MYSQLI_ASSOC) : false;
                             $stmt->close();
 
-                            foreach ($result as $v){
-                                ?> <option value="<?= $v["DeliveryMethodID"] ?>"><?= $v["DeliveryMethodName"] ?></option>
+                            foreach ($result as $v) {
+                                ?>
+                                <option value="<?= $v["DeliveryMethodID"] ?>"><?= $v["DeliveryMethodName"] ?></option>
                                 <?php
                             }
 
@@ -216,8 +239,9 @@ include 'header.php';
                             $result = ($result) ? $result->fetch_all(MYSQLI_ASSOC) : false;
                             $stmt->close();
 
-                            foreach ($result as $v){
-                                ?> <option value="<?= $v["id"] ?>"><?= $v["street"].", ".$v["city"]." ".$v["postal_code"]." ".$v["country"] ?></option>
+                            foreach ($result as $v) {
+                                ?>
+                                <option value="<?= $v["id"] ?>"><?= $v["street"] . ", " . $v["city"] . " " . $v["postal_code"] . " " . $v["country"] ?></option>
                                 <?php
                             }
                             ?>
@@ -235,8 +259,9 @@ include 'header.php';
                             $result = ($result) ? $result->fetch_all(MYSQLI_ASSOC) : false;
                             $stmt->close();
 
-                            foreach ($result as $v){
-                                ?> <option value="<?= $v["id"] ?>"><?= $v["street"].", ".$v["city"]." ".$v["postal_code"]." ".$v["country"] ?></option>
+                            foreach ($result as $v) {
+                                ?>
+                                <option value="<?= $v["id"] ?>"><?= $v["street"] . ", " . $v["city"] . " " . $v["postal_code"] . " " . $v["country"] ?></option>
                                 <?php
                             }
                             ?>
@@ -283,9 +308,10 @@ include 'header.php';
                             $result = ($result) ? $result->fetch_all(MYSQLI_ASSOC) : false;
                             $stmt->close();
 
-                            foreach ($result as $v){
-                            ?> <option value="<?= $v["id"] ?>"><?= $v["payment_method"] ?></option>
-                            <?php
+                            foreach ($result as $v) {
+                                ?>
+                                <option value="<?= $v["id"] ?>"><?= $v["payment_method"] ?></option>
+                                <?php
                             }
 
                             ?>
@@ -298,24 +324,5 @@ include 'header.php';
         </form>
     </div>
     <?php
-    // de query die de order naar de database stuurt als er geen errors zijn
-    if (empty($errors) && isset($_POST["bestel_knop"])) {
-        mysqli_report(MYSQLI_REPORT_ALL);
-
-        $stmt = $connection->prepare("INSERT INTO webshoporders (customer_id, deliverymethod_id, billing_address, shipping_address, payment_method, delivery_date, promocode) VALUES (?,?,?,?,?,?,?); ");
-        $stmt->bind_param("iiiiiss", $user["id"],  $shipping_method, $billing_address, $shipping_address, $payment_method, $delivery_date, $promocode);
-        $result = $stmt->execute();
-        $last_id = $connection->insert_id;
-        $stmt->close();
-        
-        foreach ($_SESSION["shopping_cart"] as $k => $v) {
-            $stmt = $connection->prepare("INSERT INTO webshoporderstockitems (webshoporder_id, stockitem_id, amount) VALUES (?,?,?); ");
-            $stmt->bind_param("iii", $last_id, $k, $v["amount"]);
-            $result = $stmt->execute();
-            $stmt->close();
-        }
-        $connection->close();
-    }
-
     include "footer.php";
     ?>

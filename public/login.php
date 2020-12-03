@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else $errors[] = "Het wachtwoord veld is verplicht.";
 
     if (count($errors) === 0) {
-        $stmt = $connection->prepare("SELECT id, first_name, last_name, password FROM users WHERE email = ? AND deleted_at IS NULL;");
+        $stmt = $connection->prepare("SELECT id, first_name, last_name, email, password FROM users WHERE email = ? AND deleted_at IS NULL;");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user'] = [
                     'id' => $result['id'],
                     'name' => $result['first_name'] . " " . $result['last_name'],
+                    'email' => $result['email']
             ];
 
             if (isset($_GET['goto'])) {
