@@ -8,7 +8,8 @@ $Query = "SELECT SI.StockItemID, SI.StockItemName, SI.MarketingComments, stockgr
             FROM stockitems SI
             JOIN stockitemholdings SIH USING(stockitemid)
             JOIN stockitemstockgroups USING(StockItemID)
-            JOIN stockgroups ON stockitemstockgroups.StockGroupID = stockgroups.StockGroupID;";
+            JOIN stockgroups ON stockitemstockgroups.StockGroupID = stockgroups.StockGroupID
+            WHERE SIH.QuantityOnHand > 0";
 
 // stop de query in een statement en voer die uit.
 // zodra de query is uitgevoerd sluit de connectie
