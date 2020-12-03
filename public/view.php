@@ -301,6 +301,9 @@ mysqli_close($connection);
 
             $a = 1;
             while($UpXSellProducts[$products[$i]]["voorraad"] <= 0){
+                if($a == count($UpXSellProducts))
+                    break;
+
                 if(GetKeyWithStockItemID($UpXSellProducts, $_GET['id']) + 1 + $i + $a >= count($UpXSellProducts))
                     $correctie -= count($UpXSellProducts);
 
