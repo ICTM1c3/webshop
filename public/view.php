@@ -224,7 +224,7 @@ mysqli_close($connection);
                                 <input min="1" required type="number" name="amount" class="form-control" placeholder="Aantal" value="1" disabled>
                             </div>
                             <div class="col mt-3 mt-md-0">
-                                <button type="submit" class="btn btn-danger disabled">Toevoegen aan winkelwagen</button>
+                                <button type="submit" class="btn btn-danger disabled" disabled>Toevoegen aan winkelwagen</button>
                             </div>
                         </div>
                         <?php } ?>
