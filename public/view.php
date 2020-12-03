@@ -79,8 +79,8 @@ $CatImagePath = mysqli_stmt_get_result($Statement);
 $CatImagePath = mysqli_fetch_all($CatImagePath, MYSQLI_ASSOC);
 //$CatImagePath = GetArrayWithCorrectKeys($CatImagePath, "stockgroupid", "ImagePath");
 
-$Query = "select stockitemid, stockitemname, (RecommendedRetailPrice *(1 +(TaxRate / 100))) AS SellPrice from stockitems 
-where stockitemid in (select stockitemid from stockitemstockgroups where stockgroupid in (select stockgroupid from stockitemstockgroups where stockitemid = ?))";
+$Query = "select si.stockitemid, si.stockitemname, (si.RecommendedRetailPrice *(1 +(si.TaxRate / 100))) AS SellPrice, sih.QuantityOnHand as voorraad from stockitems si
+JOIN stockitemholdings sih ON si.stockitemid = sih.stockitemid where si.stockitemid in (select stockitemid from stockitemstockgroups where stockgroupid in (select stockgroupid from stockitemstockgroups where stockitemid = ?))";
 $Statement = mysqli_prepare($connection, $Query);
 mysqli_stmt_bind_param($Statement, "i", $_GET['id']);
 mysqli_stmt_execute($Statement);
@@ -296,7 +296,17 @@ mysqli_close($connection);
             $correctie = 0;
             if(GetKeyWithStockItemID($UpXSellProducts, $_GET['id']) + 1 + $i >= count($UpXSellProducts))
                 $correctie = -count($UpXSellProducts);
+
             $products[$i] = GetKeyWithStockItemID($UpXSellProducts, $_GET['id']) + $correctie + 1 + $i;
+
+            $a = 1;
+            while($UpXSellProducts[$products[$i]]["voorraad"] <= 0){
+                if(GetKeyWithStockItemID($UpXSellProducts, $_GET['id']) + 1 + $i + $a >= count($UpXSellProducts))
+                    $correctie -= count($UpXSellProducts);
+
+                $products[$i] = GetKeyWithStockItemID($UpXSellProducts, $_GET['id']) + $correctie + 1 + $i + $a;
+                $a++;
+            }
         }
         for($a = 0; $a < $aantalUpXSellProducts; $a++){
             if(array_key_exists($UpXSellProducts[$products[$a]]["stockitemid"], $ItemImagePath)){
