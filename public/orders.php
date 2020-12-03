@@ -40,6 +40,9 @@ $connection->close();
 
 ?>
 <div class="container">
+    <?php if(isset($_GET["ordersuccess"])){   ?>
+        <div class="alert alert-success">Bestelling geplaatst!</div>
+    <?php } ?>
     <h1>Mijn bestellingen</h1>
     <table class="table table-dark">
         <thead>

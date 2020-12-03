@@ -104,6 +104,8 @@ if (empty($errors) && isset($_POST["bestel_knop"])) {
 
     if (isset($_SESSION['user']['email'])) {
         sendMail([$_SESSION['user']['email']], "Bestelbevestiging | NerdyGadgets", $html);
+        header("Location: orders.php?ordersuccess=1");
+        exit();
     } else $errors[] = "Er is een fout opgetreden tijdens het versturen van de e-mail.";
 }
 
