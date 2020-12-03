@@ -60,8 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Je moet een huidig e-mailadres invoeren.";
     }
 
-    if (emailExists($email) && ($email != $currentemail)) {
-        $errors[] = "Dit e-mailadres is al in gebruik.";
+    if(isset($email) && isset($currentemail)) {
+        if (emailExists($email) && ($email != $currentemail)) {
+            $errors[] = "Dit e-mailadres is al in gebruik.";
+        }
     }
     
     if (empty($errors)) {
@@ -75,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $success_messages[] = "De gegevens zijn aangepast.";
                 $_SESSION["user"]["name"] = $first_name." ".$last_name;
+                $_SESSION["user"]["email"] = $email;
             break;
             
             default:

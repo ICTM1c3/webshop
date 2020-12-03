@@ -90,6 +90,7 @@ $HeaderStockGroups = mysqli_stmt_get_result($Statement);
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="orders.php">Mijn bestellingen</a>
                         <a class="dropdown-item" href="addresses.php">Mijn adressen</a>
+                        <a class="dropdown-item" href="my-account.php">Mijn account</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="logout.php">Uitloggen</a>
                     </div>
