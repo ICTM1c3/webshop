@@ -104,6 +104,15 @@ if (empty($errors) && isset($_POST["bestel_knop"])) {
 
     if (isset($_SESSION['user']['email'])) {
         sendMail([$_SESSION['user']['email']], "Bestelbevestiging | NerdyGadgets", $html);
+
+        if (isset($_ENV['ADMIN_EMAIL'])) {
+            ob_start();
+            include_once(__DIR__ . '/../email-templates/order-confirmation-admin.php');
+            $html = ob_get_clean();
+
+            sendMail([$_ENV['ADMIN_EMAIL']], "Nieuwe bestelling | NerdyGadgets", $html);
+        }
+
         $_SESSION['shopping_cart'] = [];
         header("Location: orders.php?ordersuccess=1");
         exit();
